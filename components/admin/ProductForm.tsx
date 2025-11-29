@@ -1,0 +1,910 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Plus, X, Upload, Star } from "lucide-react";
+import Link from "next/link";
+
+interface ProductFormProps {
+  productId?: string;
+}
+
+interface Specifications {
+  material: string;
+  texture: string;
+  closureType: string;
+  hardware: string;
+  compartments: string[];
+  shoulderDrop: string;
+  capacity: string;
+  dimensions: string;
+}
+
+interface ProductData {
+  name: string;
+  category: string;
+  price: string;
+  description: string;
+  color: string;
+  images: string[];
+  stock: string;
+  rating: string;
+  reviews: string;
+  is_bestseller: boolean;
+  is_new: boolean;
+  features: string[];
+  care_instructions: string[];
+  specifications: Specifications;
+}
+
+export default function ProductForm({ productId }: ProductFormProps) {
+  const router = useRouter();
+  const isEditing = !!productId;
+
+  const [loading, setLoading] = useState(isEditing);
+  const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState<ProductData>({
+    name: "",
+    category: "TOTE",
+    price: "",
+    description: "",
+    color: "",
+    images: [],
+    stock: "50",
+    rating: "4.5",
+    reviews: "10",
+    is_bestseller: true,
+    is_new: true,
+    features: [],
+    care_instructions: [],
+    specifications: {
+      material: "Vegan Leather",
+      texture: "Textured",
+      closureType: "Magnetic Snap",
+      hardware: "Gold-toned",
+      compartments: ["1 main compartment", "2 inner pockets"],
+      shoulderDrop: "10 inches",
+      capacity: "Fits essentials and more",
+      dimensions: "12 x 8 x 4 inches (L x H x W)",
+    },
+  });
+
+  const [newFeature, setNewFeature] = useState("");
+  const [newCareInstruction, setNewCareInstruction] = useState("");
+  const [newImageUrl, setNewImageUrl] = useState("");
+  const [newCompartment, setNewCompartment] = useState("");
+
+  useEffect(() => {
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId]);
+
+  const fetchProduct = async () => {
+    try {
+      const response = await fetch(`/api/admin/products/${productId}`);
+      const data = await response.json();
+      setFormData({
+        name: data.name,
+        category: data.category,
+        price: data.price.toString(),
+        description: data.description,
+        color: data.color,
+        images: data.images || [],
+        stock: data.stock.toString(),
+        rating: data.rating?.toString() || "4.5",
+        reviews: data.reviews?.toString() || "10",
+        is_bestseller: data.is_bestseller || false,
+        is_new: data.is_new || false,
+        features: data.features || [],
+        care_instructions: data.care_instructions || [],
+        specifications: data.specifications || {
+          material: "Vegan Leather",
+          texture: "Textured",
+          closureType: "Magnetic Snap",
+          hardware: "Gold-toned",
+          compartments: ["1 main compartment", "2 inner pockets"],
+          shoulderDrop: "10 inches",
+          capacity: "Fits essentials and more",
+          dimensions: "12 x 8 x 4 inches (L x H x W)",
+        },
+      });
+    } catch (error) {
+      console.error("Failed to fetch product:", error);
+      alert("Failed to load product");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    try {
+      const url = isEditing
+        ? `/api/admin/products/${productId}`
+        : "/api/admin/products";
+
+      const method = isEditing ? "PATCH" : "POST";
+
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          price: parseFloat(formData.price),
+          stock: parseInt(formData.stock),
+          rating: parseFloat(formData.rating),
+          reviews: parseInt(formData.reviews),
+        }),
+      });
+
+      if (response.ok) {
+        alert(`Product ${isEditing ? "updated" : "created"} successfully!`);
+        router.push("/admin/products");
+      } else {
+        const error = await response.json();
+        alert(error.error || "Failed to save product");
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("Failed to save product");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const addFeature = () => {
+    if (newFeature.trim()) {
+      setFormData({
+        ...formData,
+        features: [...formData.features, newFeature.trim()],
+      });
+      setNewFeature("");
+    }
+  };
+
+  const removeFeature = (index: number) => {
+    setFormData({
+      ...formData,
+      features: formData.features.filter((_, i) => i !== index),
+    });
+  };
+
+  const addCareInstruction = () => {
+    if (newCareInstruction.trim()) {
+      setFormData({
+        ...formData,
+        care_instructions: [
+          ...formData.care_instructions,
+          newCareInstruction.trim(),
+        ],
+      });
+      setNewCareInstruction("");
+    }
+  };
+
+  const removeCareInstruction = (index: number) => {
+    setFormData({
+      ...formData,
+      care_instructions: formData.care_instructions.filter(
+        (_, i) => i !== index
+      ),
+    });
+  };
+
+  const addImage = () => {
+    if (newImageUrl.trim()) {
+      setFormData({
+        ...formData,
+        images: [...formData.images, newImageUrl.trim()],
+      });
+      setNewImageUrl("");
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData({
+      ...formData,
+      images: formData.images.filter((_, i) => i !== index),
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-500">Loading product...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link
+          href="/admin/products"
+          className="p-2 hover:bg-gray-100 rounded-lg"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {isEditing ? "Edit Product" : "Add New Product"}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            {isEditing
+              ? "Update product information"
+              : "Add a new product to your inventory"}
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Form */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Basic Information */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Basic Information
+              </h2>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Product Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                    placeholder="e.g., PRIZMA SLING"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Category *
+                    </label>
+                    <select
+                      required
+                      value={formData.category}
+                      onChange={(e) =>
+                        setFormData({ ...formData, category: e.target.value })
+                      }
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    >
+                      <option value="TOTE">Tote Bag</option>
+                      <option value="SLING">Sling Bag</option>
+                      <option value="CLUTCH">Clutch</option>
+                      <option value="LAPTOP BAG">Laptop Bag</option>
+                      <option value="BACKPACK">Backpack</option>
+                      <option value="WALLET">Wallet</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Color *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.color}
+                      onChange={(e) =>
+                        setFormData({ ...formData, color: e.target.value })
+                      }
+                      placeholder="e.g., Mint Green"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price (₹) *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) =>
+                        setFormData({ ...formData, price: e.target.value })
+                      }
+                      placeholder="2499.00"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Stock Quantity *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      value={formData.stock}
+                      onChange={(e) =>
+                        setFormData({ ...formData, stock: e.target.value })
+                      }
+                      placeholder="25"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description *
+                  </label>
+                  <textarea
+                    required
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData({ ...formData, description: e.target.value })
+                    }
+                    placeholder="Describe the product..."
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Rating & Reviews */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Rating & Reviews
+              </h2>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Rating (0-5) *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={formData.rating}
+                    onChange={(e) =>
+                      setFormData({ ...formData, rating: e.target.value })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Displayed as stars on product page
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Review Count *
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    value={formData.reviews}
+                    onChange={(e) =>
+                      setFormData({ ...formData, reviews: e.target.value })
+                    }
+                    placeholder="10"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Shows as "X Reviews" on product page
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Product Specifications */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Product Specifications
+              </h2>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Material *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.specifications.material}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          specifications: {
+                            ...formData.specifications,
+                            material: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., Vegan Leather"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Texture *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.specifications.texture}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          specifications: {
+                            ...formData.specifications,
+                            texture: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., Textured"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Closure Type *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.specifications.closureType}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          specifications: {
+                            ...formData.specifications,
+                            closureType: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., Magnetic Snap"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Hardware *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.specifications.hardware}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          specifications: {
+                            ...formData.specifications,
+                            hardware: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., Gold-toned"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Compartments
+                  </label>
+                  <div className="space-y-2">
+                    {formData.specifications.compartments.map((comp, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg"
+                      >
+                        <span className="flex-1 text-gray-700">{comp}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newComps = formData.specifications.compartments.filter(
+                              (_, i) => i !== index
+                            );
+                            setFormData({
+                              ...formData,
+                              specifications: {
+                                ...formData.specifications,
+                                compartments: newComps,
+                              },
+                            });
+                          }}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={newCompartment}
+                        onChange={(e) => setNewCompartment(e.target.value)}
+                        onKeyPress={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (newCompartment.trim()) {
+                              setFormData({
+                                ...formData,
+                                specifications: {
+                                  ...formData.specifications,
+                                  compartments: [
+                                    ...formData.specifications.compartments,
+                                    newCompartment.trim(),
+                                  ],
+                                },
+                              });
+                              setNewCompartment("");
+                            }
+                          }
+                        }}
+                        placeholder="e.g., 1 main compartment"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (newCompartment.trim()) {
+                            setFormData({
+                              ...formData,
+                              specifications: {
+                                ...formData.specifications,
+                                compartments: [
+                                  ...formData.specifications.compartments,
+                                  newCompartment.trim(),
+                                ],
+                              },
+                            });
+                            setNewCompartment("");
+                          }
+                        }}
+                        className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Shoulder Drop
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.specifications.shoulderDrop}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          specifications: {
+                            ...formData.specifications,
+                            shoulderDrop: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., 10 inches"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Capacity
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.specifications.capacity}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          specifications: {
+                            ...formData.specifications,
+                            capacity: e.target.value,
+                          },
+                        })
+                      }
+                      placeholder="e.g., Fits essentials and more"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Dimensions (L x H x W) *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.specifications.dimensions}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        specifications: {
+                          ...formData.specifications,
+                          dimensions: e.target.value,
+                        },
+                      })
+                    }
+                    placeholder="e.g., 12 x 8 x 4 inches"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Features */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Features
+              </h2>
+
+              <div className="space-y-3">
+                {formData.features.map((feature, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg"
+                  >
+                    <span className="flex-1 text-gray-700">{feature}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeFeature(index)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newFeature}
+                    onChange={(e) => setNewFeature(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addFeature())}
+                    placeholder="Add a feature..."
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                  <button
+                    type="button"
+                    onClick={addFeature}
+                    className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Care Instructions */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Care Instructions
+              </h2>
+
+              <div className="space-y-3">
+                {formData.care_instructions.map((instruction, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg"
+                  >
+                    <span className="flex-1 text-gray-700">{instruction}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeCareInstruction(index)}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newCareInstruction}
+                    onChange={(e) => setNewCareInstruction(e.target.value)}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addCareInstruction())
+                    }
+                    placeholder="Add care instruction..."
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                  <button
+                    type="button"
+                    onClick={addCareInstruction}
+                    className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Images */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Product Images
+              </h2>
+
+              <div className="space-y-3">
+                {formData.images.map((image, index) => (
+                  <div
+                    key={index}
+                    className="relative group bg-gray-50 p-2 rounded-lg"
+                  >
+                    <img
+                      src={image}
+                      alt={`Product ${index + 1}`}
+                      className="w-full h-32 object-cover rounded"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-3 right-3 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+
+                <div className="space-y-2">
+                  <input
+                    type="url"
+                    value={newImageUrl}
+                    onChange={(e) => setNewImageUrl(e.target.value)}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), addImage())
+                    }
+                    placeholder="Image URL..."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  />
+                  <button
+                    type="button"
+                    onClick={addImage}
+                    className="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 text-gray-600 hover:text-gray-700 flex items-center justify-center gap-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Add Image
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Product Status */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Product Status
+              </h2>
+
+              <div className="space-y-3">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_bestseller}
+                    onChange={(e) =>
+                      setFormData({ ...formData, is_bestseller: e.target.checked })
+                    }
+                    className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-900">Bestseller</div>
+                    <div className="text-xs text-gray-500">
+                      Show in bestsellers section
+                    </div>
+                  </div>
+                </label>
+
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_new}
+                    onChange={(e) =>
+                      setFormData({ ...formData, is_new: e.target.checked })
+                    }
+                    className="w-5 h-5 rounded border-gray-300 text-black focus:ring-black"
+                  />
+                  <div>
+                    <div className="font-medium text-gray-900">New Arrival</div>
+                    <div className="text-xs text-gray-500">
+                      Show &quot;New&quot; badge on product
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Stock Status Indicator */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Stock Status
+              </h2>
+
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Current Stock:</span>
+                  <span className="font-semibold text-lg">{formData.stock || 0} units</span>
+                </div>
+                
+                <div className="mt-4">
+                  {parseInt(formData.stock) > 20 && (
+                    <div className="flex items-center gap-2 text-green-600">
+                      <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                      <span className="text-sm">In Stock</span>
+                    </div>
+                  )}
+                  {parseInt(formData.stock) > 0 && parseInt(formData.stock) <= 20 && (
+                    <div className="flex items-center gap-2 text-yellow-600">
+                      <div className="w-2 h-2 bg-yellow-600 rounded-full"></div>
+                      <span className="text-sm">Low Stock</span>
+                    </div>
+                  )}
+                  {parseInt(formData.stock) === 0 && (
+                    <div className="flex items-center gap-2 text-red-600">
+                      <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                      <span className="text-sm">Out of Stock</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <button
+                type="submit"
+                disabled={saving}
+                className="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:opacity-50 font-medium"
+              >
+                {saving
+                  ? "Saving..."
+                  : isEditing
+                  ? "Update Product"
+                  : "Create Product"}
+              </button>
+
+              <Link
+                href="/admin/products"
+                className="block w-full mt-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 text-center font-medium"
+              >
+                Cancel
+              </Link>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}

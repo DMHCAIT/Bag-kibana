@@ -1,0 +1,158 @@
+╔══════════════════════════════════════════════════════════════════╗
+║           📊 EXACT DATABASE CHANGES NEEDED                       ║
+╚══════════════════════════════════════════════════════════════════╝
+
+┌──────────────────────────────────────────────────────────────────┐
+│                   YOUR CURRENT PRODUCTS TABLE                    │
+└──────────────────────────────────────────────────────────────────┘
+
+CREATE TABLE public.products (
+  id integer NOT NULL,
+  name text NOT NULL,
+  category text NOT NULL,
+  price numeric NOT NULL,
+  description text NOT NULL,
+  color text NOT NULL,
+  images text[] DEFAULT '{}',
+  stock integer DEFAULT 0,
+  features text[] DEFAULT '{}',
+  care_instructions text[] DEFAULT '{}',
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+┌──────────────────────────────────────────────────────────────────┐
+│                   5 COLUMNS TO ADD                               │
+└──────────────────────────────────────────────────────────────────┘
+
+1. rating
+   Type: DECIMAL(3,1)
+   Default: 4.5
+   Purpose: Star rating (0.0 to 5.0)
+   Example: 4.9
+
+2. reviews
+   Type: INTEGER
+   Default: 10
+   Purpose: Number of reviews
+   Example: 25
+
+3. is_bestseller
+   Type: BOOLEAN
+   Default: false
+   Purpose: Mark as bestseller for homepage
+   Example: true
+
+4. is_new
+   Type: BOOLEAN
+   Default: false
+   Purpose: Show "New" badge
+   Example: true
+
+5. specifications
+   Type: JSONB
+   Default: {}
+   Purpose: Product details (material, dimensions, etc.)
+   Example: {
+     "material": "Vegan Leather",
+     "texture": "Textured",
+     "closureType": "Magnetic Snap",
+     "hardware": "Gold-toned",
+     "compartments": ["1 main", "2 pockets"],
+     "shoulderDrop": "10 inches",
+     "capacity": "Fits essentials",
+     "dimensions": "12 x 8 x 4 inches"
+   }
+
+┌──────────────────────────────────────────────────────────────────┐
+│                   AFTER RUNNING SQL                              │
+└──────────────────────────────────────────────────────────────────┘
+
+CREATE TABLE public.products (
+  id integer NOT NULL,
+  name text NOT NULL,
+  category text NOT NULL,
+  price numeric NOT NULL,
+  description text NOT NULL,
+  color text NOT NULL,
+  images text[] DEFAULT '{}',
+  stock integer DEFAULT 0,
+  features text[] DEFAULT '{}',
+  care_instructions text[] DEFAULT '{}',
+  rating DECIMAL(3,1) DEFAULT 4.5,              ← NEW
+  reviews INTEGER DEFAULT 10,                    ← NEW
+  is_bestseller BOOLEAN DEFAULT false,           ← NEW
+  is_new BOOLEAN DEFAULT false,                  ← NEW
+  specifications JSONB DEFAULT '{}',             ← NEW
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now()
+);
+
+┌──────────────────────────────────────────────────────────────────┐
+│                   CONSTRAINTS ADDED                              │
+└──────────────────────────────────────────────────────────────────┘
+
+✅ check_rating_range: rating must be between 0 and 5
+✅ check_reviews_positive: reviews must be >= 0
+✅ check_stock_positive: stock must be >= 0
+
+┌──────────────────────────────────────────────────────────────────┐
+│                   INDEXES CREATED                                │
+└──────────────────────────────────────────────────────────────────┘
+
+✅ idx_products_rating: Fast rating queries
+✅ idx_products_bestseller: Fast bestseller filtering
+✅ idx_products_new: Fast new arrivals filtering
+✅ idx_products_stock: Fast stock queries
+✅ idx_products_category: Fast category filtering
+
+┌──────────────────────────────────────────────────────────────────┐
+│                   WHAT TO RUN                                    │
+└──────────────────────────────────────────────────────────────────┘
+
+File: supabase/EXACT_SQL_TO_RUN.sql
+
+Location: Supabase Dashboard → SQL Editor
+
+Steps:
+  1. Open Supabase Dashboard
+  2. Navigate to SQL Editor
+  3. Copy contents of EXACT_SQL_TO_RUN.sql
+  4. Paste into SQL Editor
+  5. Click "Run"
+
+Expected Result:
+  ✅ 5 new columns added
+  ✅ 3 constraints added
+  ✅ 5 indexes created
+  ✅ Existing products updated (if any)
+  ✅ Success message displayed
+
+Time: 10 seconds
+
+┌──────────────────────────────────────────────────────────────────┐
+│                   VERIFICATION                                   │
+└──────────────────────────────────────────────────────────────────┘
+
+After running, you should see output like:
+
+NOTICE: ✅ Successfully added 5 new columns to products table!
+NOTICE: ✅ Added: rating, reviews, is_bestseller, is_new, specifications
+NOTICE: ✅ Added data validation constraints
+NOTICE: ✅ Created performance indexes
+NOTICE: ✅ Updated existing products with default values
+NOTICE: 📊 Your products table now has ALL required fields!
+
+Query results will show your new columns:
+
+column_name      | data_type | is_nullable | column_default
+-----------------+-----------+-------------+---------------
+is_bestseller    | boolean   | YES         | false
+is_new           | boolean   | YES         | false
+rating           | numeric   | YES         | 4.5
+reviews          | integer   | YES         | 10
+specifications   | jsonb     | YES         | '{}'::jsonb
+
+╔══════════════════════════════════════════════════════════════════╗
+║                        ✅ READY TO RUN!                          ║
+╚══════════════════════════════════════════════════════════════════╝

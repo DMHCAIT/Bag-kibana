@@ -1,0 +1,37 @@
+/* Canela Font Family */
+@font-face {
+  font-family: 'Canela';
+  src: url('./canela-regular.woff2') format('woff2'),
+       url('./canela-regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Canela';
+  src: url('./canela-medium.woff2') format('woff2'),
+       url('./canela-medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Canela';
+  src: url('./canela-bold.woff2') format('woff2'),
+       url('./canela-bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* CSS Custom Properties */
+:root {
+  --font-canela: 'Canela', serif;
+}
+
+/* Utility class for Canela font */
+.font-canela {
+  font-family: var(--font-canela);
+}
