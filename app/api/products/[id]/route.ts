@@ -71,7 +71,7 @@ export async function GET(
       const { products: staticProducts } = await import('@/lib/products-data');
       cachedStaticProducts = staticProducts;
     }
-    const product = cachedStaticProducts.find((p: any) => p.id === id);
+    const product = cachedStaticProducts.find((p) => p.id === id);
 
     if (!product) {
       return NextResponse.json(
