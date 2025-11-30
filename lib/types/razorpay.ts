@@ -22,9 +22,8 @@ export interface RazorpayResponse {
   razorpay_signature: string;
 }
 
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
+export interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, handler: (response: unknown) => void) => void;
 }
 
