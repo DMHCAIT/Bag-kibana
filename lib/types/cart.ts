@@ -14,3 +14,18 @@ export interface Cart {
   total: number;
 }
 
+export interface CartContextType {
+  cart: {
+    items: CartItem[];
+    totalItems: number;
+    subtotal: number;
+    isEmpty: boolean;
+  };
+  addToCart: (product: Product, quantity?: number, selectedColor?: { name: string; value: string }) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
+  getItemQuantity: (productId: string) => number;
+  isLoaded: boolean;
+}
+
