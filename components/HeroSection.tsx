@@ -9,6 +9,7 @@ export default function HeroSection() {
         loop
         muted
         playsInline
+        preload="auto"
         className="hidden md:block absolute inset-0 w-full h-full object-cover"
       >
         <source src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/homepage%20hero%20section.mp4" type="video/mp4" />
@@ -20,6 +21,7 @@ export default function HeroSection() {
         loop
         muted
         playsInline
+        preload="auto"
         className="md:hidden absolute inset-0 w-full h-full object-cover"
       >
         <source src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Kiabana%20reel-%20mobile%20version%202%20(1).mp4" type="video/mp4" />

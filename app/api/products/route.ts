@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// Cache the static products import for faster fallback
+let cachedStaticProducts: any = null;
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -8,7 +11,11 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const limit = parseInt(searchParams.get('limit') || '0');
 
-    // First try to get from database
+    // First try to get from database with a timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database timeout')), 3000)
+    );
+    
     let query = supabase.from('products').select('*');
     
     if (category && category !== 'all') {
@@ -23,7 +30,10 @@ export async function GET(request: NextRequest) {
       query = query.limit(limit);
     }
 
-    const { data: dbProducts, error: dbError } = await query;
+    const { data: dbProducts, error: dbError } = await Promise.race([
+      query,
+      timeoutPromise
+    ]).catch(() => ({ data: null, error: 'timeout' })) as any;
 
     if (!dbError && dbProducts && dbProducts.length > 0) {
       // Transform database products to match frontend Product type
@@ -40,13 +50,23 @@ export async function GET(request: NextRequest) {
         care_instructions: Array.isArray(dbProduct.care_instructions) ? dbProduct.care_instructions : [],
       }));
       
-      return NextResponse.json({ products });
+      return NextResponse.json(
+        { products },
+        { 
+          headers: { 
+            'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' 
+          } 
+        }
+      );
     }
 
-    // If no products in database, fall back to static data
-    const { products: staticProducts } = await import('@/lib/products-data');
+    // If no products in database, fall back to static data (cached)
+    if (!cachedStaticProducts) {
+      const { products: staticProducts } = await import('@/lib/products-data');
+      cachedStaticProducts = staticProducts;
+    }
     
-    let filteredProducts = staticProducts;
+    let filteredProducts = cachedStaticProducts;
     
     if (category && category !== 'all') {
       filteredProducts = filteredProducts.filter(p => p.category === category);
@@ -64,7 +84,14 @@ export async function GET(request: NextRequest) {
       filteredProducts = filteredProducts.slice(0, limit);
     }
 
-    return NextResponse.json({ products: filteredProducts });
+    return NextResponse.json(
+      { products: filteredProducts },
+      { 
+        headers: { 
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' 
+        } 
+      }
+    );
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(

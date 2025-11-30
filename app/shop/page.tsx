@@ -93,12 +93,22 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch products from API
+  // Fetch products from API with timeout and fallback
   useEffect(() => {
     async function fetchProducts() {
       try {
         setLoading(true);
-        const response = await fetch('/api/products');
+        
+        // Race between API call and timeout for faster response
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+        
+        const response = await fetch('/api/products', {
+          signal: controller.signal,
+          next: { revalidate: 60 } // Cache for 60 seconds
+        });
+        clearTimeout(timeoutId);
+        
         const data = await response.json();
         
         if (response.ok && data.products) {
@@ -108,7 +118,14 @@ export default function ShopPage() {
         }
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Failed to load products');
+        // On error, fallback to static products for better UX
+        try {
+          const { products: staticProducts } = await import('@/lib/products-data');
+          setProducts(staticProducts);
+          setError(null); // Clear error since we have fallback data
+        } catch {
+          setError('Failed to load products');
+        }
       } finally {
         setLoading(false);
       }

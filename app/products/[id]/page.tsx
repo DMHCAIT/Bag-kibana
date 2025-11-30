@@ -86,7 +86,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
-  // Fetch product data
+  // Fetch product data - OPTIMIZED: Parallel API calls
   useEffect(() => {
     if (!id) return; // Safety check
     
@@ -95,9 +95,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         setLoading(true);
         setError(null);
         
-        // Fetch main product
-        const productResponse = await fetch(`/api/products/${id}`);
-        const productData = await productResponse.json();
+        // Fetch main product and related products in PARALLEL for faster loading
+        const [productResponse, relatedResponse] = await Promise.all([
+          fetch(`/api/products/${id}`),
+          fetch(`/api/products?limit=5`) // Fetch 5 to ensure we have 4 after filtering
+        ]);
+        
+        const [productData, relatedData] = await Promise.all([
+          productResponse.json(),
+          relatedResponse.json()
+        ]);
         
         if (!productResponse.ok || !productData.product) {
           setError('Product not found');
@@ -106,12 +113,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         
         setProduct(productData.product);
 
-        // Fetch related products (limited to 4)
-        const relatedResponse = await fetch(`/api/products?limit=4`);
-        const relatedData = await relatedResponse.json();
-        
+        // Filter out current product and limit to 4
         if (relatedResponse.ok && relatedData.products) {
-          // Filter out current product and limit to 4
           const filtered = relatedData.products
             .filter((p: Product) => p.id !== id)
             .slice(0, 4);
@@ -243,6 +246,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     src={img}
                     alt={`${product.name} - View ${idx + 1}`}
                     fill
+                    priority={idx === 0} // Priority load first image for faster LCP
                     className="object-cover"
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />
@@ -281,6 +285,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         src={img}
                         alt={`${product.name} - View ${idx + 1}`}
                         fill
+                        priority={idx === 0} // Priority load first image
                         className="object-cover"
                         sizes="320px"
                       />

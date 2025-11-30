@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// Cache the static products import
+let cachedStaticProducts: any = null;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,12 +18,15 @@ export async function GET(
       );
     }
 
-    // First try to get from database
-    const { data: dbProduct, error: dbError } = await supabase
-      .from('products')
-      .select('*')
-      .eq('id', id)
-      .single();
+    // First try to get from database with timeout
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database timeout')), 2000)
+    );
+
+    const { data: dbProduct, error: dbError } = await Promise.race([
+      supabase.from('products').select('*').eq('id', id).single(),
+      timeoutPromise
+    ]).catch(() => ({ data: null, error: 'timeout' })) as any;
 
     if (!dbError && dbProduct) {
       // Transform database product to match frontend Product type
@@ -49,12 +55,22 @@ export async function GET(
         colors: Array.isArray(dbProduct.colors) ? dbProduct.colors : [],
       };
       
-      return NextResponse.json({ product });
+      return NextResponse.json(
+        { product },
+        { 
+          headers: { 
+            'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=60' 
+          } 
+        }
+      );
     }
 
-    // If not in database, fall back to static data
-    const { products: staticProducts } = await import('@/lib/products-data');
-    const product = staticProducts.find(p => p.id === id);
+    // If not in database, fall back to static data (cached)
+    if (!cachedStaticProducts) {
+      const { products: staticProducts } = await import('@/lib/products-data');
+      cachedStaticProducts = staticProducts;
+    }
+    const product = cachedStaticProducts.find((p: any) => p.id === id);
 
     if (!product) {
       return NextResponse.json(
@@ -63,7 +79,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ product });
+    return NextResponse.json(
+      { product },
+      { 
+        headers: { 
+          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=120' 
+        } 
+      }
+    );
   } catch (error) {
     console.error('Error fetching product:', error);
     return NextResponse.json(
