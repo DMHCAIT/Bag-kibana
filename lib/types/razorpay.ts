@@ -1,10 +1,3 @@
-// Razorpay TypeScript definitions
-export interface RazorpayResponse {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-}
-
 export interface RazorpayOptions {
   key: string;
   amount: number;
@@ -12,26 +5,26 @@ export interface RazorpayOptions {
   name: string;
   description: string;
   order_id: string;
-  prefill: {
-    name: string;
-    email: string;
-    contact: string;
-  };
-  theme: {
-    color: string;
-  };
   handler: (response: RazorpayResponse) => void;
-  modal: {
-    ondismiss: () => void;
+  prefill?: {
+    name?: string;
+    email?: string;
+    contact?: string;
+  };
+  theme?: {
+    color?: string;
   };
 }
 
-export interface RazorpayInstance {
-  open: () => void;
+export interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
 }
 
 declare global {
   interface Window {
-    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+    Razorpay: any;
   }
 }
+
