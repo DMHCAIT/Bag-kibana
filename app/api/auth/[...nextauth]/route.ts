@@ -1,50 +1,28 @@
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-// Stub NextAuth routes to prevent 404 errors
+// Minimal NextAuth configuration to prevent client errors
 // Authentication is currently disabled
+const authOptions: NextAuthOptions = {
+  providers: [],
+  session: {
+    strategy: 'jwt',
+  },
+  pages: {
+    signIn: '/login',
+    error: '/login',
+  },
+  secret: process.env.NEXTAUTH_SECRET || 'temporary-secret-for-stub',
+  callbacks: {
+    async session() {
+      return { user: null, expires: '' };
+    },
+    async jwt() {
+      return {};
+    },
+  },
+};
 
-export async function GET(request: NextRequest) {
-  const { pathname } = new URL(request.url);
-  
-  // Handle session endpoint
-  if (pathname.includes('/session')) {
-    return NextResponse.json({
-      user: null,
-      expires: new Date().toISOString(),
-    });
-  }
-  
-  // Handle providers endpoint
-  if (pathname.includes('/providers')) {
-    return NextResponse.json({});
-  }
-  
-  // Handle csrf endpoint
-  if (pathname.includes('/csrf')) {
-    return NextResponse.json({ csrfToken: '' });
-  }
-  
-  // Default response
-  return NextResponse.json({ message: 'Authentication is currently disabled' }, { status: 200 });
-}
+const handler = NextAuth(authOptions);
 
-export async function POST(request: NextRequest) {
-  const { pathname } = new URL(request.url);
-  
-  // Handle signin endpoint
-  if (pathname.includes('/signin') || pathname.includes('/callback')) {
-    return NextResponse.json({ 
-      error: 'Authentication is currently disabled',
-      url: '/'
-    }, { status: 200 });
-  }
-  
-  // Handle signout endpoint  
-  if (pathname.includes('/signout')) {
-    return NextResponse.json({ url: '/' });
-  }
-  
-  // Default response
-  return NextResponse.json({ message: 'Authentication is currently disabled' }, { status: 200 });
-}
-
+export { handler as GET, handler as POST };
