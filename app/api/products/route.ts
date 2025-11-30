@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { Product } from '@/lib/products-data';
 
 // Cache the static products import for faster fallback
-let cachedStaticProducts: any = null;
+let cachedStaticProducts: Product[] | null = null;
 
 export async function GET(request: NextRequest) {
   try {
