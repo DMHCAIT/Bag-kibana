@@ -568,14 +568,19 @@ export const products: Product[] = [
   },
   // VISTAPACK - Milky Blue
   {
-    id: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/vistapack-milky-blue",
+    id: "vistapack-milky-blue",
     name: "VISTAPACK",
     category: "Backpack",
     color: "Milky Blue",
     price: 4499,
     rating: 4.9,
     reviews: 18,
-    images: ["https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/vistapack-milky-blue-1.jpg", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/vistapack-milky-blue-2.jpg", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/vistapack-milky-blue-3.jpg", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/vistapack-milky-blue-4.jpg"],
+    images: [
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTAPACK%20(%20png%20)/VISTAPACK%20-%20Milky%20Blue/01.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTAPACK%20(%20png%20)/VISTAPACK%20-%20Milky%20Blue/02.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTAPACK%20(%20png%20)/VISTAPACK%20-%20Milky%20Blue/03.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTAPACK%20(%20png%20)/VISTAPACK%20-%20Milky%20Blue/04.png"
+    ],
     description: "VISTAPACK – Where Structure Meets Style. Step into a world of effortless charm with the VISTAPACK, a modern emblem of strength, style, and versatility. Defined by its bold chevron-inspired stitching and structured leather silhouette, this backpack whispers stories of movement, freedom, and self-expression. Designed to carry both your essentials and your spirit with ease, it is more than just a bag—it is a companion for journeys, both near and far.",
     specifications: {
       material: "100% PU Leather",
