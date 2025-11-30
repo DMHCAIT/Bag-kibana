@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, X, Upload, Star } from "lucide-react";
+import { ArrowLeft, Plus, X, Upload, Star, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import Link from "next/link";
 
 interface ProductFormProps {
@@ -208,6 +208,26 @@ export default function ProductForm({ productId }: ProductFormProps) {
     setFormData({
       ...formData,
       images: formData.images.filter((_, i) => i !== index),
+    });
+  };
+
+  const moveImageUp = (index: number) => {
+    if (index === 0) return;
+    const newImages = [...formData.images];
+    [newImages[index - 1], newImages[index]] = [newImages[index], newImages[index - 1]];
+    setFormData({
+      ...formData,
+      images: newImages,
+    });
+  };
+
+  const moveImageDown = (index: number) => {
+    if (index === formData.images.length - 1) return;
+    const newImages = [...formData.images];
+    [newImages[index], newImages[index + 1]] = [newImages[index + 1], newImages[index]];
+    setFormData({
+      ...formData,
+      images: newImages,
     });
   };
 
@@ -758,25 +778,73 @@ export default function ProductForm({ productId }: ProductFormProps) {
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Product Images
               </h2>
+              <p className="text-sm text-gray-600 mb-4">
+                First image will be the primary product image. Drag to reorder.
+              </p>
 
               <div className="space-y-3">
                 {formData.images.map((image, index) => (
                   <div
                     key={index}
-                    className="relative group bg-gray-50 p-2 rounded-lg"
+                    className="relative group bg-gray-50 p-2 rounded-lg border-2 border-transparent hover:border-gray-300 transition-all"
                   >
+                    <div className="flex items-center gap-2">
+                      {/* Order indicator */}
+                      <div className="flex flex-col items-center gap-1 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => moveImageUp(index)}
+                          disabled={index === 0}
+                          className={`p-1 rounded hover:bg-gray-200 transition-colors ${
+                            index === 0 ? "opacity-30 cursor-not-allowed" : ""
+                          }`}
+                          title="Move up"
+                        >
+                          <ArrowUp className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <div className="flex items-center gap-1">
+                          <GripVertical className="w-4 h-4 text-gray-400" />
+                          <span className="text-xs font-semibold text-gray-600 bg-white px-2 py-1 rounded">
+                            {index + 1}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => moveImageDown(index)}
+                          disabled={index === formData.images.length - 1}
+                          className={`p-1 rounded hover:bg-gray-200 transition-colors ${
+                            index === formData.images.length - 1 ? "opacity-30 cursor-not-allowed" : ""
+                          }`}
+                          title="Move down"
+                        >
+                          <ArrowDown className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </div>
+                      
+                      {/* Image preview */}
+                      <div className="flex-1 relative">
                     <img
                       src={image}
                       alt={`Product ${index + 1}`}
                       className="w-full h-32 object-cover rounded"
                     />
+                        {index === 0 && (
+                          <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded font-medium">
+                            Primary
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Delete button */}
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-3 right-3 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors shrink-0"
+                        title="Remove image"
                     >
                       <X className="w-4 h-4" />
                     </button>
+                    </div>
                   </div>
                 ))}
 
