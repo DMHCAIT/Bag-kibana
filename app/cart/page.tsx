@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import type { CartItem } from "@/lib/types/cart";
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart } = useCart();
@@ -42,7 +43,7 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cart.items.map((item) => (
+            {cart.items.map((item: CartItem) => (
               <Card key={item.product.id} className="overflow-hidden">
                 <CardContent className="p-4 md:p-6">
                   <div className="flex gap-4 md:gap-6">
