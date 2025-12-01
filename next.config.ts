@@ -13,7 +13,6 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   generateEtags: true,
   compress: true,
-  swcMinify: true,
   
   // Image optimization
   images: {
