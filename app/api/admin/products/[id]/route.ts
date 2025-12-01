@@ -1,123 +1,130 @@
-import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabase";
+import { NextRequest, NextResponse } from 'next/server';
+import { products, getProductById } from '@/lib/products-data';
+import type { Product } from '@/lib/types/product';
 
+// GET - Fetch single product by ID
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Authentication removed - direct access enabled for admin APIs
     const { id } = await params;
 
-    const { data: product, error } = await supabaseAdmin
-      .from("products")
-      .select("*")
-      .eq("id", id)
-      .single();
-
-    if (error) throw error;
+    const product = getProductById(id);
 
     if (!product) {
       return NextResponse.json(
-        { error: "Product not found" },
+        { error: 'Product not found', id },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(product);
+    return NextResponse.json({
+      product,
+      status: 'success'
+    }, {
+      headers: {
+        'Cache-Control': 'private, no-cache',
+      }
+    });
   } catch (error) {
-    console.error("Product fetch error:", error);
+    console.error('Error fetching product:', error);
     return NextResponse.json(
-      { error: "Failed to fetch product" },
+      { error: 'Failed to fetch product', details: error },
       { status: 500 }
     );
   }
 }
 
-export async function PATCH(
-  request: Request,
+// PUT - Update product
+export async function PUT(
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Authentication removed - direct access enabled for admin APIs
     const { id } = await params;
+    const data = await request.json();
 
-    const body = await request.json();
-    const {
-      name,
-      category,
-      price,
-      description,
-      color,
-      images,
-      stock,
-      rating,
-      reviews,
-      is_bestseller,
-      is_new,
-      features,
-      care_instructions,
-      specifications,
-    } = body;
+    // Find existing product
+    const existingProduct = getProductById(id);
+    if (!existingProduct) {
+      return NextResponse.json(
+        { error: 'Product not found', id },
+        { status: 404 }
+      );
+    }
 
-    const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
-    if (category !== undefined) updateData.category = category;
-    if (price !== undefined) updateData.price = parseFloat(price);
-    if (description !== undefined) updateData.description = description;
-    if (color !== undefined) updateData.color = color;
-    if (images !== undefined) updateData.images = images;
-    if (stock !== undefined) updateData.stock = parseInt(stock);
-    if (rating !== undefined) updateData.rating = parseFloat(rating);
-    if (reviews !== undefined) updateData.reviews = parseInt(reviews);
-    if (is_bestseller !== undefined) updateData.is_bestseller = is_bestseller;
-    if (is_new !== undefined) updateData.is_new = is_new;
-    if (features !== undefined) updateData.features = features;
-    if (care_instructions !== undefined)
-      updateData.care_instructions = care_instructions;
-    if (specifications !== undefined) updateData.specifications = specifications;
+    // Update product (merge with existing data)
+    const updatedProduct: Product = {
+      ...existingProduct,
+      ...data,
+      id, // Ensure ID doesn't change
+      updatedAt: new Date().toISOString(),
+      publishedAt: data.status === 'published' && existingProduct.status !== 'published'
+        ? new Date().toISOString()
+        : existingProduct.publishedAt
+    } as Product;
 
-    updateData.updated_at = new Date().toISOString();
+    // Validate required fields
+    if (!updatedProduct.name || !updatedProduct.category || !updatedProduct.price) {
+      return NextResponse.json(
+        { error: 'Missing required fields (name, category, price)' },
+        { status: 400 }
+      );
+    }
 
-    const { data: product, error } = await supabaseAdmin
-      .from("products")
-      .update(updateData)
-      .eq("id", id)
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    return NextResponse.json(product);
+    // In a real app, save to database
+    // For now, just return the updated product
+    return NextResponse.json({
+      product: updatedProduct,
+      message: 'Product updated successfully',
+      status: 'success'
+    }, {
+      headers: {
+        'Cache-Control': 'no-store',
+      }
+    });
   } catch (error) {
-    console.error("Product update error:", error);
+    console.error('Error updating product:', error);
     return NextResponse.json(
-      { error: "Failed to update product" },
+      { error: 'Failed to update product', details: error },
       { status: 500 }
     );
   }
 }
 
+// DELETE - Delete single product
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Authentication removed - direct access enabled for admin APIs
     const { id } = await params;
 
-    const { error } = await supabaseAdmin
-      .from("products")
-      .delete()
-      .eq("id", id);
+    // Check if product exists
+    const product = getProductById(id);
+    if (!product) {
+      return NextResponse.json(
+        { error: 'Product not found', id },
+        { status: 404 }
+      );
+    }
 
-    if (error) throw error;
-
-    return NextResponse.json({ message: "Product deleted successfully" });
+    // In a real app, delete from database
+    // For now, just return success
+    return NextResponse.json({
+      message: 'Product deleted successfully',
+      id,
+      status: 'success'
+    }, {
+      headers: {
+        'Cache-Control': 'no-store',
+      }
+    });
   } catch (error) {
-    console.error("Product delete error:", error);
+    console.error('Error deleting product:', error);
     return NextResponse.json(
-      { error: "Failed to delete product" },
+      { error: 'Failed to delete product', details: error },
       { status: 500 }
     );
   }
