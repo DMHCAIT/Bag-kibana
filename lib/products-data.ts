@@ -72,6 +72,7 @@ export const products: Product[] = [
       "Gold-tone hardware accents",
       "Detachable adjustable strap"
     ],
+    sections: ["new-arrivals"],
     colors: [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
@@ -121,6 +122,7 @@ export const products: Product[] = [
       "Gold-tone hardware accents",
       "Detachable adjustable strap"
     ],
+    sections: ["bestsellers"],
     colors: [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
@@ -268,6 +270,7 @@ export const products: Product[] = [
       "Compact yet spacious interior",
       "Gold-tone hardware accents"
     ],
+    sections: ["new-arrivals"],
     colors: [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
@@ -316,6 +319,7 @@ export const products: Product[] = [
       "Compact yet spacious interior",
       "Gold-tone hardware accents"
     ],
+    sections: ["bestsellers"],
     colors: [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
@@ -511,6 +515,7 @@ export const products: Product[] = [
       "Ergonomic adjustable straps",
       "Front envelope-style pocket"
     ],
+    sections: ["bestsellers"],
     colors: [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
@@ -801,6 +806,7 @@ export const products: Product[] = [
       "Magnetic flap with concealed zipper",
       "Detachable adjustable strap"
     ],
+    sections: ["new-arrivals"],
     colors: [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
@@ -899,6 +905,7 @@ export const products: Product[] = [
       "Detachable wrist strap",
       "Compact yet spacious interior"
     ],
+    sections: ["bestsellers"],
     colors: [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
@@ -998,6 +1005,7 @@ export const products: Product[] = [
       "Detachable wrist strap",
       "Compact yet spacious interior"
     ],
+    sections: ["new-arrivals"],
     colors: [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
