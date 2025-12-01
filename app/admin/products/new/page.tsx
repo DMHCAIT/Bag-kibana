@@ -442,7 +442,7 @@ export default function NewProductPage() {
           {/* Images */}
           <Card>
             <CardHeader>
-              <Card Title>Product Images <span className="text-red-500">*</span></CardTitle>
+              <CardTitle>Product Images <span className="text-red-500">*</span></CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
