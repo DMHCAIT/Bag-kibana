@@ -4,10 +4,16 @@ const nextConfig: NextConfig = {
   /* config options here */
   // reactCompiler: true, // Temporarily disabled due to Babel issues
   
+  // Force fresh build
+  generateBuildId: async () => {
+    return `build-${Date.now()}`;
+  },
+  
   // Production optimizations
   poweredByHeader: false,
   generateEtags: true,
   compress: true,
+  swcMinify: true,
   
   // Image optimization
   images: {
