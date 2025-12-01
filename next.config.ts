@@ -4,9 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   // reactCompiler: true, // Temporarily disabled due to Babel issues
   
-  // Force fresh build
+  // Force fresh build with version increment
   generateBuildId: async () => {
-    return `build-${Date.now()}`;
+    return `v2-${Date.now()}`;
   },
   
   // Production optimizations

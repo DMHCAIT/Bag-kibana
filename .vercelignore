@@ -1,2 +1,24 @@
-# Force rebuild - Dec 1, 2025 - Fixed NextAuth infinite loop
+# Ignore build artifacts and cache
+.next/
+out/
+node_modules/
+.vercel/
+*.log
 
+# Ignore test and config files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Ignore documentation
+*.md
+!README.md
+
+# Ignore scripts
+*.sh
+
+# Ignore temporary files
+*.tmp
+*.temp
+*~
