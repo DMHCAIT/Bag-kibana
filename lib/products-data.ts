@@ -577,10 +577,10 @@ export const products: Product[] = [
     rating: 4.9,
     reviews: 18,
     images: [
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTAPACK%20(%20png%20)/VISTAPACK%20-%20Milky%20Blue/01.png",
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTAPACK%20(%20png%20)/VISTAPACK%20-%20Milky%20Blue/02.png",
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTAPACK%20(%20png%20)/VISTAPACK%20-%20Milky%20Blue/03.png",
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTAPACK%20(%20png%20)/VISTAPACK%20-%20Milky%20Blue/04.png"
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Milky%20Blue/01.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Milky%20Blue/02.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Milky%20Blue/03.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Milky%20Blue/04.png"
     ],
     description: "VISTAPACK – Where Structure Meets Style. Step into a world of effortless charm with the VISTAPACK, a modern emblem of strength, style, and versatility. Defined by its bold chevron-inspired stitching and structured leather silhouette, this backpack whispers stories of movement, freedom, and self-expression. Designed to carry both your essentials and your spirit with ease, it is more than just a bag—it is a companion for journeys, both near and far.",
     specifications: {
