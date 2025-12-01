@@ -6,20 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { products, Product } from "@/lib/products-data";
+import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
-import { useState } from "react";
-
-// Get bestselling products - mixing different product designs for women, men coming soon
-const bestsellers = {
-  women: [
-    products[2],  // VISTARA TOTE - Mint Green (Index 2)
-    products[5],  // PRIZMA SLING - Mint Green (Index 5)
-    products[18], // LEKHA WALLET - Mint Green (Index 18)
-    products[13]  // VISTAPACK - Mint Green (Index 13)
-  ].filter(Boolean), // Remove any undefined products
-  men: [] // Coming soon
-};
+import { useState, useEffect } from "react";
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -72,7 +61,7 @@ function ProductCard({ product }: { product: Product }) {
 
           <p className="text-sm md:text-base">₹{product.price.toLocaleString()}</p>
 
-          {/* Color Swatches - Fixed color display */}
+          {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
             <div className="flex gap-2">
               {product.colors.map((colorOption, idx) => {
@@ -116,6 +105,49 @@ function ProductCard({ product }: { product: Product }) {
 }
 
 export default function BestsellersSection() {
+  const [bestsellers, setBestsellers] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBestsellers();
+  }, []);
+
+  const fetchBestsellers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/products/sections/bestsellers');
+      const data = await response.json();
+
+      if (response.ok && data.products) {
+        // If section has products, use them. Otherwise, show top 4 products as fallback
+        if (data.products.length > 0) {
+          setBestsellers(data.products.slice(0, 4));
+        } else {
+          // Fallback: Fetch top 4 products
+          const fallbackResponse = await fetch('/api/products?limit=4');
+          const fallbackData = await fallbackResponse.json();
+          if (fallbackResponse.ok && fallbackData.products) {
+            setBestsellers(fallbackData.products);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching bestsellers:', error);
+      // Fallback on error
+      try {
+        const fallbackResponse = await fetch('/api/products?limit=4');
+        const fallbackData = await fallbackResponse.json();
+        if (fallbackResponse.ok && fallbackData.products) {
+          setBestsellers(fallbackData.products);
+        }
+      } catch (fallbackError) {
+        console.error('Fallback fetch failed:', fallbackError);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="py-16 md:py-24 bg-[#F8F8F8]">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
@@ -129,75 +161,88 @@ export default function BestsellersSection() {
           </p>
         </div>
 
-        {/* Tabs */}
-        <Tabs defaultValue="women" className="w-full">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
-            <TabsTrigger
-              value="women"
-              className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
-            >
-              Women
-            </TabsTrigger>
-            <TabsTrigger
-              value="men"
-              className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
-            >
-              Men
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="women">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              {bestsellers.women.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+        {/* Products */}
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+              <p>Loading bestsellers...</p>
             </div>
-          </TabsContent>
+          </div>
+        ) : bestsellers.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No bestsellers available yet. Check back soon!</p>
+          </div>
+        ) : (
+          <Tabs defaultValue="women" className="w-full">
+            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
+              <TabsTrigger
+                value="women"
+                className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
+              >
+                Women
+              </TabsTrigger>
+              <TabsTrigger
+                value="men"
+                className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
+              >
+                Men
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="men">
-            {/* Coming Soon Design */}
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="text-center max-w-md mx-auto">
-                {/* Icon */}
-                <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                  <span className="text-4xl">👜</span>
-                </div>
-                
-                {/* Coming Soon Text */}
-                <h3 className="text-3xl md:text-4xl font-semibold mb-4 text-gray-900" style={{fontFamily: 'var(--font-outfit)'}}>
-                  COMING SOON
-                </h3>
-                
-                <p className="text-gray-600 text-lg mb-8 leading-relaxed" style={{fontFamily: 'var(--font-outfit)'}}>
-                  We're crafting an exclusive collection for men. 
-                  <br />
-                  Stay tuned for premium bags designed for the modern gentleman.
-                </p>
-                
-                {/* Notify Button */}
-                <Button 
-                  variant="outline" 
-                  className="px-8 py-3 rounded-full border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 text-gray-900 font-medium tracking-wider"
-                  style={{fontFamily: 'var(--font-outfit)'}}
-                >
-                  NOTIFY ME
-                </Button>
-                
-                {/* Decorative Elements */}
-                <div className="flex justify-center gap-2 mt-12">
-                  {[0, 1, 2].map((idx) => (
-                    <div
-                      key={idx}
-                      className={`w-2 h-2 rounded-full ${
-                        idx === 1 ? "bg-gray-900" : "bg-gray-300"
-                      }`}
-                    />
-                  ))}
+            <TabsContent value="women">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                {bestsellers.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="men">
+              {/* Coming Soon Design */}
+              <div className="flex flex-col items-center justify-center py-20">
+                <div className="text-center max-w-md mx-auto">
+                  {/* Icon */}
+                  <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    <span className="text-4xl">👜</span>
+                  </div>
+                  
+                  {/* Coming Soon Text */}
+                  <h3 className="text-3xl md:text-4xl font-semibold mb-4 text-gray-900" style={{fontFamily: 'var(--font-outfit)'}}>
+                    COMING SOON
+                  </h3>
+                  
+                  <p className="text-gray-600 text-lg mb-8 leading-relaxed" style={{fontFamily: 'var(--font-outfit)'}}>
+                    We're crafting an exclusive collection for men. 
+                    <br />
+                    Stay tuned for premium bags designed for the modern gentleman.
+                  </p>
+                  
+                  {/* Notify Button */}
+                  <Button 
+                    variant="outline" 
+                    className="px-8 py-3 rounded-full border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 text-gray-900 font-medium tracking-wider"
+                    style={{fontFamily: 'var(--font-outfit)'}}
+                  >
+                    NOTIFY ME
+                  </Button>
+                  
+                  {/* Decorative Elements */}
+                  <div className="flex justify-center gap-2 mt-12">
+                    {[0, 1, 2].map((idx) => (
+                      <div
+                        key={idx}
+                        className={`w-2 h-2 rounded-full ${
+                          idx === 1 ? "bg-gray-900" : "bg-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
     </section>
   );

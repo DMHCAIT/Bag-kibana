@@ -25,6 +25,7 @@ export interface Product {
     value: string;
     available: boolean;
   }>;
+  sections?: string[]; // Array of section IDs where this product should appear
 }
 
 export const products: Product[] = [

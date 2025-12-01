@@ -9,20 +9,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { products, Product } from "@/lib/products-data";
+import { Product } from "@/lib/products-data";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart } from "lucide-react";
-
-// Get different product designs for New Collection - one from each major category
-const newProducts = [
-  products[0],  // VISTARA TOTE - Teal Blue (Index 0)
-  products[4],  // PRIZMA SLING - Teal Blue (Index 4) 
-  products[16], // SANDESH LAPTOP BAG - Milky Blue (Index 16)
-  products[17]  // LEKHA WALLET - Milky Blue (Index 17)
-].filter(Boolean); // Remove any undefined products
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -105,6 +97,49 @@ function ProductCard({ product }: { product: Product }) {
 }
 
 export default function NewCollectionCarousel() {
+  const [newProducts, setNewProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchNewArrivals();
+  }, []);
+
+  const fetchNewArrivals = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/products/sections/new-arrivals');
+      const data = await response.json();
+
+      if (response.ok && data.products) {
+        // If section has products, use them. Otherwise, show latest 4 products as fallback
+        if (data.products.length > 0) {
+          setNewProducts(data.products);
+        } else {
+          // Fallback: Fetch latest 4 products
+          const fallbackResponse = await fetch('/api/products?limit=4');
+          const fallbackData = await fallbackResponse.json();
+          if (fallbackResponse.ok && fallbackData.products) {
+            setNewProducts(fallbackData.products);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching new arrivals:', error);
+      // Fallback on error
+      try {
+        const fallbackResponse = await fetch('/api/products?limit=4');
+        const fallbackData = await fallbackResponse.json();
+        if (fallbackResponse.ok && fallbackData.products) {
+          setNewProducts(fallbackData.products);
+        }
+      } catch (fallbackError) {
+        console.error('Fallback fetch failed:', fallbackError);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
@@ -118,39 +153,55 @@ export default function NewCollectionCarousel() {
           </p>
         </div>
 
-        {/* Carousel */}
-        <Carousel
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-4">
-            {newProducts.map((product) => (
-              <CarouselItem
-                key={product.id}
-                className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4"
-              >
-                <ProductCard product={product} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="hidden md:flex -left-4" />
-          <CarouselNext className="hidden md:flex -right-4" />
-        </Carousel>
+        {/* Loading State */}
+        {loading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+              <p>Loading new collection...</p>
+            </div>
+          </div>
+        ) : newProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No new arrivals available yet. Check back soon!</p>
+          </div>
+        ) : (
+          <>
+            {/* Carousel */}
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-4">
+                {newProducts.map((product) => (
+                  <CarouselItem
+                    key={product.id}
+                    className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4"
+                  >
+                    <ProductCard product={product} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden md:flex -left-4" />
+              <CarouselNext className="hidden md:flex -right-4" />
+            </Carousel>
 
-        {/* Dot Indicators - Mobile */}
-        <div className="flex justify-center gap-2 mt-8 md:hidden">
-          {[0, 1, 2].map((idx) => (
-            <div
-              key={idx}
-              className={`w-2 h-2 rounded-full ${
-                idx === 0 ? "bg-black" : "bg-gray-300"
-              }`}
-            />
-          ))}
-        </div>
+            {/* Dot Indicators - Mobile */}
+            <div className="flex justify-center gap-2 mt-8 md:hidden">
+              {[0, 1, 2].map((idx) => (
+                <div
+                  key={idx}
+                  className={`w-2 h-2 rounded-full ${
+                    idx === 0 ? "bg-black" : "bg-gray-300"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </section>
   );
