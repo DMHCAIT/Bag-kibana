@@ -14,11 +14,25 @@ import { useCart } from "@/contexts/CartContext";
 import { useRouter } from "next/navigation";
 
 function ProductCard({ product }: { product: Product }) {
+  const { addToCart } = useCart();
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddToCart = () => {
+    setIsAdding(true);
+    addToCart(product);
+    setTimeout(() => setIsAdding(false), 1500);
+  };
+
+  // Safety check for product data
+  if (!product || !product.images || product.images.length === 0) {
+    return null;
+  }
+
   return (
     <Card className="border-0 shadow-none group">
       <CardContent className="p-0 space-y-3">
         <Link href={`/products/${product.id}`}>
-          <div className="relative aspect-3/4 bg-linear-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
+          <div className="relative aspect-3/4 bg-gray-100 rounded-sm overflow-hidden cursor-pointer">
             <Image
               src={product.images[0]}
               alt={`${product.name} - ${product.color}`}
@@ -53,10 +67,12 @@ function ProductCard({ product }: { product: Product }) {
           <p className="text-sm font-medium">₹{product.price.toLocaleString()}</p>
           <p className="text-xs text-gray-500">Color: {product.color}</p>
           <Button
+            onClick={handleAddToCart}
+            disabled={isAdding}
             variant="outline"
             className="w-full uppercase tracking-wider text-xs py-5 hover:bg-black hover:text-white transition-all duration-300"
           >
-            Add to Cart +
+            {isAdding ? "Added!" : "Add to Cart +"}
           </Button>
         </div>
       </CardContent>
@@ -66,17 +82,14 @@ function ProductCard({ product }: { product: Product }) {
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
-  const id = unwrappedParams.id;
+  const productId = unwrappedParams.id;
   const { addToCart } = useCart();
   const router = useRouter();
   
-  // State for API data
+  // State
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // UI State
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quantity] = useState(1);
@@ -87,51 +100,82 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
-  // Fetch product data - OPTIMIZED: Parallel API calls
+  // Fetch product data with complete error handling
   useEffect(() => {
-    if (!id) return; // Safety check
-    
-    async function fetchProductData() {
+    let isMounted = true;
+
+    async function fetchProduct() {
+      if (!productId) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
-        setError(null);
-        
-        // Fetch main product and related products in PARALLEL for faster loading
-        const [productResponse, relatedResponse] = await Promise.all([
-          fetch(`/api/products/${id}`),
-          fetch(`/api/products?limit=5`) // Fetch 5 to ensure we have 4 after filtering
-        ]);
-        
-        const [productData, relatedData] = await Promise.all([
-          productResponse.json(),
-          relatedResponse.json()
-        ]);
-        
-        if (!productResponse.ok || !productData.product) {
-          setError('Product not found');
+
+        // Fetch product with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+        const response = await fetch(`/api/products/${productId}`, {
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!isMounted) return;
+
+        if (!response.ok) {
+          console.error('Product fetch failed:', response.status);
+          setProduct(null);
+          setLoading(false);
           return;
         }
-        
-        setProduct(productData.product);
 
-        // Filter out current product and limit to 4
-        if (relatedResponse.ok && relatedData.products) {
-          const filtered = relatedData.products
-            .filter((p: Product) => p.id !== id)
-            .slice(0, 4);
-          setRelatedProducts(filtered);
+        const data = await response.json();
+
+        if (!isMounted) return;
+
+        if (data.product && data.product.images && Array.isArray(data.product.images)) {
+          setProduct(data.product);
+          
+          // Fetch related products
+          try {
+            const relatedResponse = await fetch(`/api/products?limit=8`);
+            if (relatedResponse.ok) {
+              const relatedData = await relatedResponse.json();
+              if (relatedData.products && Array.isArray(relatedData.products)) {
+                const filtered = relatedData.products
+                  .filter((p: Product) => p.id !== productId && p.images && p.images.length > 0)
+                  .slice(0, 4);
+                setRelatedProducts(filtered);
+              }
+            }
+          } catch (err) {
+            console.error('Error fetching related products:', err);
+            setRelatedProducts([]);
+          }
+        } else {
+          console.error('Invalid product data received');
+          setProduct(null);
         }
-        
       } catch (err) {
+        if (!isMounted) return;
         console.error('Error fetching product:', err);
-        setError('Failed to load product');
+        setProduct(null);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
-    fetchProductData();
-  }, [id]);
+    fetchProduct();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [productId]);
 
   // Loading state
   if (loading) {
@@ -149,24 +193,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  // Error state or product not found
-  if (error || !product) {
+  // Product not found
+  if (!product) {
     notFound();
   }
 
-  // Safety check for product images
+  // Safety checks
   if (!product.images || !Array.isArray(product.images) || product.images.length === 0) {
-    console.error('Product images missing or invalid:', product.id);
+    console.error('Product has no valid images:', product.id);
     notFound();
   }
-
-  const allRelatedProducts = relatedProducts;
 
   // Keyboard navigation for modal
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isModalOpen || !product?.images) return;
+    if (!isModalOpen || !product || !product.images || product.images.length === 0) return;
 
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsModalOpen(false);
       } else if (e.key === 'ArrowLeft') {
@@ -176,28 +218,25 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       }
     };
 
-    if (isModalOpen && product?.images?.length) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isModalOpen, product?.images?.length]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, product]);
 
   const handleColorChange = async (colorIndex: number) => {
-    const selectedColorName = product.colors?.[colorIndex]?.name;
-    if (!selectedColorName) return;
+    if (!product.colors || !product.colors[colorIndex]) return;
+    
+    const selectedColorName = product.colors[colorIndex].name;
 
     try {
-      // Find the product variant with the same name but different color
       const response = await fetch(`/api/products?search=${encodeURIComponent(product.name)}`);
       const data = await response.json();
       
-      if (response.ok && data.products) {
+      if (response.ok && data.products && Array.isArray(data.products)) {
         const colorVariant = data.products.find(
           (p: Product) => p.name === product.name && p.color === selectedColorName
         );
 
         if (colorVariant && colorVariant.id !== product.id) {
-          // Navigate to the color variant's page
           router.push(`/products/${colorVariant.id}`);
         }
       }
@@ -232,14 +271,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div className="space-y-4 md:space-y-4 order-1 md:order-0">
             {/* Desktop: Image Grid - 2x2 */}
             <div className="hidden md:grid grid-cols-2 gap-3">
-              {product.images.map((img: string, idx: number) => (
+              {product.images.slice(0, 4).map((img: string, idx: number) => (
                 <button
                   key={idx}
                   onClick={() => {
                     setSelectedImage(idx);
                     setIsModalOpen(true);
                   }}
-                  className={`relative aspect-square bg-linear-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden border-2 transition-all hover:border-gray-300 group ${
+                  className={`relative aspect-square bg-gray-100 rounded-sm overflow-hidden border-2 transition-all hover:border-gray-300 group ${
                     selectedImage === idx ? "border-gray-300" : "border-transparent"
                   }`}
                 >
@@ -247,28 +286,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     src={img}
                     alt={`${product.name} - View ${idx + 1}`}
                     fill
-                    priority={idx === 0} // Priority load first image for faster LCP
+                    priority={idx === 0}
                     className="object-cover"
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />
-                  {/* Click to expand overlay */}
-                  <div className="absolute inset-0 bg-white opacity-0 hover:opacity-10 transition-opacity duration-300 flex items-center justify-center">
-                    <span className="text-gray-800 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                      Click to expand
-                    </span>
-                  </div>
                 </button>
               ))}
             </div>
 
             {/* Mobile: Horizontal Scroll */}
             <div className="md:hidden space-y-4">
-              {/* Mobile Instructions */}
               <div className="text-center">
                 <p className="text-sm text-gray-600">Tap images to view full screen</p>
               </div>
               
-              {/* Horizontal Scroll Container - Full Width */}
               <div className="-mx-4 px-4">
                 <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth">
                   {product.images.map((img: string, idx: number) => (
@@ -278,19 +309,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         setSelectedImage(idx);
                         setIsModalOpen(true);
                       }}
-                      className={`relative w-80 h-80 bg-linear-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden border-2 transition-all shrink-0 snap-center ${
-                        selectedImage === idx ? "border-gray-300 ring-2 ring-gray-200 ring-opacity-20" : "border-gray-200 hover:border-gray-300"
+                      className={`relative w-80 h-80 bg-gray-100 rounded-lg overflow-hidden border-2 transition-all shrink-0 snap-center ${
+                        selectedImage === idx ? "border-gray-300 ring-2 ring-gray-200" : "border-gray-200"
                       }`}
                     >
                       <Image
                         src={img}
                         alt={`${product.name} - View ${idx + 1}`}
                         fill
-                        priority={idx === 0} // Priority load first image
+                        priority={idx === 0}
                         className="object-cover"
                         sizes="320px"
                       />
-                      {/* Image number indicator */}
                       <div className="absolute top-3 right-3 bg-white bg-opacity-90 text-gray-800 text-sm px-3 py-1 rounded-full border border-gray-200">
                         {idx + 1}/{product.images.length}
                       </div>
@@ -299,7 +329,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               </div>
               
-              {/* Dots Indicator */}
               <div className="flex justify-center gap-2 mt-4">
                 {product.images.map((_: string, idx: number) => (
                   <button
@@ -341,7 +370,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <span className="text-sm text-gray-600">{product.reviews} Reviews</span>
               </div>
 
-              {/* Warranty & Returns */}
               <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-4 mb-6 text-xs sm:text-xs">
                 <span className="flex items-center gap-2">
                   Easy Returns (T&amp;C Applied)*
@@ -358,22 +386,38 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Color Selection */}
-            {product.colors && product.colors.length > 0 && (
+            {product.colors && Array.isArray(product.colors) && product.colors.length > 0 && (
               <div className="mb-6">
                 <p className="text-sm font-medium mb-4">Color: {product.color}</p>
                 <div className="flex gap-2 flex-wrap">
-                  {product.colors.map((color: any, idx: number) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleColorChange(idx)}
-                      className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-2 transition-all ${
-                        color.name === product.color ? "border-black scale-110 ring-2 ring-black ring-opacity-20" : "border-gray-300 hover:border-gray-400"
-                      }`}
-                      style={{ backgroundColor: color.value }}
-                      aria-label={color.name}
-                      title={color.name}
-                    />
-                  ))}
+                  {product.colors.map((color, idx: number) => {
+                    // Clean color value (remove .jpg if present)
+                    let colorValue = color.value;
+                    if (colorValue.includes('.jpg')) {
+                      const colorMap: {[key: string]: string} = {
+                        '#006D77.jpg': '#006D77',
+                        '#98D8C8.jpg': '#98D8C8',
+                        '#B8D4E8.jpg': '#B8D4E8',
+                        '#9B6B4F': '#9B6B4F'
+                      };
+                      colorValue = colorMap[colorValue] || '#9B6B4F';
+                    }
+
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleColorChange(idx)}
+                        className={`w-8 h-8 md:w-10 md:h-10 rounded-full border-2 transition-all ${
+                          color.name === product.color 
+                            ? "border-black scale-110 ring-2 ring-black ring-opacity-20" 
+                            : "border-gray-300 hover:border-gray-400"
+                        }`}
+                        style={{ backgroundColor: colorValue }}
+                        aria-label={color.name}
+                        title={color.name}
+                      />
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -410,243 +454,222 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Expandable Sections - Features */}
             <div className="border-t border-gray-200">
-            <button
-              onClick={() => setShowFeatures(!showFeatures)}
-              className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
-            >
-              <span className="text-lg font-medium">Features</span>
-              {showFeatures ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
-            </button>
-            {showFeatures && (
-              <div className="pb-6 space-y-4 px-2 -mx-2">
-                <div className="border-l-2 border-black pl-4">
-                  <span className="text-sm md:text-base font-medium">Material : </span>
-                  <span className="text-sm md:text-base text-gray-600">{product.specifications.material}</span>
-                </div>
-                <div className="border-l-2 border-black pl-4">
-                  <span className="text-sm md:text-base font-medium">Texture : </span>
-                  <span className="text-sm md:text-base text-gray-600">{product.specifications.texture}</span>
-                </div>
-                <div className="border-l-2 border-black pl-4">
-                  <span className="text-sm md:text-base font-medium">Closure Type : </span>
-                  <span className="text-sm md:text-base text-gray-600">{product.specifications.closureType}</span>
-                </div>
-                <div className="border-l-2 border-black pl-4">
-                  <span className="text-sm md:text-base font-medium">Hardware : </span>
-                  <span className="text-sm md:text-base text-gray-600">{product.specifications.hardware}</span>
-                </div>
-                {product.specifications.compartments && product.specifications.compartments.length > 0 && (
+              <button
+                onClick={() => setShowFeatures(!showFeatures)}
+                className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
+              >
+                <span className="text-lg font-medium">Features</span>
+                {showFeatures ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
+              {showFeatures && (
+                <div className="pb-6 space-y-4 px-2 -mx-2">
                   <div className="border-l-2 border-black pl-4">
-                    <span className="text-sm md:text-base font-medium">Compartments :</span>
-                    <ul className="mt-3 space-y-2">
-                      {product.specifications.compartments.map((comp: string, idx: number) => (
-                        <li key={idx} className="text-sm md:text-base text-gray-600 ml-2 flex items-start gap-2">
-                          <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 shrink-0"></span>
-                          {comp}
-                        </li>
-                      ))}
-                    </ul>
+                    <span className="text-sm md:text-base font-medium">Material : </span>
+                    <span className="text-sm md:text-base text-gray-600">{product.specifications.material}</span>
                   </div>
-                )}
-                {product.specifications.shoulderDrop && (
                   <div className="border-l-2 border-black pl-4">
-                    <span className="text-sm md:text-base font-medium">Shoulder Drop : </span>
-                    <span className="text-sm md:text-base text-gray-600">{product.specifications.shoulderDrop}</span>
+                    <span className="text-sm md:text-base font-medium">Texture : </span>
+                    <span className="text-sm md:text-base text-gray-600">{product.specifications.texture}</span>
                   </div>
-                )}
-                {product.specifications.capacity && (
                   <div className="border-l-2 border-black pl-4">
-                    <span className="text-sm md:text-base font-medium">Capacity : </span>
-                    <span className="text-sm md:text-base text-gray-600">{product.specifications.capacity}</span>
+                    <span className="text-sm md:text-base font-medium">Closure Type : </span>
+                    <span className="text-sm md:text-base text-gray-600">{product.specifications.closureType}</span>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Product Details */}
-          <div className="border-t border-gray-200">
-            <div className="py-6">
-              <h3 className="text-lg font-medium mb-6">Product Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                {product.specifications.dimensions && (
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <span className="font-medium block mb-2 text-black">Dimensions :</span>
-                    <p className="text-gray-600">{product.specifications.dimensions}</p>
+                  <div className="border-l-2 border-black pl-4">
+                    <span className="text-sm md:text-base font-medium">Hardware : </span>
+                    <span className="text-sm md:text-base text-gray-600">{product.specifications.hardware}</span>
                   </div>
-                )}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <span className="font-medium block mb-2 text-black">Material :</span>
-                  <p className="text-gray-600">{product.specifications.material}</p>
+                  {product.specifications.compartments && Array.isArray(product.specifications.compartments) && product.specifications.compartments.length > 0 && (
+                    <div className="border-l-2 border-black pl-4">
+                      <span className="text-sm md:text-base font-medium">Compartments :</span>
+                      <ul className="mt-3 space-y-2">
+                        {product.specifications.compartments.map((comp: string, idx: number) => (
+                          <li key={idx} className="text-sm md:text-base text-gray-600 ml-2 flex items-start gap-2">
+                            <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 shrink-0"></span>
+                            {comp}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {product.specifications.shoulderDrop && (
+                    <div className="border-l-2 border-black pl-4">
+                      <span className="text-sm md:text-base font-medium">Shoulder Drop : </span>
+                      <span className="text-sm md:text-base text-gray-600">{product.specifications.shoulderDrop}</span>
+                    </div>
+                  )}
+                  {product.specifications.capacity && (
+                    <div className="border-l-2 border-black pl-4">
+                      <span className="text-sm md:text-base font-medium">Capacity : </span>
+                      <span className="text-sm md:text-base text-gray-600">{product.specifications.capacity}</span>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <span className="font-medium">Colour :</span>
-                  <p className="text-gray-600">{product.color}</p>
-                </div>
-                <div>
-                  <span className="font-medium">Product Code :</span>
-                  <p className="text-gray-600">{product.id}</p>
-                </div>
-                <div>
-                  <span className="font-medium">Texture :</span>
-                  <p className="text-gray-600">{product.specifications.texture}</p>
-                </div>
-                <div>
-                  <span className="font-medium">Category :</span>
-                  <p className="text-gray-600">{product.category}</p>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 mt-4">
-                <span className="font-medium">Disclaimer:</span> Product color may slightly vary due
-                to photographic lighting, device screen settings, and natural variations in materials
-                or handicrafted processes.
-              </p>
+              )}
             </div>
-          </div>
 
-          {/* Product Care */}
-          <div className="border-t border-gray-200">
-            <button
-              onClick={() => setShowProductCare(!showProductCare)}
-              className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
-            >
-              <span className="text-lg font-medium">Product Care</span>
-              {showProductCare ? (
-                <ChevronUp className="w-5 h-5" />
-              ) : (
-                <ChevronDown className="w-5 h-5" />
-              )}
-            </button>
-            {showProductCare && (
-              <div className="pb-6 px-2 -mx-2">
-                <div className="bg-yellow-50 p-4 rounded-lg space-y-3">
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></span>
-                    <p className="text-sm md:text-base text-gray-700">Keep away from water and moisture</p>
+            {/* Product Details */}
+            <div className="border-t border-gray-200">
+              <div className="py-6">
+                <h3 className="text-lg font-medium mb-6">Product Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                  {product.specifications.dimensions && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <span className="font-medium block mb-2 text-black">Dimensions :</span>
+                      <p className="text-gray-600">{product.specifications.dimensions}</p>
+                    </div>
+                  )}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <span className="font-medium block mb-2 text-black">Material :</span>
+                    <p className="text-gray-600">{product.specifications.material}</p>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></span>
-                    <p className="text-sm md:text-base text-gray-700">Clean with a soft, dry cloth</p>
+                  <div>
+                    <span className="font-medium">Colour :</span>
+                    <p className="text-gray-600">{product.color}</p>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></span>
-                    <p className="text-sm md:text-base text-gray-700">Store in a cool, dry place</p>
+                  <div>
+                    <span className="font-medium">Product Code :</span>
+                    <p className="text-gray-600">{product.id}</p>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></span>
-                    <p className="text-sm md:text-base text-gray-700">Avoid direct sunlight for extended periods</p>
+                  <div>
+                    <span className="font-medium">Texture :</span>
+                    <p className="text-gray-600">{product.specifications.texture}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium">Category :</span>
+                    <p className="text-gray-600">{product.category}</p>
                   </div>
                 </div>
+                <p className="text-xs text-gray-500 mt-4">
+                  <span className="font-medium">Disclaimer:</span> Product color may slightly vary due
+                  to photographic lighting, device screen settings, and natural variations in materials.
+                </p>
               </div>
-            )}
-          </div>
+            </div>
 
-          {/* Shipping and Return */}
-          <div className="border-t border-gray-200">
-            <button
-              onClick={() => setShowShipping(!showShipping)}
-              className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
-            >
-              <span className="text-lg font-medium">Shipping And Return</span>
-              {showShipping ? (
-                <ChevronUp className="w-5 h-5" />
-              ) : (
-                <ChevronDown className="w-5 h-5" />
-              )}
-            </button>
-            {showShipping && (
-              <div className="pb-6 px-2 -mx-2">
-                <div className="bg-green-50 p-4 rounded-lg space-y-3">
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
-                    <p className="text-sm md:text-base text-gray-700">Free shipping on all orders</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
-                    <p className="text-sm md:text-base text-gray-700">Delivery within 5-7 business days</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
-                    <p className="text-sm md:text-base text-gray-700">Easy returns within 15 days</p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
-                    <p className="text-sm md:text-base text-gray-700">COD available</p>
+            {/* Product Care */}
+            <div className="border-t border-gray-200">
+              <button
+                onClick={() => setShowProductCare(!showProductCare)}
+                className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
+              >
+                <span className="text-lg font-medium">Product Care</span>
+                {showProductCare ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
+              {showProductCare && (
+                <div className="pb-6 px-2 -mx-2">
+                  <div className="bg-yellow-50 p-4 rounded-lg space-y-3">
+                    <div className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></span>
+                      <p className="text-sm md:text-base text-gray-700">Keep away from water and moisture</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></span>
+                      <p className="text-sm md:text-base text-gray-700">Clean with a soft, dry cloth</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></span>
+                      <p className="text-sm md:text-base text-gray-700">Store in a cool, dry place</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full mt-2 shrink-0"></span>
+                      <p className="text-sm md:text-base text-gray-700">Avoid direct sunlight for extended periods</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Lifetime Service Warranty */}
-          <div className="border-t border-gray-200">
-            <button
-              onClick={() => setShowWarranty(!showWarranty)}
-              className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
-            >
-              <span className="text-lg font-medium">Lifetime Service Warranty</span>
-              {showWarranty ? (
-                <ChevronUp className="w-5 h-5" />
-              ) : (
-                <ChevronDown className="w-5 h-5" />
               )}
-            </button>
-            {showWarranty && (
-              <div className="pb-6 px-2 -mx-2">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm md:text-base text-gray-700 leading-relaxed">
-                    We offer lifetime service warranty on all our products. Contact our customer
-                    support for any repairs or maintenance needs.
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
 
-          {/* Additional Information */}
-          <div className="border-t border-b border-gray-200">
-            <button
-              onClick={() => setShowAdditionalInfo(!showAdditionalInfo)}
-              className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
-            >
-              <span className="text-lg font-medium">Additional Information</span>
-              {showAdditionalInfo ? (
-                <ChevronUp className="w-5 h-5" />
-              ) : (
-                <ChevronDown className="w-5 h-5" />
-              )}
-            </button>
-            {showAdditionalInfo && (
-              <div className="pb-6 px-2 -mx-2">
-                <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-                  <div>
-                    <span className="font-medium text-black block mb-1">Manufactured & Packed By:</span>
-                    <p className="text-sm md:text-base text-gray-600">Tulayan Impex Pvt. Ltd. (CIN: U51909WB1983PTC035748)</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-black block mb-1">Address:</span>
-                    <p className="text-sm md:text-base text-gray-600">17, Ballygunge Place, Kolkata- 700019, India</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-black block mb-1">Customer Care Contact No:</span>
-                    <p className="text-sm md:text-base text-gray-600">6292243788</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-black block mb-1">Consumer Care Address:</span>
-                    <p className="text-sm md:text-base text-gray-600">17, Ballygunge Place, Kolkata- 700019</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-black block mb-1">Consumer Care Email ID:</span>
-                    <p className="text-sm md:text-base text-gray-600">info@kibana.in</p>
-                  </div>
-                  <div>
-                    <span className="font-medium text-black block mb-1">Country of Origin:</span>
-                    <p className="text-sm md:text-base text-gray-600">INDIA</p>
+            {/* Shipping and Return */}
+            <div className="border-t border-gray-200">
+              <button
+                onClick={() => setShowShipping(!showShipping)}
+                className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
+              >
+                <span className="text-lg font-medium">Shipping And Return</span>
+                {showShipping ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
+              {showShipping && (
+                <div className="pb-6 px-2 -mx-2">
+                  <div className="bg-green-50 p-4 rounded-lg space-y-3">
+                    <div className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
+                      <p className="text-sm md:text-base text-gray-700">Free shipping on all orders</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
+                      <p className="text-sm md:text-base text-gray-700">Delivery within 5-7 business days</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
+                      <p className="text-sm md:text-base text-gray-700">Easy returns within 15 days</p>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <span className="w-2 h-2 bg-green-500 rounded-full mt-2 shrink-0"></span>
+                      <p className="text-sm md:text-base text-gray-700">COD available</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+
+            {/* Lifetime Service Warranty */}
+            <div className="border-t border-gray-200">
+              <button
+                onClick={() => setShowWarranty(!showWarranty)}
+                className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
+              >
+                <span className="text-lg font-medium">Lifetime Service Warranty</span>
+                {showWarranty ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
+              {showWarranty && (
+                <div className="pb-6 px-2 -mx-2">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="text-sm md:text-base text-gray-700 leading-relaxed">
+                      We offer lifetime service warranty on all our products. Contact our customer
+                      support for any repairs or maintenance needs.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Additional Information */}
+            <div className="border-t border-b border-gray-200">
+              <button
+                onClick={() => setShowAdditionalInfo(!showAdditionalInfo)}
+                className="w-full flex items-center justify-between py-6 text-left hover:bg-gray-50 px-2 -mx-2 rounded-lg transition-colors"
+              >
+                <span className="text-lg font-medium">Additional Information</span>
+                {showAdditionalInfo ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+              </button>
+              {showAdditionalInfo && (
+                <div className="pb-6 px-2 -mx-2">
+                  <div className="bg-gray-50 p-4 rounded-lg space-y-4">
+                    <div>
+                      <span className="font-medium text-black block mb-1">Manufactured & Packed By:</span>
+                      <p className="text-sm md:text-base text-gray-600">Tulayan Impex Pvt. Ltd. (CIN: U51909WB1983PTC035748)</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-black block mb-1">Address:</span>
+                      <p className="text-sm md:text-base text-gray-600">17, Ballygunge Place, Kolkata- 700019, India</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-black block mb-1">Customer Care Contact No:</span>
+                      <p className="text-sm md:text-base text-gray-600">6292243788</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-black block mb-1">Consumer Care Email ID:</span>
+                      <p className="text-sm md:text-base text-gray-600">info@kibana.in</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-black block mb-1">Country of Origin:</span>
+                      <p className="text-sm md:text-base text-gray-600">INDIA</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -656,7 +679,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
               <span className="text-2xl md:text-3xl">📦</span>
             </div>
-            <p className="text-xs md:text-sm uppercase tracking-wider leading-tight">100% Full-Grain Leather</p>
+            <p className="text-xs md:text-sm uppercase tracking-wider leading-tight">Premium Leather</p>
           </div>
           <div className="text-center">
             <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
@@ -674,18 +697,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
               <span className="text-2xl md:text-3xl">🛡️</span>
             </div>
-            <p className="text-xs md:text-sm uppercase tracking-wider leading-tight">Lifetime Service Warranty</p>
+            <p className="text-xs md:text-sm uppercase tracking-wider leading-tight">Lifetime Warranty</p>
           </div>
         </div>
 
         {/* You May Also Like */}
-        {allRelatedProducts.length > 0 && (
+        {relatedProducts && Array.isArray(relatedProducts) && relatedProducts.length > 0 && (
           <div>
             <h2 className="font-serif text-3xl md:text-4xl tracking-[0.15em] text-center mb-8">
               YOU MAY ALSO LIKE
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-              {allRelatedProducts.map((prod) => (
+              {relatedProducts.map((prod) => (
                 <ProductCard key={prod.id} product={prod} />
               ))}
             </div>
@@ -694,7 +717,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Full-Screen Image Modal */}
-      {isModalOpen && (
+      {isModalOpen && product && product.images && product.images.length > 0 && (
         <div 
           className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
           onClick={() => setIsModalOpen(false)}
