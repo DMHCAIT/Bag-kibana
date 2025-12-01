@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { products, getProductById } from '@/lib/products-data';
-import type { Product } from '@/lib/types/product';
+import type { Product as BaseProduct } from '@/lib/products-data';
 
 // GET - Fetch single product by ID
 export async function GET(
@@ -55,18 +55,18 @@ export async function PUT(
     }
 
     // Update product (merge with existing data)
-    const updatedProduct: Product = {
+    const updatedProduct: any = {
       ...existingProduct,
       ...data,
       id, // Ensure ID doesn't change
       updatedAt: new Date().toISOString(),
-      publishedAt: data.status === 'published' && existingProduct.status !== 'published'
+      publishedAt: data.status === 'published' && (existingProduct as any).status !== 'published'
         ? new Date().toISOString()
-        : existingProduct.publishedAt
-    } as Product;
+        : (existingProduct as any).publishedAt
+    };
 
     // Validate required fields
-    if (!updatedProduct.name || !updatedProduct.category || !updatedProduct.price) {
+    if (!updatedProduct.name || !updatedProduct.category || !updatedProduct.price || updatedProduct.price <= 0) {
       return NextResponse.json(
         { error: 'Missing required fields (name, category, price)' },
         { status: 400 }

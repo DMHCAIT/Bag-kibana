@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import type { Product } from "@/lib/types/product";
+import type { Product } from "@/lib/products-data";
 
 interface DashboardStats {
   totalProducts: number;

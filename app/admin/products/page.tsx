@@ -34,7 +34,7 @@ import {
   Upload,
   RefreshCcw,
 } from "lucide-react";
-import type { Product } from "@/lib/types/product";
+import type { Product } from "@/lib/products-data";
 import { PRODUCT_CATEGORIES, PRODUCT_SECTIONS } from "@/lib/types/product";
 
 export default function AdminProductsPage() {
@@ -109,7 +109,7 @@ export default function AdminProductsPage() {
       const response = await fetch(`/api/admin/products/${id}`, {
         method: 'DELETE',
       });
-
+      
       if (response.ok) {
         alert('Product deleted successfully');
         fetchProducts();
@@ -187,7 +187,7 @@ export default function AdminProductsPage() {
           <Link href="/admin/products/new">
             <Button className="bg-black text-white hover:bg-gray-800">
               <Plus className="w-4 h-4 mr-2" />
-              Add Product
+            Add Product
             </Button>
           </Link>
         </div>
@@ -196,12 +196,12 @@ export default function AdminProductsPage() {
       {/* Filters & Search */}
       <Card>
         <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Search */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Search */}
             <form onSubmit={handleSearch} className="md:col-span-2">
               <div className="flex gap-2">
                 <Input
-                  type="text"
+                type="text"
                   placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -210,25 +210,25 @@ export default function AdminProductsPage() {
                 <Button type="submit">
                   <Search className="w-4 h-4" />
                 </Button>
-              </div>
+            </div>
             </form>
 
-            {/* Category Filter */}
-            <div>
-              <select
-                value={categoryFilter}
+          {/* Category Filter */}
+          <div>
+            <select
+              value={categoryFilter}
                 onChange={(e) => {
                   setCategoryFilter(e.target.value);
                   setCurrentPage(1);
                 }}
                 className="w-full h-10 px-3 rounded-md border border-gray-300 bg-white"
-              >
-                <option value="all">All Categories</option>
+            >
+              <option value="all">All Categories</option>
                 {PRODUCT_CATEGORIES.map(cat => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
-              </select>
-            </div>
+            </select>
+          </div>
 
             {/* Section Filter */}
             <div>
@@ -245,8 +245,8 @@ export default function AdminProductsPage() {
                   <option key={section.id} value={section.id}>{section.name}</option>
                 ))}
               </select>
-            </div>
-          </div>
+        </div>
+      </div>
 
           {/* Bulk Actions */}
           {selectedProducts.length > 0 && (
@@ -288,8 +288,8 @@ export default function AdminProductsPage() {
             <div className="flex flex-col items-center justify-center h-96 text-gray-500">
               <p className="text-xl mb-2">No products found</p>
               <p className="text-sm">Try adjusting your filters or create a new product</p>
-            </div>
-          ) : (
+          </div>
+        ) : (
             <>
               <Table>
                 <TableHeader>
@@ -366,7 +366,7 @@ export default function AdminProductsPage() {
                             : 'bg-red-100 text-red-800'
                         }`}>
                           {(product as any).stock || 100}
-                        </span>
+                      </span>
                       </TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 text-xs rounded-full ${
@@ -377,7 +377,7 @@ export default function AdminProductsPage() {
                             : 'bg-red-100 text-red-800'
                         }`}>
                           {(product as any).status || 'published'}
-                        </span>
+                      </span>
                       </TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -399,7 +399,7 @@ export default function AdminProductsPage() {
                               <Link href={`/admin/products/${product.id}/edit`}>
                                 <Edit className="w-4 h-4 mr-2" />
                                 Edit
-                              </Link>
+                        </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
@@ -440,9 +440,9 @@ export default function AdminProductsPage() {
                     >
                       Next
                     </Button>
-                  </div>
-                </div>
-              )}
+          </div>
+        </div>
+      )}
             </>
           )}
         </CardContent>

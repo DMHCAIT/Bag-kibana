@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { products } from '@/lib/products-data';
-import type { Product } from '@/lib/types/product';
+import type { Product as BaseProduct } from '@/lib/products-data';
 
 // GET - Fetch all products with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -122,8 +122,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new product
-    const newProduct: Product = {
+    // Create new product (using any type for extended fields)
+    const newProduct: any = {
       id,
       name: data.name,
       category: data.category,
@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       publishedAt: data.status === 'published' ? new Date().toISOString() : undefined
-    } as Product;
+    };
 
     // In a real app, save to database
     // For now, we'll just return the created product
