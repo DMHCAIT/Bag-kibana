@@ -65,7 +65,8 @@ function ProductCard({ product }: { product: Product }) {
 }
 
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+  const unwrappedParams = use(params);
+  const id = unwrappedParams.id;
   const { addToCart } = useCart();
   const router = useRouter();
   
