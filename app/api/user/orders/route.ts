@@ -5,56 +5,44 @@ import { supabaseAdmin } from '@/lib/supabase';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('user_id');
     const email = searchParams.get('email');
 
-    console.log('Fetching user orders:', { userId, email });
-
-    if (!userId && !email) {
+    if (!email) {
       return NextResponse.json(
-        { error: 'user_id or email is required', orders: [] },
+        { error: 'Email is required', orders: [] },
         { status: 400 }
       );
     }
 
+    console.log('Fetching orders for:', email);
+
     // Query orders by email (case-insensitive)
-    let query = supabaseAdmin
+    const { data: orders, error } = await supabaseAdmin
       .from('orders')
       .select('*')
+      .ilike('customer_email', email)
       .order('created_at', { ascending: false });
 
-    if (email) {
-      // Use ilike for case-insensitive email matching
-      query = query.ilike('customer_email', email);
-    } else if (userId) {
-      query = query.eq('user_id', userId);
-    }
-
-    const { data: orders, error } = await query;
-
     if (error) {
-      console.error('Error fetching user orders:', error);
+      console.error('Error fetching orders:', error);
       return NextResponse.json(
         { error: error.message, orders: [] },
         { status: 500 }
       );
     }
 
-    console.log(`Found ${orders?.length || 0} orders for ${email || userId}`);
+    console.log(`Found ${orders?.length || 0} orders for ${email}`);
 
     return NextResponse.json({
       orders: orders || [],
       total: orders?.length || 0,
     }, {
-      status: 200,
-      headers: {
-        'Cache-Control': 'no-store, no-cache',
-      },
+      headers: { 'Cache-Control': 'no-store, no-cache' },
     });
   } catch (error: any) {
-    console.error('Error fetching user orders:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch orders', orders: [] },
+      { error: error.message, orders: [] },
       { status: 500 }
     );
   }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-// GET - Fetch all orders from database
+// GET - Fetch all orders from Supabase
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -10,8 +10,6 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = (page - 1) * limit;
-
-    console.log('Fetching orders from database...');
 
     // Build query
     let query = supabaseAdmin
@@ -24,7 +22,7 @@ export async function GET(req: NextRequest) {
       query = query.eq('order_status', status);
     }
 
-    // Search - use ilike for case-insensitive search
+    // Search
     if (search) {
       query = query.or(`customer_name.ilike.%${search}%,customer_email.ilike.%${search}%`);
     }
@@ -35,22 +33,14 @@ export async function GET(req: NextRequest) {
     const { data: orders, error, count } = await query;
 
     if (error) {
-      console.error('Supabase error fetching orders:', error);
+      console.error('Error fetching orders:', error);
       return NextResponse.json({
         orders: [],
         totalOrders: 0,
-        totalPages: 0,
-        currentPage: page,
-        limit,
         stats: { total: 0 },
         error: error.message
-      }, {
-        status: 200,
-        headers: { 'Cache-Control': 'no-store' },
-      });
+      }, { status: 200 });
     }
-
-    console.log(`Found ${orders?.length || 0} orders`);
 
     // Get stats
     const { data: allOrders } = await supabaseAdmin
@@ -78,27 +68,25 @@ export async function GET(req: NextRequest) {
       limit,
       stats,
     }, {
-      status: 200,
       headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
     });
   } catch (error: any) {
-    console.error('Error fetching orders:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch orders', orders: [], totalOrders: 0 },
+      { error: error.message, orders: [], totalOrders: 0 },
       { status: 500 }
     );
   }
 }
 
-// POST - Create new order in database
+// POST - Create new order in Supabase
 export async function POST(req: NextRequest) {
   try {
     const orderData = await req.json();
     
-    console.log('=== Creating New Order ===');
-    console.log('Received order data:', JSON.stringify(orderData, null, 2));
+    console.log('Creating order:', orderData.customer_email);
 
-    // Build shipping address as proper jsonb
+    // Build shipping address
     let shippingAddress = orderData.shipping_address;
     if (typeof shippingAddress === 'string') {
       shippingAddress = {
@@ -110,10 +98,10 @@ export async function POST(req: NextRequest) {
         postal_code: '',
         country: 'India',
       };
-    } else if (!shippingAddress || typeof shippingAddress !== 'object') {
+    } else if (!shippingAddress) {
       shippingAddress = {
-        full_name: orderData.customer_name || `${orderData.firstName || ''} ${orderData.lastName || ''}`.trim(),
-        phone: orderData.customer_phone || orderData.phone || '',
+        full_name: orderData.customer_name || '',
+        phone: orderData.customer_phone || '',
         address_line1: orderData.address || '',
         city: orderData.city || '',
         state: orderData.state || '',
@@ -122,18 +110,14 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    // Build billing address
-    let billingAddress = orderData.billing_address;
-    if (!billingAddress || typeof billingAddress !== 'object') {
-      billingAddress = shippingAddress;
-    }
+    // Billing address same as shipping
+    const billingAddress = orderData.billing_address || shippingAddress;
 
-    // Prepare order for database - user_id set to null to avoid FK constraint issues
+    // Prepare order for database
     const newOrder = {
-      user_id: null, // Set to null to avoid foreign key issues with auth.users
-      customer_name: orderData.customer_name || `${orderData.firstName || ''} ${orderData.lastName || ''}`.trim() || 'Customer',
-      customer_email: orderData.customer_email || orderData.email || '',
-      customer_phone: orderData.customer_phone || orderData.phone || '',
+      customer_name: orderData.customer_name || 'Customer',
+      customer_email: orderData.customer_email || '',
+      customer_phone: orderData.customer_phone || '',
       shipping_address: shippingAddress,
       billing_address: billingAddress,
       items: orderData.items || [],
@@ -141,15 +125,14 @@ export async function POST(req: NextRequest) {
       shipping_fee: Number(orderData.shipping_fee) || 0,
       total: Number(orderData.total) || 0,
       payment_method: orderData.payment_method || 'cod',
-      payment_status: orderData.payment_status || (orderData.payment_method === 'cod' ? 'pending' : 'paid'),
-      payment_id: orderData.payment_id || orderData.razorpay_payment_id || null,
+      payment_status: orderData.payment_status || 'pending',
+      payment_id: orderData.payment_id || null,
       order_status: orderData.order_status || 'pending',
-      tracking_number: orderData.tracking_number || null,
-      notes: orderData.notes || null,
+      tracking_number: null,
+      notes: null,
     };
 
-    console.log('Inserting order:', JSON.stringify(newOrder, null, 2));
-
+    // Insert into Supabase
     const { data: order, error } = await supabaseAdmin
       .from('orders')
       .insert([newOrder])
@@ -157,43 +140,24 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('=== Supabase Error ===');
-      console.error('Error message:', error.message);
-      console.error('Error details:', error.details);
-      console.error('Error hint:', error.hint);
-      console.error('Error code:', error.code);
-      
+      console.error('Supabase error:', error.message, error.hint, error.code);
       return NextResponse.json(
-        { 
-          success: false,
-          error: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
-        },
+        { success: false, error: error.message, hint: error.hint },
         { status: 500 }
       );
     }
 
-    console.log('=== Order Created Successfully ===');
-    console.log('Order ID:', order.id);
+    console.log('Order created:', order.id);
 
     return NextResponse.json({
       success: true,
       order,
       message: 'Order created successfully',
-    }, {
-      status: 201,
-    });
+    }, { status: 201 });
   } catch (error: any) {
-    console.error('=== Exception Creating Order ===');
-    console.error('Error:', error);
-    
+    console.error('Error creating order:', error);
     return NextResponse.json(
-      { 
-        success: false,
-        error: error.message || 'Failed to create order',
-      },
+      { success: false, error: error.message },
       { status: 500 }
     );
   }
