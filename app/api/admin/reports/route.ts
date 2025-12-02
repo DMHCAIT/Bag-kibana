@@ -1,73 +1,126 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// Mock report data - in production, this would come from database analytics
-function generateMockReportData(days: number) {
-  const now = new Date();
-  const dailyData = [];
-
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-    dailyData.push({
-      date: date.toISOString().split('T')[0],
-      revenue: Math.floor(Math.random() * 50000) + 10000,
-      orders: Math.floor(Math.random() * 20) + 5,
-      customers: Math.floor(Math.random() * 15) + 3,
-      avgOrderValue: Math.floor(Math.random() * 3000) + 2000,
-    });
-  }
-
-  return dailyData;
-}
+import { getAllOrders, getAllCustomers, getOrderStats, getCustomerStats } from '@/lib/orders-store';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const days = parseInt(searchParams.get('days') || '30');
 
-    const dailyData = generateMockReportData(days);
+    // Get real data from stores
+    const allOrders = getAllOrders();
+    const allCustomers = getAllCustomers();
+    const orderStats = getOrderStats();
+    const customerStats = getCustomerStats();
+
+    // Filter orders by date range
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
     
-    // Calculate totals
-    const totalRevenue = dailyData.reduce((sum, day) => sum + day.revenue, 0);
-    const totalOrders = dailyData.reduce((sum, day) => sum + day.orders, 0);
-    const totalCustomers = dailyData.reduce((sum, day) => sum + day.customers, 0);
+    const filteredOrders = allOrders.filter(order => {
+      const orderDate = new Date(order.created_at);
+      return orderDate >= cutoffDate;
+    });
+
+    // Calculate totals from real orders
+    const totalRevenue = filteredOrders
+      .filter(o => o.payment_status === 'paid')
+      .reduce((sum, o) => sum + (o.total || 0), 0);
+    
+    const totalOrders = filteredOrders.length;
     const avgOrderValue = totalOrders > 0 ? Math.floor(totalRevenue / totalOrders) : 0;
 
-    // Calculate growth percentages (compared to previous period)
-    const currentPeriodRevenue = dailyData.slice(-Math.floor(days / 2)).reduce((sum, day) => sum + day.revenue, 0);
-    const previousPeriodRevenue = dailyData.slice(0, Math.floor(days / 2)).reduce((sum, day) => sum + day.revenue, 0);
-    const revenueGrowth = previousPeriodRevenue > 0 
-      ? ((currentPeriodRevenue - previousPeriodRevenue) / previousPeriodRevenue * 100).toFixed(1)
-      : '0';
+    // Calculate previous period for comparison
+    const previousCutoff = new Date(cutoffDate);
+    previousCutoff.setDate(previousCutoff.getDate() - days);
+    
+    const previousPeriodOrders = allOrders.filter(order => {
+      const orderDate = new Date(order.created_at);
+      return orderDate >= previousCutoff && orderDate < cutoffDate;
+    });
 
-    // Top selling products (mock data)
-    const topProducts = [
-      { name: 'VISTARA TOTE - Teal Blue', sales: 45, revenue: 224955 },
-      { name: 'SANDESH LAPTOP BAG - Milky Blue', sales: 38, revenue: 246962 },
-      { name: 'PRIZMA SLING - Mint Green', sales: 32, revenue: 127968 },
-      { name: 'VISTAPACK - Teal Blue', sales: 28, revenue: 125972 },
-      { name: 'LEKHA WALLET - Mocha Tan', sales: 25, revenue: 74975 },
-    ];
+    const previousRevenue = previousPeriodOrders
+      .filter(o => o.payment_status === 'paid')
+      .reduce((sum, o) => sum + (o.total || 0), 0);
 
-    // Category performance (mock data)
-    const categoryPerformance = [
-      { category: 'Tote Bag', sales: 120, revenue: 599880, percentage: 35 },
-      { category: 'Laptop Bag', sales: 98, revenue: 636902, percentage: 28 },
-      { category: 'Sling Bag', sales: 85, revenue: 339915, percentage: 22 },
-      { category: 'Backpack', sales: 62, revenue: 278938, percentage: 15 },
-    ];
+    const revenueChange = previousRevenue > 0 
+      ? parseFloat(((totalRevenue - previousRevenue) / previousRevenue * 100).toFixed(1))
+      : (totalRevenue > 0 ? 100 : 0);
+
+    const ordersChange = previousPeriodOrders.length > 0
+      ? parseFloat(((totalOrders - previousPeriodOrders.length) / previousPeriodOrders.length * 100).toFixed(1))
+      : (totalOrders > 0 ? 100 : 0);
+
+    // Calculate top products from order items
+    const productSales: Record<string, { name: string; color: string; total_sold: number; revenue: number }> = {};
+    
+    filteredOrders.forEach(order => {
+      (order.items || []).forEach(item => {
+        const key = item.name || item.product_id;
+        if (!productSales[key]) {
+          // Extract color from name if format is "Name - Color"
+          const parts = (item.name || '').split(' - ');
+          productSales[key] = {
+            name: parts[0] || item.name || 'Unknown Product',
+            color: parts[1] || '',
+            total_sold: 0,
+            revenue: 0,
+          };
+        }
+        productSales[key].total_sold += item.quantity || 1;
+        productSales[key].revenue += (item.price || 0) * (item.quantity || 1);
+      });
+    });
+
+    const topProducts = Object.entries(productSales)
+      .map(([id, data]) => ({ id, ...data }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5);
+
+    // Get top customers by total spent
+    const topCustomers = [...allCustomers]
+      .sort((a, b) => (b.total_spent || 0) - (a.total_spent || 0))
+      .slice(0, 5)
+      .map(c => ({
+        id: c.id,
+        name: c.full_name || 'Unknown',
+        email: c.email,
+        total_spent: c.total_spent || 0,
+        order_count: c.order_count || 0,
+      }));
+
+    // Generate daily revenue data
+    const revenueByDay: Array<{ date: string; revenue: number }> = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      const dayRevenue = filteredOrders
+        .filter(o => {
+          const orderDate = new Date(o.created_at).toISOString().split('T')[0];
+          return orderDate === dateStr && o.payment_status === 'paid';
+        })
+        .reduce((sum, o) => sum + (o.total || 0), 0);
+      
+      revenueByDay.push({ date: dateStr, revenue: dayRevenue });
+    }
 
     return NextResponse.json({
-      summary: {
-        totalRevenue,
-        totalOrders,
-        totalCustomers,
-        avgOrderValue,
-        revenueGrowth: parseFloat(revenueGrowth),
-        period: `${days} days`,
-      },
-      dailyData,
+      totalRevenue,
+      totalOrders,
+      averageOrderValue: avgOrderValue,
+      totalCustomers: allCustomers.length,
+      revenueChange,
+      ordersChange,
       topProducts,
-      categoryPerformance,
+      topCustomers,
+      revenueByDay,
+      // Also include overall stats
+      stats: {
+        orders: orderStats,
+        customers: customerStats,
+      },
+      period: `${days} days`,
     }, {
       status: 200,
       headers: {
