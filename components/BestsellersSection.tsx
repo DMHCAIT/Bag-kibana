@@ -109,44 +109,55 @@ export default function BestsellersSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchBestsellers();
-  }, []);
+    let isMounted = true;
+    
+    async function fetchBestsellers() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products/sections/bestsellers');
+        const data = await response.json();
 
-  const fetchBestsellers = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/products/sections/bestsellers');
-      const data = await response.json();
+        if (!isMounted) return;
 
-      if (response.ok && data.products) {
-        // If section has products, use them. Otherwise, show top 4 products as fallback
-        if (data.products.length > 0) {
-          setBestsellers(data.products.slice(0, 4));
-        } else {
-          // Fallback: Fetch top 4 products
-          const fallbackResponse = await fetch('/api/products?limit=4');
-          const fallbackData = await fallbackResponse.json();
-          if (fallbackResponse.ok && fallbackData.products) {
-            setBestsellers(fallbackData.products);
+        if (response.ok && data.products) {
+          // If section has products, use them. Otherwise, show top 4 products as fallback
+          if (data.products.length > 0) {
+            setBestsellers(data.products.slice(0, 4));
+          } else {
+            // Fallback: Fetch top 4 products
+            const fallbackResponse = await fetch('/api/products?limit=4');
+            const fallbackData = await fallbackResponse.json();
+            if (isMounted && fallbackResponse.ok && fallbackData.products) {
+              setBestsellers(fallbackData.products);
+            }
           }
         }
-      }
-    } catch (error) {
-      console.error('Error fetching bestsellers:', error);
-      // Fallback on error
-      try {
-        const fallbackResponse = await fetch('/api/products?limit=4');
-        const fallbackData = await fallbackResponse.json();
-        if (fallbackResponse.ok && fallbackData.products) {
-          setBestsellers(fallbackData.products);
+      } catch (error) {
+        if (!isMounted) return;
+        console.error('Error fetching bestsellers:', error);
+        // Fallback on error
+        try {
+          const fallbackResponse = await fetch('/api/products?limit=4');
+          const fallbackData = await fallbackResponse.json();
+          if (isMounted && fallbackResponse.ok && fallbackData.products) {
+            setBestsellers(fallbackData.products);
+          }
+        } catch (fallbackError) {
+          console.error('Fallback fetch failed:', fallbackError);
         }
-      } catch (fallbackError) {
-        console.error('Fallback fetch failed:', fallbackError);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
-    } finally {
-      setLoading(false);
     }
-  };
+    
+    fetchBestsellers();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <section className="py-16 md:py-24 bg-[#F8F8F8]">
