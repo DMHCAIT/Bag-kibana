@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { products, getProductById } from '@/lib/products-data';
+import { getProduct } from '@/lib/products-store';
 
 export async function GET(
   request: NextRequest,
@@ -15,8 +15,8 @@ export async function GET(
       );
     }
 
-    // Use static data directly for reliability
-    const product = getProductById(id);
+    // Use shared product store (includes admin updates)
+    const product = getProduct(id);
 
     if (!product) {
       return NextResponse.json(
@@ -32,7 +32,8 @@ export async function GET(
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+          // Short cache to see updates quickly
+          'Cache-Control': 'private, no-cache, must-revalidate',
         },
       }
     );

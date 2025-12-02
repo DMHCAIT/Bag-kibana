@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { products, Product } from '@/lib/products-data';
+import { getAllProducts, searchProducts, getProductsByCategory, Product } from '@/lib/products-store';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,24 +8,24 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const limit = searchParams.get('limit');
 
-    // Always use static data for reliability
-    let filteredProducts: Product[] = products;
+    // Use shared product store (includes admin updates)
+    let filteredProducts: Product[] = getAllProducts();
 
     // Filter by category
     if (category && category !== 'all') {
-      filteredProducts = filteredProducts.filter((p: Product) => 
-        p.category.toLowerCase() === category.toLowerCase()
-      );
+      filteredProducts = getProductsByCategory(category);
     }
 
     // Search by name
     if (search) {
-      const searchLower = search.toLowerCase();
-      filteredProducts = filteredProducts.filter((p: Product) =>
-        p.name.toLowerCase().includes(searchLower) ||
-        p.color.toLowerCase().includes(searchLower) ||
-        p.category.toLowerCase().includes(searchLower)
-      );
+      filteredProducts = searchProducts(search);
+      
+      // If also filtering by category
+      if (category && category !== 'all') {
+        filteredProducts = filteredProducts.filter(p => 
+          p.category.toLowerCase() === category.toLowerCase()
+        );
+      }
     }
 
     // Apply limit
@@ -44,7 +44,8 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+          // Short cache to see updates quickly
+          'Cache-Control': 'private, no-cache, must-revalidate',
         },
       }
     );
@@ -52,17 +53,18 @@ export async function GET(request: NextRequest) {
     console.error('Error fetching products:', error);
     
     // Return all products as fallback
+    const allProducts = getAllProducts();
     return NextResponse.json(
       { 
-        products: products,
-        total: products.length,
+        products: allProducts,
+        total: allProducts.length,
         status: 'fallback',
         error: 'Using static data'
       },
       {
         status: 200,
         headers: {
-          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120',
+          'Cache-Control': 'private, no-cache',
         },
       }
     );

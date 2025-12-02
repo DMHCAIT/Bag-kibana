@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { products, getProductById } from '@/lib/products-data';
-import type { Product as BaseProduct } from '@/lib/products-data';
-
-// In-memory storage for updated products (in production, use a database)
-const updatedProducts = new Map<string, any>();
+import { getProduct, updateProduct, deleteProduct, Product } from '@/lib/products-store';
 
 // GET - Fetch single product by ID
 export async function GET(
@@ -13,16 +9,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // Check if we have an updated version
-    if (updatedProducts.has(id)) {
-      return NextResponse.json(updatedProducts.get(id), {
-        headers: {
-          'Cache-Control': 'private, no-cache',
-        }
-      });
-    }
-
-    const product = getProductById(id);
+    const product = getProduct(id);
 
     if (!product) {
       return NextResponse.json(
@@ -34,10 +21,10 @@ export async function GET(
     // Return product with additional admin fields
     const adminProduct = {
       ...product,
-      stock: 50, // Default stock
+      stock: (product as any).stock || 50, // Default stock
       is_bestseller: product.sections?.includes('bestsellers') || false,
       is_new: product.sections?.includes('new-arrivals') || false,
-      care_instructions: [
+      care_instructions: (product as any).care_instructions || [
         "Keep away from direct sunlight",
         "Store in a dust bag when not in use",
         "Clean with a soft, dry cloth",
@@ -68,36 +55,24 @@ export async function PATCH(
     const { id } = await params;
     const data = await request.json();
 
-    // Find existing product
-    const existingProduct = updatedProducts.has(id) 
-      ? updatedProducts.get(id)
-      : getProductById(id);
-      
-    if (!existingProduct) {
+    // Handle sections based on is_bestseller and is_new flags
+    const sections: string[] = [];
+    if (data.is_bestseller) sections.push('bestsellers');
+    if (data.is_new) sections.push('new-arrivals');
+    
+    const updateData: Partial<Product> = {
+      ...data,
+      sections: sections.length > 0 ? sections : undefined,
+    };
+
+    const updatedProduct = updateProduct(id, updateData);
+
+    if (!updatedProduct) {
       return NextResponse.json(
         { error: 'Product not found', id },
         { status: 404 }
       );
     }
-
-    // Merge update data with existing product
-    const updatedProduct = {
-      ...existingProduct,
-      ...data,
-      id, // Ensure ID doesn't change
-      updatedAt: new Date().toISOString(),
-    };
-
-    // Handle sections based on is_bestseller and is_new flags
-    const sections: string[] = [];
-    if (data.is_bestseller) sections.push('bestsellers');
-    if (data.is_new) sections.push('new-arrivals');
-    if (sections.length > 0) {
-      updatedProduct.sections = sections;
-    }
-
-    // Store the updated product
-    updatedProducts.set(id, updatedProduct);
 
     return NextResponse.json({
       ...updatedProduct,
@@ -126,41 +101,32 @@ export async function PUT(
     const { id } = await params;
     const data = await request.json();
 
-    // Find existing product
-    const existingProduct = getProductById(id);
-    if (!existingProduct) {
-      return NextResponse.json(
-        { error: 'Product not found', id },
-        { status: 404 }
-      );
-    }
-
-    // Update product (merge with existing data)
-    const updatedProduct: any = {
-      ...existingProduct,
-      ...data,
-      id, // Ensure ID doesn't change
-      updatedAt: new Date().toISOString(),
-    };
-
     // Handle sections based on is_bestseller and is_new flags
     const sections: string[] = [];
     if (data.is_bestseller) sections.push('bestsellers');
     if (data.is_new) sections.push('new-arrivals');
-    if (sections.length > 0) {
-      updatedProduct.sections = sections;
-    }
+    
+    const updateData: Partial<Product> = {
+      ...data,
+      sections: sections.length > 0 ? sections : undefined,
+    };
 
     // Validate required fields
-    if (!updatedProduct.name || !updatedProduct.category || !updatedProduct.price || updatedProduct.price <= 0) {
+    if (!data.name || !data.category || !data.price || data.price <= 0) {
       return NextResponse.json(
         { error: 'Missing required fields (name, category, price)' },
         { status: 400 }
       );
     }
 
-    // Store the updated product
-    updatedProducts.set(id, updatedProduct);
+    const updatedProduct = updateProduct(id, updateData);
+
+    if (!updatedProduct) {
+      return NextResponse.json(
+        { error: 'Product not found', id },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({
       product: updatedProduct,
@@ -189,16 +155,15 @@ export async function DELETE(
     const { id } = await params;
 
     // Check if product exists
-    const product = getProductById(id);
-    if (!product && !updatedProducts.has(id)) {
+    const product = getProduct(id);
+    if (!product) {
       return NextResponse.json(
         { error: 'Product not found', id },
         { status: 404 }
       );
     }
 
-    // Remove from updated products if exists
-    updatedProducts.delete(id);
+    deleteProduct(id);
 
     return NextResponse.json({
       message: 'Product deleted successfully',

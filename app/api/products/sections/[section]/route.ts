@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { products } from '@/lib/products-data';
-import type { Product } from '@/lib/products-data';
+import { getProductsBySection } from '@/lib/products-store';
 
 // GET - Fetch products by section
 export async function GET(
@@ -17,11 +16,8 @@ export async function GET(
       );
     }
 
-    // Filter products by section
-    const sectionProducts = products.filter((product: any) => {
-      const productSections = product.sections || [];
-      return productSections.includes(section);
-    });
+    // Use shared product store (includes admin updates)
+    const sectionProducts = getProductsBySection(section);
 
     // If no products found in section, return empty array (not error)
     return NextResponse.json(
@@ -33,7 +29,8 @@ export async function GET(
       },
       {
         headers: {
-          'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+          // Short cache to see updates quickly
+          'Cache-Control': 'private, no-cache, must-revalidate',
         },
       }
     );
@@ -45,4 +42,3 @@ export async function GET(
     );
   }
 }
-
