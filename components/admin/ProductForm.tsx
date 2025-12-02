@@ -84,29 +84,47 @@ export default function ProductForm({ productId }: ProductFormProps) {
     try {
       const response = await fetch(`/api/admin/products/${productId}`);
       const data = await response.json();
+      
+      // Handle both old and new API response formats
+      const specs = data.specifications || {};
+      const defaultSpecs = {
+        material: "Vegan Leather",
+        texture: "Textured",
+        closureType: "Magnetic Snap",
+        hardware: "Gold-toned",
+        compartments: ["1 main compartment", "2 inner pockets"],
+        shoulderDrop: "10 inches",
+        capacity: "Fits essentials and more",
+        dimensions: "12 x 8 x 4 inches (L x H x W)",
+      };
+      
       setFormData({
-        name: data.name,
-        category: data.category,
-        price: data.price.toString(),
-        description: data.description,
-        color: data.color,
-        images: data.images || [],
-        stock: data.stock.toString(),
-        rating: data.rating?.toString() || "4.5",
-        reviews: data.reviews?.toString() || "10",
-        is_bestseller: data.is_bestseller || false,
-        is_new: data.is_new || false,
-        features: data.features || [],
-        care_instructions: data.care_instructions || [],
-        specifications: data.specifications || {
-          material: "Vegan Leather",
-          texture: "Textured",
-          closureType: "Magnetic Snap",
-          hardware: "Gold-toned",
-          compartments: ["1 main compartment", "2 inner pockets"],
-          shoulderDrop: "10 inches",
-          capacity: "Fits essentials and more",
-          dimensions: "12 x 8 x 4 inches (L x H x W)",
+        name: data.name || "",
+        category: data.category || "TOTE",
+        price: (data.price || 0).toString(),
+        description: data.description || "",
+        color: data.color || "",
+        images: Array.isArray(data.images) ? data.images : [],
+        stock: (data.stock || 50).toString(),
+        rating: (data.rating || 4.5).toString(),
+        reviews: (data.reviews || 10).toString(),
+        is_bestseller: data.is_bestseller || data.isBestseller || false,
+        is_new: data.is_new || data.isNewArrival || false,
+        features: Array.isArray(data.features) ? data.features : [],
+        care_instructions: Array.isArray(data.care_instructions) 
+          ? data.care_instructions 
+          : Array.isArray(data.careInstructions) 
+            ? data.careInstructions 
+            : [],
+        specifications: {
+          material: specs.material || defaultSpecs.material,
+          texture: specs.texture || defaultSpecs.texture,
+          closureType: specs.closureType || defaultSpecs.closureType,
+          hardware: specs.hardware || defaultSpecs.hardware,
+          compartments: Array.isArray(specs.compartments) ? specs.compartments : defaultSpecs.compartments,
+          shoulderDrop: specs.shoulderDrop || defaultSpecs.shoulderDrop,
+          capacity: specs.capacity || defaultSpecs.capacity,
+          dimensions: specs.dimensions || defaultSpecs.dimensions,
         },
       });
     } catch (error) {
