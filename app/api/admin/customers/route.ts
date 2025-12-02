@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
     const customers: any[] = [];
 
     if (users) {
-      users.forEach(user => {
+      users.forEach((user: any) => {
         const orderData = customerMap.get(user.email);
         customers.push({
           id: user.id,
