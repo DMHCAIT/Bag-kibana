@@ -11,6 +11,8 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = (page - 1) * limit;
 
+    console.log('Fetching orders from database...');
+
     // Build query
     let query = supabaseAdmin
       .from('orders')
@@ -22,9 +24,9 @@ export async function GET(req: NextRequest) {
       query = query.eq('order_status', status);
     }
 
-    // Search
+    // Search - use ilike for case-insensitive search
     if (search) {
-      query = query.or(`customer_name.ilike.%${search}%,customer_email.ilike.%${search}%,id.ilike.%${search}%`);
+      query = query.or(`customer_name.ilike.%${search}%,customer_email.ilike.%${search}%`);
     }
 
     // Pagination
@@ -34,8 +36,21 @@ export async function GET(req: NextRequest) {
 
     if (error) {
       console.error('Supabase error fetching orders:', error);
-      throw error;
+      return NextResponse.json({
+        orders: [],
+        totalOrders: 0,
+        totalPages: 0,
+        currentPage: page,
+        limit,
+        stats: { total: 0 },
+        error: error.message
+      }, {
+        status: 200,
+        headers: { 'Cache-Control': 'no-store' },
+      });
     }
+
+    console.log(`Found ${orders?.length || 0} orders`);
 
     // Get stats
     const { data: allOrders } = await supabaseAdmin
@@ -64,9 +79,7 @@ export async function GET(req: NextRequest) {
       stats,
     }, {
       status: 200,
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate',
-      },
+      headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
     });
   } catch (error: any) {
     console.error('Error fetching orders:', error);
@@ -82,6 +95,7 @@ export async function POST(req: NextRequest) {
   try {
     const orderData = await req.json();
     
+    console.log('=== Creating New Order ===');
     console.log('Received order data:', JSON.stringify(orderData, null, 2));
 
     // Build shipping address as proper jsonb
@@ -96,7 +110,7 @@ export async function POST(req: NextRequest) {
         postal_code: '',
         country: 'India',
       };
-    } else if (!shippingAddress) {
+    } else if (!shippingAddress || typeof shippingAddress !== 'object') {
       shippingAddress = {
         full_name: orderData.customer_name || `${orderData.firstName || ''} ${orderData.lastName || ''}`.trim(),
         phone: orderData.customer_phone || orderData.phone || '',
@@ -109,14 +123,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Build billing address
-    let billingAddress = orderData.billing_address || shippingAddress;
-    if (typeof billingAddress === 'string') {
+    let billingAddress = orderData.billing_address;
+    if (!billingAddress || typeof billingAddress !== 'object') {
       billingAddress = shippingAddress;
     }
 
-    // Prepare order for database
+    // Prepare order for database - user_id set to null to avoid FK constraint issues
     const newOrder = {
-      user_id: orderData.user_id || null,
+      user_id: null, // Set to null to avoid foreign key issues with auth.users
       customer_name: orderData.customer_name || `${orderData.firstName || ''} ${orderData.lastName || ''}`.trim() || 'Customer',
       customer_email: orderData.customer_email || orderData.email || '',
       customer_phone: orderData.customer_phone || orderData.phone || '',
@@ -134,7 +148,7 @@ export async function POST(req: NextRequest) {
       notes: orderData.notes || null,
     };
 
-    console.log('Creating order in database:', JSON.stringify(newOrder, null, 2));
+    console.log('Inserting order:', JSON.stringify(newOrder, null, 2));
 
     const { data: order, error } = await supabaseAdmin
       .from('orders')
@@ -143,29 +157,26 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Supabase error creating order:', error);
-      console.error('Error details:', JSON.stringify(error, null, 2));
-      
-      // Return a fallback order with generated ID so user still sees success
-      const fallbackOrder = {
-        id: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        ...newOrder,
-        created_at: new Date().toISOString(),
-      };
+      console.error('=== Supabase Error ===');
+      console.error('Error message:', error.message);
+      console.error('Error details:', error.details);
+      console.error('Error hint:', error.hint);
+      console.error('Error code:', error.code);
       
       return NextResponse.json(
         { 
-          success: true,
-          order: fallbackOrder,
-          message: 'Order received (offline mode)',
-          warning: 'Order saved locally - will sync when database is available',
-          dbError: error.message,
+          success: false,
+          error: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
         },
-        { status: 201 }
+        { status: 500 }
       );
     }
 
-    console.log('Order created successfully:', order.id);
+    console.log('=== Order Created Successfully ===');
+    console.log('Order ID:', order.id);
 
     return NextResponse.json({
       success: true,
@@ -175,22 +186,15 @@ export async function POST(req: NextRequest) {
       status: 201,
     });
   } catch (error: any) {
-    console.error('Error creating order:', error);
-    
-    // Return fallback order even on error
-    const fallbackOrder = {
-      id: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      created_at: new Date().toISOString(),
-    };
+    console.error('=== Exception Creating Order ===');
+    console.error('Error:', error);
     
     return NextResponse.json(
       { 
-        success: true,
-        order: fallbackOrder,
-        message: 'Order received',
-        error: error.message,
+        success: false,
+        error: error.message || 'Failed to create order',
       },
-      { status: 201 }
+      { status: 500 }
     );
   }
 }

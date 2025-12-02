@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { products as staticProducts } from '@/lib/products-data';
 
 // Helper function to format database product for frontend
 function formatDbProduct(dbProduct: any) {
@@ -13,13 +12,14 @@ function formatDbProduct(dbProduct: any) {
     price: dbProduct.price,
     salePrice: dbProduct.sale_price,
     stock: dbProduct.stock,
-    rating: dbProduct.rating,
-    reviews: dbProduct.reviews,
+    rating: dbProduct.rating || 4.5,
+    reviews: dbProduct.reviews || 0,
     images: dbProduct.images || [],
     description: dbProduct.description,
     specifications: dbProduct.specifications || {},
     features: dbProduct.features || [],
     careInstructions: dbProduct.care_instructions || [],
+    colors: [],
     sections: [
       ...(dbProduct.is_bestseller ? ['bestsellers'] : []),
       ...(dbProduct.is_new ? ['new-arrivals'] : []),
@@ -27,7 +27,7 @@ function formatDbProduct(dbProduct: any) {
   };
 }
 
-// GET - Fetch products by section
+// GET - Fetch products by section from database only
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ section: string }> }
@@ -46,67 +46,79 @@ export async function GET(
     const sectionColumn = section === 'bestsellers' ? 'is_bestseller' : 
                           section === 'new-arrivals' ? 'is_new' : null;
 
-    // Try to fetch from Supabase first
-    if (sectionColumn) {
-      const { data: dbProducts, error } = await supabaseAdmin
-        .from('products')
-        .select('*')
-        .eq(sectionColumn, true)
-        .order('created_at', { ascending: false });
-
-      if (!error && dbProducts && dbProducts.length > 0) {
-        return NextResponse.json(
-          {
-            section,
-            products: dbProducts.map(formatDbProduct),
-            total: dbProducts.length,
-            source: 'database',
-            status: 'success'
+    if (!sectionColumn) {
+      return NextResponse.json(
+        {
+          section,
+          products: [],
+          total: 0,
+          source: 'database',
+          status: 'success'
+        },
+        {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
           },
-          {
-            headers: {
-              'Cache-Control': 'private, max-age=60, stale-while-revalidate=30',
-            },
-          }
-        );
-      }
+        }
+      );
     }
 
-    // Fallback to static products
-    const sectionProducts = staticProducts.filter((p: any) => 
-      p.sections?.includes(section)
-    );
+    // Fetch from Supabase
+    const { data: dbProducts, error } = await supabaseAdmin
+      .from('products')
+      .select('*')
+      .eq(sectionColumn, true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Supabase error fetching section products:', error);
+      return NextResponse.json(
+        {
+          section,
+          products: [],
+          total: 0,
+          source: 'database',
+          status: 'error',
+          error: error.message
+        },
+        {
+          status: 200,
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        }
+      );
+    }
+
+    const formattedProducts = (dbProducts || []).map(formatDbProduct);
 
     return NextResponse.json(
       {
         section,
-        products: sectionProducts,
-        total: sectionProducts.length,
-        source: 'static',
+        products: formattedProducts,
+        total: formattedProducts.length,
+        source: 'database',
         status: 'success'
       },
       {
         headers: {
-          'Cache-Control': 'private, max-age=60, stale-while-revalidate=30',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching section products:', error);
     
-    // Fallback to static products on error
     const { section } = await params;
-    const sectionProducts = staticProducts.filter((p: any) => 
-      p.sections?.includes(section)
-    );
     
     return NextResponse.json(
       {
         section,
-        products: sectionProducts,
-        total: sectionProducts.length,
-        source: 'fallback',
-        status: 'error'
+        products: [],
+        total: 0,
+        source: 'database',
+        status: 'error',
+        error: error.message || 'Failed to fetch products'
       },
       { status: 200 }
     );

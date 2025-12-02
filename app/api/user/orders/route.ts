@@ -1,38 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-// GET - Fetch orders for a specific user
+// GET - Fetch orders for a specific user by email
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('user_id');
     const email = searchParams.get('email');
 
+    console.log('Fetching user orders:', { userId, email });
+
     if (!userId && !email) {
       return NextResponse.json(
-        { error: 'user_id or email is required' },
+        { error: 'user_id or email is required', orders: [] },
         { status: 400 }
       );
     }
 
+    // Query orders by email (case-insensitive)
     let query = supabaseAdmin
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
 
-    // Filter by user_id or email
-    if (userId) {
+    if (email) {
+      // Use ilike for case-insensitive email matching
+      query = query.ilike('customer_email', email);
+    } else if (userId) {
       query = query.eq('user_id', userId);
-    } else if (email) {
-      query = query.eq('customer_email', email);
     }
 
     const { data: orders, error } = await query;
 
     if (error) {
       console.error('Error fetching user orders:', error);
-      throw error;
+      return NextResponse.json(
+        { error: error.message, orders: [] },
+        { status: 500 }
+      );
     }
+
+    console.log(`Found ${orders?.length || 0} orders for ${email || userId}`);
 
     return NextResponse.json({
       orders: orders || [],
@@ -51,4 +59,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-

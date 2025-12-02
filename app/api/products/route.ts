@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { products as staticProducts } from '@/lib/products-data';
 
 // Helper function to format database product for frontend
 function formatDbProduct(dbProduct: any) {
@@ -13,13 +12,14 @@ function formatDbProduct(dbProduct: any) {
     price: dbProduct.price,
     salePrice: dbProduct.sale_price,
     stock: dbProduct.stock,
-    rating: dbProduct.rating,
-    reviews: dbProduct.reviews,
+    rating: dbProduct.rating || 4.5,
+    reviews: dbProduct.reviews || 0,
     images: dbProduct.images || [],
     description: dbProduct.description,
     specifications: dbProduct.specifications || {},
     features: dbProduct.features || [],
     careInstructions: dbProduct.care_instructions || [],
+    colors: [], // Will be populated from related products if needed
     sections: [
       ...(dbProduct.is_bestseller ? ['bestsellers'] : []),
       ...(dbProduct.is_new ? ['new-arrivals'] : []),
@@ -35,14 +35,14 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit');
     const section = searchParams.get('section');
 
-    // Try to fetch from Supabase first
+    // Fetch from Supabase only
     let query = supabaseAdmin
       .from('products')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (category && category !== 'all') {
-      query = query.eq('category', category);
+      query = query.ilike('category', category);
     }
 
     if (search) {
@@ -61,96 +61,55 @@ export async function GET(request: NextRequest) {
 
     const { data: dbProducts, error } = await query;
 
-    // If database has products, combine with static (database takes priority)
-    if (!error && dbProducts && dbProducts.length > 0) {
-      const formattedDbProducts = dbProducts.map(formatDbProduct);
-      
-      // Filter static products that aren't in database
-      let filteredStaticProducts = staticProducts.filter((sp: any) => {
-        // Don't include static products if we have database products
-        return false;
-      });
-
-      const allProducts = [...formattedDbProducts, ...filteredStaticProducts];
-
+    if (error) {
+      console.error('Supabase error fetching products:', error);
       return NextResponse.json(
         { 
-          products: allProducts,
-          total: allProducts.length,
+          products: [],
+          total: 0,
           source: 'database',
-          status: 'success'
+          status: 'error',
+          error: error.message
         },
         {
+          status: 200,
           headers: {
-            'Cache-Control': 'private, max-age=60, stale-while-revalidate=30',
+            'Cache-Control': 'no-cache',
           },
         }
       );
     }
 
-    // Fallback to static products
-    let filteredProducts = [...staticProducts] as any[];
-
-    // Filter by category
-    if (category && category !== 'all') {
-      filteredProducts = filteredProducts.filter((p: any) => 
-        p.category.toLowerCase() === category.toLowerCase()
-      );
-    }
-
-    // Search by name
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filteredProducts = filteredProducts.filter((p: any) =>
-        p.name.toLowerCase().includes(searchLower) ||
-        p.color.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Filter by section
-    if (section) {
-      filteredProducts = filteredProducts.filter((p: any) => 
-        p.sections?.includes(section)
-      );
-    }
-
-    // Apply limit
-    if (limit) {
-      const limitNum = parseInt(limit, 10);
-      if (!isNaN(limitNum) && limitNum > 0) {
-        filteredProducts = filteredProducts.slice(0, limitNum);
-      }
-    }
+    const formattedProducts = (dbProducts || []).map(formatDbProduct);
 
     return NextResponse.json(
       { 
-        products: filteredProducts,
-        total: filteredProducts.length,
-        source: 'static',
+        products: formattedProducts,
+        total: formattedProducts.length,
+        source: 'database',
         status: 'success'
       },
       {
         headers: {
-          'Cache-Control': 'private, max-age=60, stale-while-revalidate=30',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
         },
       }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching products:', error);
     
-    // Return static products as fallback
     return NextResponse.json(
       { 
-        products: staticProducts,
-        total: staticProducts.length,
-        source: 'fallback',
+        products: [],
+        total: 0,
+        source: 'database',
         status: 'error',
-        error: 'Using static data'
+        error: error.message || 'Failed to fetch products'
       },
       {
         status: 200,
         headers: {
-          'Cache-Control': 'private, no-cache',
+          'Cache-Control': 'no-cache',
         },
       }
     );
