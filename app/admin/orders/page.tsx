@@ -22,6 +22,7 @@ interface Order {
   total: number;
   payment_status: string;
   order_status: string;
+  payment_method: string;
   created_at: string;
   items: any[];
 }
@@ -207,7 +208,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 pt-6 border-t">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mt-6 pt-6 border-t">
           <div className="text-center">
             <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
             <p className="text-sm text-gray-600">Total Orders</p>
@@ -236,6 +237,12 @@ export default function OrdersPage() {
             </p>
             <p className="text-sm text-gray-600">Delivered</p>
           </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-orange-600">
+              {orders.filter((o) => o.payment_method === "cod").length}
+            </p>
+            <p className="text-sm text-gray-600">COD Orders</p>
+          </div>
         </div>
       </div>
 
@@ -253,7 +260,7 @@ export default function OrdersPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+                <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Order ID
@@ -272,6 +279,9 @@ export default function OrdersPage() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Payment
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Method
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Date
@@ -324,6 +334,17 @@ export default function OrdersPage() {
                         )}`}
                       >
                         {order.payment_status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          order.payment_method === 'cod' 
+                            ? 'bg-orange-100 text-orange-800' 
+                            : 'bg-blue-100 text-blue-800'
+                        }`}
+                      >
+                        {order.payment_method === 'cod' ? 'COD' : 'Online'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
