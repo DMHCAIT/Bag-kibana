@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
-// GET - Fetch single order by ID from database
+// GET - Fetch single order by ID
 export async function GET(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -16,50 +16,73 @@ export async function GET(
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { error: 'Order not found', id },
-          { status: 404 }
-        );
+      console.error('Error fetching order:', error);
+      return NextResponse.json(
+        { error: 'Order not found' },
+        { status: 404 }
+      );
+    }
+
+    // Format shipping address for display
+    let shippingAddressDisplay = 'N/A';
+    if (order.shipping_address) {
+      if (typeof order.shipping_address === 'string') {
+        shippingAddressDisplay = order.shipping_address;
+      } else if (typeof order.shipping_address === 'object') {
+        const addr = order.shipping_address as any;
+        shippingAddressDisplay = [
+          addr.full_name,
+          addr.address_line1,
+          addr.city,
+          addr.state,
+          addr.postal_code,
+          addr.country
+        ].filter(Boolean).join(', ');
       }
-      throw error;
     }
 
     return NextResponse.json({
-      order,
-      status: 'success'
-    }, {
-      headers: {
-        'Cache-Control': 'no-store, no-cache',
+      order: {
+        ...order,
+        shipping_address: shippingAddressDisplay,
       }
+    }, {
+      headers: { 'Cache-Control': 'no-store' }
     });
   } catch (error: any) {
-    console.error('Error fetching order:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to fetch order' },
+      { error: error.message },
       { status: 500 }
     );
   }
 }
 
-// PATCH - Update order status in database
+// PATCH - Update order status
 export async function PATCH(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const data = await request.json();
+    const body = await req.json();
 
-    // Prepare update data
     const updateData: any = {
       updated_at: new Date().toISOString(),
     };
 
-    if (data.order_status) updateData.order_status = data.order_status;
-    if (data.payment_status) updateData.payment_status = data.payment_status;
-    if (data.tracking_number) updateData.tracking_number = data.tracking_number;
-    if (data.notes !== undefined) updateData.notes = data.notes;
+    if (body.order_status) {
+      updateData.order_status = body.order_status;
+    }
+    if (body.payment_status) {
+      updateData.payment_status = body.payment_status;
+    }
+    if (body.tracking_number) {
+      updateData.tracking_number = body.tracking_number;
+    }
+    if (body.notes !== undefined) {
+      updateData.notes = body.notes;
+    }
 
     const { data: order, error } = await supabaseAdmin
       .from('orders')
@@ -69,36 +92,50 @@ export async function PATCH(
       .single();
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          { error: 'Order not found', id },
-          { status: 404 }
-        );
+      console.error('Error updating order:', error);
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
+    }
+
+    // Format shipping address for display
+    let shippingAddressDisplay = 'N/A';
+    if (order.shipping_address) {
+      if (typeof order.shipping_address === 'string') {
+        shippingAddressDisplay = order.shipping_address;
+      } else if (typeof order.shipping_address === 'object') {
+        const addr = order.shipping_address as any;
+        shippingAddressDisplay = [
+          addr.full_name,
+          addr.address_line1,
+          addr.city,
+          addr.state,
+          addr.postal_code,
+          addr.country
+        ].filter(Boolean).join(', ');
       }
-      throw error;
     }
 
     return NextResponse.json({
-      order,
-      message: 'Order updated successfully',
-      status: 'success'
-    }, {
-      headers: {
-        'Cache-Control': 'no-store',
-      }
+      order: {
+        ...order,
+        shipping_address: shippingAddressDisplay,
+      },
+      message: 'Order updated successfully'
     });
   } catch (error: any) {
-    console.error('Error updating order:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to update order' },
+      { error: error.message },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Delete order from database
+// DELETE - Delete order
 export async function DELETE(
-  request: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -110,22 +147,20 @@ export async function DELETE(
       .eq('id', id);
 
     if (error) {
-      throw error;
+      console.error('Error deleting order:', error);
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
-      message: 'Order deleted successfully',
-      id,
-      status: 'success'
-    }, {
-      headers: {
-        'Cache-Control': 'no-store',
-      }
+      message: 'Order deleted successfully'
     });
   } catch (error: any) {
-    console.error('Error deleting order:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to delete order' },
+      { error: error.message },
       { status: 500 }
     );
   }
