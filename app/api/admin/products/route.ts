@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { products } from '@/lib/products-data';
-import type { Product as BaseProduct } from '@/lib/products-data';
+import { supabaseAdmin } from '@/lib/supabase';
+import { products as staticProducts } from '@/lib/products-data';
 
-// GET - Fetch all products with filtering and pagination
+// GET - Fetch all products from Supabase (with fallback to static)
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -10,63 +10,69 @@ export async function GET(request: NextRequest) {
     // Filters
     const category = searchParams.get('category');
     const status = searchParams.get('status');
-    const section = searchParams.get('section');
     const search = searchParams.get('search');
-    const isFeatured = searchParams.get('featured');
-    const isNewArrival = searchParams.get('newArrival');
     
     // Pagination
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = (page - 1) * limit;
 
-    let filteredProducts = [...products];
+    // Try to fetch from Supabase first
+    let query = supabaseAdmin
+      .from('products')
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false });
 
-    // Apply filters
     if (category && category !== 'all') {
-      filteredProducts = filteredProducts.filter(p => 
+      query = query.eq('category', category);
+    }
+
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,color.ilike.%${search}%,category.ilike.%${search}%`);
+    }
+
+    query = query.range(offset, offset + limit - 1);
+
+    const { data: dbProducts, error, count } = await query;
+
+    // If database has products, use them
+    if (!error && dbProducts && dbProducts.length > 0) {
+      return NextResponse.json({
+        products: dbProducts.map(formatDbProduct),
+        pagination: {
+          page,
+          limit,
+          total: count || dbProducts.length,
+          totalPages: Math.ceil((count || dbProducts.length) / limit),
+          hasMore: offset + limit < (count || 0)
+        },
+        source: 'database',
+        status: 'success'
+      }, {
+        headers: {
+          'Cache-Control': 'private, no-cache, no-store, must-revalidate',
+        }
+      });
+    }
+
+    // Fallback to static products
+    let filteredProducts = [...staticProducts];
+
+    if (category && category !== 'all') {
+      filteredProducts = filteredProducts.filter((p: any) => 
         p.category.toLowerCase() === category.toLowerCase()
-      );
-    }
-
-    if (status) {
-      filteredProducts = filteredProducts.filter(p => 
-        (p as any).status === status || 'published' // Default to published for legacy products
-      );
-    }
-
-    if (section) {
-      filteredProducts = filteredProducts.filter(p => 
-        (p as any).sections?.includes(section) || false
       );
     }
 
     if (search) {
       const searchLower = search.toLowerCase();
-      filteredProducts = filteredProducts.filter(p =>
+      filteredProducts = filteredProducts.filter((p: any) =>
         p.name.toLowerCase().includes(searchLower) ||
         p.color.toLowerCase().includes(searchLower) ||
-        p.category.toLowerCase().includes(searchLower) ||
-        p.id.toLowerCase().includes(searchLower)
+        p.category.toLowerCase().includes(searchLower)
       );
     }
 
-    if (isFeatured === 'true') {
-      filteredProducts = filteredProducts.filter(p => (p as any).isFeatured === true);
-    }
-
-    if (isNewArrival === 'true') {
-      filteredProducts = filteredProducts.filter(p => (p as any).isNewArrival === true);
-    }
-
-    // Sort by updated date (newest first)
-    filteredProducts.sort((a, b) => {
-      const dateA = (a as any).updatedAt || (a as any).createdAt || '2025-01-01';
-      const dateB = (b as any).updatedAt || (b as any).createdAt || '2025-01-01';
-      return new Date(dateB).getTime() - new Date(dateA).getTime();
-    });
-
-    // Paginate
     const total = filteredProducts.length;
     const paginatedProducts = filteredProducts.slice(offset, offset + limit);
 
@@ -79,6 +85,7 @@ export async function GET(request: NextRequest) {
         totalPages: Math.ceil(total / limit),
         hasMore: offset + limit < total
       },
+      source: 'static',
       status: 'success'
     }, {
       headers: {
@@ -88,19 +95,19 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch products', details: error },
+      { error: 'Failed to fetch products', products: staticProducts },
       { status: 500 }
     );
   }
 }
 
-// POST - Create new product
+// POST - Create new product in Supabase
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
     // Validate required fields
-    const requiredFields = ['name', 'category', 'color', 'price', 'images', 'description'];
+    const requiredFields = ['name', 'category', 'color', 'price', 'description'];
     for (const field of requiredFields) {
       if (!data[field]) {
         return NextResponse.json(
@@ -110,60 +117,44 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate ID
-    const id = data.id || `${data.name.toLowerCase().replace(/\s+/g, '-')}-${data.color.toLowerCase().replace(/\s+/g, '-')}`;
-
-    // Check if product already exists
-    const existing = products.find(p => p.id === id);
-    if (existing && !data.id) {
-      return NextResponse.json(
-        { error: 'Product with this ID already exists', id },
-        { status: 409 }
-      );
-    }
-
-    // Create new product (using any type for extended fields)
-    const newProduct: any = {
-      id,
+    // Prepare product for database
+    const newProduct = {
       name: data.name,
       category: data.category,
       color: data.color,
       price: parseFloat(data.price),
-      salePrice: data.salePrice ? parseFloat(data.salePrice) : undefined,
+      description: data.description,
+      images: data.images || [],
       stock: parseInt(data.stock || '100'),
+      features: data.features || [],
+      care_instructions: data.care_instructions || [],
       rating: parseFloat(data.rating || '4.5'),
       reviews: parseInt(data.reviews || '0'),
-      images: data.images,
-      description: data.description,
-      specifications: data.specifications || {
-        material: '',
-        texture: '',
-        closureType: '',
-        hardware: '',
-        compartments: [],
-        idealFor: ''
-      },
-      features: data.features || [],
-      colors: data.colors || [],
-      sections: data.sections || [],
-      slug: data.slug || id,
-      metaTitle: data.metaTitle,
-      metaDescription: data.metaDescription,
-      tags: data.tags || [],
-      status: data.status || 'published',
-      isFeatured: data.isFeatured || false,
-      isNewArrival: data.isNewArrival || false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      publishedAt: data.status === 'published' ? new Date().toISOString() : undefined
+      is_bestseller: data.is_bestseller || data.isBestseller || false,
+      is_new: data.is_new || data.isNewArrival || false,
+      specifications: data.specifications || {},
     };
 
-    // In a real app, save to database
-    // For now, we'll just return the created product
-    // products.push(newProduct); // Don't actually add to static data
+    console.log('Creating product in database:', newProduct);
+
+    const { data: product, error } = await supabaseAdmin
+      .from('products')
+      .insert([newProduct])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Supabase error creating product:', error);
+      return NextResponse.json(
+        { error: error.message || 'Failed to create product' },
+        { status: 500 }
+      );
+    }
+
+    console.log('Product created successfully:', product.id);
 
     return NextResponse.json({
-      product: newProduct,
+      product: formatDbProduct(product),
       message: 'Product created successfully',
       status: 'success'
     }, {
@@ -172,16 +163,16 @@ export async function POST(request: NextRequest) {
         'Cache-Control': 'no-store',
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating product:', error);
     return NextResponse.json(
-      { error: 'Failed to create product', details: error },
+      { error: error.message || 'Failed to create product' },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Delete multiple products
+// DELETE - Delete multiple products from Supabase
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -194,8 +185,20 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // In a real app, delete from database
-    // For now, just return success
+    // Delete from Supabase
+    const { error } = await supabaseAdmin
+      .from('products')
+      .delete()
+      .in('id', ids.map(id => parseInt(id)));
+
+    if (error) {
+      console.error('Supabase error deleting products:', error);
+      return NextResponse.json(
+        { error: error.message || 'Failed to delete products' },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       message: `${ids.length} product(s) deleted successfully`,
       deletedIds: ids,
@@ -205,11 +208,36 @@ export async function DELETE(request: NextRequest) {
         'Cache-Control': 'no-store',
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting products:', error);
     return NextResponse.json(
-      { error: 'Failed to delete products', details: error },
+      { error: error.message || 'Failed to delete products' },
       { status: 500 }
     );
   }
+}
+
+// Helper function to format database product to match frontend expectations
+function formatDbProduct(dbProduct: any) {
+  return {
+    id: `product-${dbProduct.id}`,
+    dbId: dbProduct.id,
+    name: dbProduct.name,
+    category: dbProduct.category,
+    color: dbProduct.color,
+    price: dbProduct.price,
+    salePrice: dbProduct.sale_price,
+    stock: dbProduct.stock,
+    rating: dbProduct.rating,
+    reviews: dbProduct.reviews,
+    images: dbProduct.images || [],
+    description: dbProduct.description,
+    specifications: dbProduct.specifications || {},
+    features: dbProduct.features || [],
+    careInstructions: dbProduct.care_instructions || [],
+    isBestseller: dbProduct.is_bestseller,
+    isNewArrival: dbProduct.is_new,
+    createdAt: dbProduct.created_at,
+    updatedAt: dbProduct.updated_at,
+  };
 }

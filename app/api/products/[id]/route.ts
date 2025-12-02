@@ -1,5 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProduct } from '@/lib/products-store';
+import { supabaseAdmin } from '@/lib/supabase';
+import { products as staticProducts } from '@/lib/products-data';
+
+// Helper to extract database ID from product ID
+function extractDbId(id: string): number | null {
+  if (id.startsWith('product-')) {
+    const numId = parseInt(id.replace('product-', ''));
+    return isNaN(numId) ? null : numId;
+  }
+  const numId = parseInt(id);
+  return isNaN(numId) ? null : numId;
+}
+
+// Helper function to format database product for frontend
+function formatDbProduct(dbProduct: any) {
+  return {
+    id: `product-${dbProduct.id}`,
+    dbId: dbProduct.id,
+    name: dbProduct.name,
+    category: dbProduct.category,
+    color: dbProduct.color,
+    price: dbProduct.price,
+    salePrice: dbProduct.sale_price,
+    stock: dbProduct.stock,
+    rating: dbProduct.rating,
+    reviews: dbProduct.reviews,
+    images: dbProduct.images || [],
+    description: dbProduct.description,
+    specifications: dbProduct.specifications || {},
+    features: dbProduct.features || [],
+    careInstructions: dbProduct.care_instructions || [],
+    sections: [
+      ...(dbProduct.is_bestseller ? ['bestsellers'] : []),
+      ...(dbProduct.is_new ? ['new-arrivals'] : []),
+    ],
+  };
+}
 
 export async function GET(
   request: NextRequest,
@@ -15,10 +51,36 @@ export async function GET(
       );
     }
 
-    // Use shared product store (includes admin updates)
-    const product = getProduct(id);
+    // Try to get from database first
+    const dbId = extractDbId(id);
+    
+    if (dbId !== null) {
+      const { data: dbProduct, error } = await supabaseAdmin
+        .from('products')
+        .select('*')
+        .eq('id', dbId)
+        .single();
 
-    if (!product) {
+      if (!error && dbProduct) {
+        return NextResponse.json(
+          { 
+            product: formatDbProduct(dbProduct),
+            source: 'database',
+            status: 'success'
+          },
+          {
+            headers: {
+              'Cache-Control': 'private, max-age=60, stale-while-revalidate=30',
+            },
+          }
+        );
+      }
+    }
+
+    // Fallback to static products
+    const staticProduct = staticProducts.find((p: any) => p.id === id);
+
+    if (!staticProduct) {
       return NextResponse.json(
         { error: 'Product not found', id },
         { status: 404 }
@@ -27,13 +89,13 @@ export async function GET(
 
     return NextResponse.json(
       { 
-        product,
+        product: staticProduct,
+        source: 'static',
         status: 'success'
       },
       {
         headers: {
-          // Short cache to see updates quickly
-          'Cache-Control': 'private, no-cache, must-revalidate',
+          'Cache-Control': 'private, max-age=60, stale-while-revalidate=30',
         },
       }
     );
