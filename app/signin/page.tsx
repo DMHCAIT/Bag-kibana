@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,7 +12,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn, isAuthenticated } = useAuth();
@@ -83,11 +83,9 @@ export default function SignInPage() {
   };
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
-        <div className="max-w-md mx-auto">
-          <Card>
+    <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="max-w-md mx-auto">
+        <Card>
             <CardHeader className="space-y-1 text-center">
               <CardTitle className="text-2xl font-bold tracking-wide">Welcome Back</CardTitle>
               <CardDescription>
@@ -180,6 +178,23 @@ export default function SignInPage() {
           </Card>
         </div>
       </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <>
+      <Header />
+      <Suspense fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
+            <p>Loading...</p>
+          </div>
+        </div>
+      }>
+        <SignInForm />
+      </Suspense>
       <Footer />
     </>
   );
