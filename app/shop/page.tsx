@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ChevronDown, ShoppingCart } from "lucide-react";
+import { Star, ChevronDown, ShoppingCart, X, Filter } from "lucide-react";
 import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
 
@@ -67,7 +67,6 @@ function ProductCard({ product }: { product: Product }) {
           {product.colors && product.colors.length > 0 && (
             <div className="flex gap-2">
               {product.colors.map((colorOption, idx) => {
-                // Fix color values that have .jpg extension
                 let colorValue = colorOption.value;
                 if (colorValue.includes('.jpg')) {
                   const colorMap: {[key: string]: string} = {
@@ -79,7 +78,6 @@ function ProductCard({ product }: { product: Product }) {
                   colorValue = colorMap[colorValue] || '#9B6B4F';
                 }
                 
-                // Generate product ID for this color variant
                 const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
                 const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
                 const colorVariantId = `${productNameSlug}-${colorSlug}`;
@@ -118,27 +116,79 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
+// Filter Dropdown Component
+function FilterDropdown({ 
+  label, 
+  options, 
+  value, 
+  onChange,
+  isOpen,
+  onToggle 
+}: { 
+  label: string;
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (value: string) => void;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="relative">
+      <button 
+        onClick={onToggle}
+        className={`flex items-center gap-2 px-4 py-2 border rounded-sm text-sm transition-colors ${
+          value !== 'all' ? 'border-black bg-black text-white' : 'border-gray-300 hover:border-black'
+        }`}
+      >
+        {label}
+        {value !== 'all' && <span className="ml-1">•</span>}
+        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[180px]">
+          {options.map((option) => (
+            <button
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                onToggle();
+              }}
+              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
+                value === option.value ? 'bg-gray-100 font-medium' : ''
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ShopPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [priceRange, setPriceRange] = useState<string>("all");
+  const [selectedColor, setSelectedColor] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("featured");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openFilter, setOpenFilter] = useState<string | null>(null);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // Fetch products from API with timeout and fallback
+  // Fetch products from API
   useEffect(() => {
     async function fetchProducts() {
       try {
         setLoading(true);
         
-        // Race between API call and timeout for faster response
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
         
         const response = await fetch('/api/products', {
           signal: controller.signal,
-          next: { revalidate: 60 } // Cache for 60 seconds
         });
         clearTimeout(timeoutId);
         
@@ -151,11 +201,10 @@ export default function ShopPage() {
         }
       } catch (err) {
         console.error('Error fetching products:', err);
-        // On error, fallback to static products for better UX
         try {
           const { products: staticProducts } = await import('@/lib/products-data');
           setProducts(staticProducts);
-          setError(null); // Clear error since we have fallback data
+          setError(null);
         } catch {
           setError('Failed to load products');
         }
@@ -167,11 +216,127 @@ export default function ShopPage() {
     fetchProducts();
   }, []);
 
-  // Filter products
-  const filteredProducts = products.filter((product: Product) => {
-    if (selectedCategory !== "all" && product.category !== selectedCategory) return false;
-    return true;
-  });
+  // Get unique colors from products
+  const availableColors = useMemo(() => {
+    const colors = new Set<string>();
+    products.forEach((p: Product) => {
+      if (p.color) colors.add(p.color);
+    });
+    return Array.from(colors).sort();
+  }, [products]);
+
+  // Get unique categories from products
+  const availableCategories = useMemo(() => {
+    const categories = new Set<string>();
+    products.forEach((p: Product) => {
+      if (p.category) categories.add(p.category);
+    });
+    return Array.from(categories).sort();
+  }, [products]);
+
+  // Filter and sort products
+  const filteredProducts = useMemo(() => {
+    let result = [...products];
+    
+    // Category filter
+    if (selectedCategory !== "all") {
+      result = result.filter((p: Product) => 
+        p.category.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+    
+    // Price range filter
+    if (priceRange !== "all") {
+      result = result.filter((p: Product) => {
+        switch (priceRange) {
+          case "under-1500":
+            return p.price < 1500;
+          case "1500-2500":
+            return p.price >= 1500 && p.price <= 2500;
+          case "2500-3500":
+            return p.price >= 2500 && p.price <= 3500;
+          case "above-3500":
+            return p.price > 3500;
+          default:
+            return true;
+        }
+      });
+    }
+    
+    // Color filter
+    if (selectedColor !== "all") {
+      result = result.filter((p: Product) => 
+        p.color.toLowerCase() === selectedColor.toLowerCase()
+      );
+    }
+    
+    // Sorting
+    switch (sortBy) {
+      case "price-low":
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case "newest":
+        result.sort((a, b) => {
+          const dateA = (a as any).createdAt || '2025-01-01';
+          const dateB = (b as any).createdAt || '2025-01-01';
+          return new Date(dateB).getTime() - new Date(dateA).getTime();
+        });
+        break;
+      case "rating":
+        result.sort((a, b) => b.rating - a.rating);
+        break;
+      default:
+        // Featured - keep original order
+        break;
+    }
+    
+    return result;
+  }, [products, selectedCategory, priceRange, selectedColor, sortBy]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClick = () => setOpenFilter(null);
+    if (openFilter) {
+      document.addEventListener('click', handleClick);
+      return () => document.removeEventListener('click', handleClick);
+    }
+  }, [openFilter]);
+
+  // Count active filters
+  const activeFiltersCount = [
+    selectedCategory !== 'all',
+    priceRange !== 'all',
+    selectedColor !== 'all',
+  ].filter(Boolean).length;
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSelectedCategory('all');
+    setPriceRange('all');
+    setSelectedColor('all');
+    setSortBy('featured');
+  };
+
+  const categoryOptions = [
+    { value: 'all', label: 'All Categories' },
+    ...availableCategories.map(cat => ({ value: cat, label: cat }))
+  ];
+
+  const priceOptions = [
+    { value: 'all', label: 'All Prices' },
+    { value: 'under-1500', label: 'Under ₹1,500' },
+    { value: '1500-2500', label: '₹1,500 - ₹2,500' },
+    { value: '2500-3500', label: '₹2,500 - ₹3,500' },
+    { value: 'above-3500', label: 'Above ₹3,500' },
+  ];
+
+  const colorOptions = [
+    { value: 'all', label: 'All Colors' },
+    ...availableColors.map(color => ({ value: color, label: color }))
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -194,56 +359,87 @@ export default function ShopPage() {
       ) : (
       <>
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
-        {/* Category Selection */}
+        {/* Page Title */}
+        <h1 className="text-3xl md:text-4xl font-serif text-center mb-8 tracking-wider">SHOP ALL</h1>
+
+        {/* Category Links */}
         <div className="flex justify-center gap-8 mb-12">
           <Link href="/men">
             <button className="flex flex-col items-center gap-3 group">
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-linear-to-br from-gray-700 to-gray-900 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <span className="text-white text-xs uppercase tracking-wider">Bag Icon</span>
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <span className="text-white text-xs uppercase tracking-wider">Men</span>
               </div>
               <span className="text-sm font-medium">Shop Men</span>
             </button>
           </Link>
           <Link href="/women">
             <button className="flex flex-col items-center gap-3 group">
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-linear-to-br from-pink-200 to-pink-300 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <span className="text-white text-xs uppercase tracking-wider">Bag Icon</span>
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center group-hover:scale-105 transition-transform">
+                <span className="text-gray-700 text-xs uppercase tracking-wider">Women</span>
               </div>
               <span className="text-sm font-medium">Shop Women</span>
             </button>
           </Link>
         </div>
 
+        {/* Mobile Filter Button */}
+        <div className="md:hidden mb-4">
+          <Button 
+            variant="outline" 
+            className="w-full"
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+          >
+            <Filter className="w-4 h-4 mr-2" />
+            Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+          </Button>
+        </div>
+
         {/* Filters and Sort Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-gray-200">
-          <div className="flex flex-wrap gap-4">
-            <div className="relative">
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-sm text-sm hover:border-black transition-colors">
-                Gender
-                <ChevronDown className="w-4 h-4" />
+        <div className={`${showMobileFilters ? 'block' : 'hidden'} md:flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-gray-200`}>
+          <div className="flex flex-wrap gap-3" onClick={(e) => e.stopPropagation()}>
+            {/* Category Filter */}
+            <FilterDropdown
+              label="Category"
+              options={categoryOptions}
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+              isOpen={openFilter === 'category'}
+              onToggle={() => setOpenFilter(openFilter === 'category' ? null : 'category')}
+            />
+            
+            {/* Price Filter */}
+            <FilterDropdown
+              label="Price"
+              options={priceOptions}
+              value={priceRange}
+              onChange={setPriceRange}
+              isOpen={openFilter === 'price'}
+              onToggle={() => setOpenFilter(openFilter === 'price' ? null : 'price')}
+            />
+            
+            {/* Color Filter */}
+            <FilterDropdown
+              label="Color"
+              options={colorOptions}
+              value={selectedColor}
+              onChange={setSelectedColor}
+              isOpen={openFilter === 'color'}
+              onToggle={() => setOpenFilter(openFilter === 'color' ? null : 'color')}
+            />
+
+            {/* Clear Filters */}
+            {activeFiltersCount > 0 && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 px-4 py-2 text-sm text-gray-600 hover:text-black transition-colors"
+              >
+                <X className="w-4 h-4" />
+                Clear all
               </button>
-            </div>
-            <div className="relative">
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-sm text-sm hover:border-black transition-colors">
-                Price
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="relative">
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-sm text-sm hover:border-black transition-colors">
-                Color
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="relative">
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-sm text-sm hover:border-black transition-colors">
-                Availability
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mt-4 md:mt-0">
             <span className="text-sm text-gray-600">Sort by:</span>
             <select
               value={sortBy}
@@ -260,15 +456,54 @@ export default function ShopPage() {
           </div>
         </div>
 
+        {/* Active Filters Display */}
+        {activeFiltersCount > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {selectedCategory !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+                {selectedCategory}
+                <button onClick={() => setSelectedCategory('all')} className="hover:text-red-500">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {priceRange !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+                {priceOptions.find(o => o.value === priceRange)?.label}
+                <button onClick={() => setPriceRange('all')} className="hover:text-red-500">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+            {selectedColor !== 'all' && (
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+                {selectedColor}
+                <button onClick={() => setSelectedColor('all')} className="hover:text-red-500">
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Products Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-          {filteredProducts.map((product: Product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
+            {filteredProducts.map((product: Product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-gray-500 mb-4">No products found matching your filters.</p>
+            <Button onClick={clearFilters} variant="outline">
+              Clear Filters
+            </Button>
+          </div>
+        )}
 
         {/* Load More */}
-        {filteredProducts.length >= 8 && (
+        {filteredProducts.length >= 12 && (
           <div className="flex justify-center mt-12">
             <Button
               variant="outline"
