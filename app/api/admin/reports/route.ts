@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
 
     // Get unique customers from orders
     const customerMap = new Map<string, any>();
-    orders?.forEach(order => {
+    orders?.forEach((order: any) => {
       const email = order.customer_email;
       if (!email) return;
       
@@ -111,8 +111,8 @@ export async function GET(req: NextRequest) {
       const dateStr = date.toISOString().split('T')[0];
       
       const dayRevenue = paidOrders
-        .filter(o => o.created_at.split('T')[0] === dateStr)
-        .reduce((sum, o) => sum + (o.total || 0), 0);
+        .filter((o: any) => o.created_at.split('T')[0] === dateStr)
+        .reduce((sum: number, o: any) => sum + (o.total || 0), 0);
       
       revenueByDay.push({ date: dateStr, revenue: dayRevenue });
     }
