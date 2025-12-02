@@ -34,6 +34,7 @@ export default function CheckoutPage() {
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false); // Track if order was placed
   const [formData, setFormData] = useState<FormData>({
     email: "",
     firstName: "",
@@ -47,15 +48,17 @@ export default function CheckoutPage() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
-  // Redirect if not authenticated or cart is empty
+  // Redirect if not authenticated or cart is empty (but not after order is placed)
   useEffect(() => {
+    if (orderPlaced) return; // Don't redirect if order was just placed
+    
     if (!authLoading && !user) {
       router.push("/signin?redirect=/checkout&message=Please sign in to continue checkout");
     }
-    if (cart.isEmpty) {
+    if (cart.isEmpty && !loading) {
       router.push("/cart");
     }
-  }, [user, authLoading, cart.isEmpty, router]);
+  }, [user, authLoading, cart.isEmpty, router, orderPlaced, loading]);
 
   // Pre-fill form with user data
   useEffect(() => {
@@ -176,20 +179,20 @@ export default function CheckoutPage() {
           console.log("Order save response:", saveResponse.status, savedOrder);
           
           if (saveResponse.ok && savedOrder.success && savedOrder.order) {
+            setOrderPlaced(true); // Mark order as placed BEFORE clearing cart
             clearCart();
-            // Show success and redirect
             router.push(`/order-success?orderId=${savedOrder.order.id}&method=cod`);
             return;
           } else {
             console.error("Order save failed:", savedOrder.error || "Unknown error");
-            // Still show success to user but with generated ID
+            setOrderPlaced(true);
             clearCart();
             router.push(`/order-success?orderId=COD-${Date.now()}&method=cod`);
             return;
           }
         } catch (saveError) {
           console.error("Error saving COD order:", saveError);
-          // Still proceed to success page with generated ID
+          setOrderPlaced(true);
           clearCart();
           router.push(`/order-success?orderId=COD-${Date.now()}&method=cod`);
           return;
@@ -275,6 +278,7 @@ export default function CheckoutPage() {
                 console.error("Error saving order to admin:", saveError);
               }
 
+              setOrderPlaced(true); // Mark order as placed BEFORE clearing cart
               clearCart();
               router.push(
                 `/order-success?orderId=${response.razorpay_order_id}&paymentId=${response.razorpay_payment_id}`
