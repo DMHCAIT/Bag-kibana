@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     const customerMap = new Map<string, any>();
 
     if (orders) {
-      orders.forEach(order => {
+      orders.forEach((order: any) => {
         const email = order.customer_email;
         if (!email) return;
 
