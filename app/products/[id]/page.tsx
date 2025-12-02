@@ -2,7 +2,7 @@
 
 import { useState, use, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Star, ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, ChevronDown, ChevronUp, X } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -99,7 +99,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   useEffect(() => {
     let isMounted = true;
-
+    
     async function fetchProductData() {
       if (!productId) {
         setLoading(false);
@@ -109,7 +109,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       try {
         setLoading(true);
         setError(null);
-
+        
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
@@ -124,7 +124,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         if (!response.ok) {
           if (response.status === 404) {
             notFound();
-            return;
+          return;
           }
           throw new Error(`Failed to fetch product: ${response.status}`);
         }
@@ -152,10 +152,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           if (isMounted && relatedResponse.ok) {
             const relatedData = await relatedResponse.json();
             if (relatedData.products && Array.isArray(relatedData.products)) {
-              const filtered = relatedData.products
+          const filtered = relatedData.products
                 .filter((p: Product) => p.id !== productId && p.images && p.images.length > 0)
-                .slice(0, 4);
-              setRelatedProducts(filtered);
+            .slice(0, 4);
+          setRelatedProducts(filtered);
             }
           }
         } catch (err) {
@@ -168,12 +168,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         if (err.name === 'AbortError') {
           setError('Request timed out. Please try again.');
         } else {
-          console.error('Error fetching product:', err);
+        console.error('Error fetching product:', err);
           setError(err.message || 'Failed to load product');
         }
       } finally {
         if (isMounted) {
-          setLoading(false);
+        setLoading(false);
         }
       }
     }
@@ -259,53 +259,109 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Product Images */}
             <div className="space-y-4">
-              {/* Main Image */}
-              <div className="relative aspect-[4/5] bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in"
-                   onClick={() => setIsModalOpen(true)}>
-                {currentImage && (
+              {/* Main Image - Swipeable */}
+              <div className="relative">
+                <div 
+                  className="overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  <div className="flex gap-4">
+                    {images.map((image, index) => (
+                      <div
+                        key={index}
+                        className="relative aspect-[4/5] bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 w-full snap-center"
+                  onClick={() => {
+                          setSelectedImage(index);
+                    setIsModalOpen(true);
+                  }}
+                >
                   <Image
-                    src={currentImage}
-                    alt={`${product.name} - ${product.color}`}
-                    fill
-                    priority
-                    className="object-contain p-4"
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                  />
+                          src={image}
+                          alt={`${product.name} - ${product.color} - View ${index + 1}`}
+                          fill
+                          priority={index === 0}
+                          className="object-contain p-4"
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Scroll Indicator Dots */}
+                {images.length > 1 && (
+                  <div className="flex justify-center gap-2 mt-4">
+                    {images.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => {
+                          setSelectedImage(index);
+                          const container = document.querySelector('.overflow-x-auto');
+                          if (container) {
+                            container.scrollTo({
+                              left: index * container.clientWidth,
+                              behavior: 'smooth'
+                            });
+                          }
+                        }}
+                        className={`h-2 rounded-full transition-all ${
+                          selectedImage === index
+                            ? "w-8 bg-black"
+                            : "w-2 bg-gray-300 hover:bg-gray-400"
+                        }`}
+                        aria-label={`View image ${index + 1}`}
+                      />
+              ))}
+            </div>
                 )}
               </div>
-
-              {/* Thumbnail Images */}
+              
+              {/* Thumbnail Images - Horizontal Scroll */}
               {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-3">
-                  {images.map((image, index) => (
+                <div 
+                  className="overflow-x-auto scrollbar-hide pb-2"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  <div className="flex gap-3 min-w-max">
+                    {images.map((image, index) => (
                     <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`relative aspect-square bg-gray-50 rounded-md overflow-hidden border-2 transition-all ${
-                        selectedImage === index
-                          ? "border-black"
-                          : "border-transparent hover:border-gray-300"
+                        key={index}
+                      onClick={() => {
+                          setSelectedImage(index);
+                          const container = document.querySelector('.overflow-x-auto');
+                          if (container) {
+                            container.scrollTo({
+                              left: index * container.clientWidth,
+                              behavior: 'smooth'
+                            });
+                          }
+                        }}
+                        className={`relative aspect-square bg-gray-50 rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
+                          selectedImage === index
+                            ? "border-black w-20 h-20"
+                            : "border-transparent hover:border-gray-300 w-20 h-20"
                       }`}
                     >
                       <Image
-                        src={image}
-                        alt={`View ${index + 1}`}
+                          src={image}
+                          alt={`Thumbnail ${index + 1}`}
                         fill
-                        className="object-contain p-2"
-                        sizes="150px"
+                          className="object-contain p-2"
+                          sizes="80px"
                       />
                     </button>
                   ))}
                 </div>
+              </div>
               )}
-            </div>
+          </div>
 
             {/* Product Info */}
             <div className="space-y-6">
-              <div>
+            <div>
                 <h1 className="text-3xl md:text-4xl tracking-[0.1em] mb-2" style={{fontFamily: 'var(--font-abhaya)'}}>
                   {product.name}
-                </h1>
+              </h1>
                 <p className="text-lg text-gray-600">Color: {product.color}</p>
               </div>
 
@@ -326,9 +382,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <span className="text-sm text-gray-600">
                   {product.rating} ({product.reviews} reviews)
                 </span>
-              </div>
+            </div>
 
-              {/* Price */}
+            {/* Price */}
               <div className="py-4 border-y">
                 <p className="text-3xl font-medium">₹{product.price.toLocaleString()}</p>
                 <p className="text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
@@ -336,27 +392,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
               {/* Actions */}
               <div className="space-y-3">
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={isAdding}
+              <Button
+                onClick={handleAddToCart}
+                disabled={isAdding}
                   className="w-full uppercase tracking-wider py-6 bg-black text-white hover:bg-gray-800"
-                >
+              >
                   {isAdding ? "Added to Cart!" : "Add to Cart"}
-                </Button>
-                <Button
-                  onClick={handleBuyNow}
+              </Button>
+              <Button
+                onClick={handleBuyNow}
                   variant="outline"
                   className="w-full uppercase tracking-wider py-6"
-                >
-                  Buy It Now
-                </Button>
-              </div>
+              >
+                Buy It Now
+              </Button>
+            </div>
 
-              {/* Description */}
-              <div>
+            {/* Description */}
+                <div>
                 <h3 className="text-lg font-medium mb-3">Description</h3>
                 <p className="text-gray-600 leading-relaxed">{product.description}</p>
-              </div>
+          </div>
 
               {/* Specifications */}
               {product.specifications && (
@@ -366,53 +422,53 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     <div className="grid grid-cols-2 gap-2">
                       <dt className="text-gray-600">Material:</dt>
                       <dd className="font-medium">{product.specifications.material}</dd>
-                    </div>
+                  </div>
                     <div className="grid grid-cols-2 gap-2">
                       <dt className="text-gray-600">Closure:</dt>
                       <dd className="font-medium">{product.specifications.closureType}</dd>
-                    </div>
+                  </div>
                     {product.specifications.dimensions && (
                       <div className="grid grid-cols-2 gap-2">
                         <dt className="text-gray-600">Dimensions:</dt>
                         <dd className="font-medium">{product.specifications.dimensions}</dd>
-                      </div>
-                    )}
+              </div>
+            )}
                   </dl>
                 </div>
               )}
-            </div>
           </div>
+        </div>
 
           {/* Related Products */}
           {relatedProducts.length > 0 && (
             <div className="mt-16 md:mt-24">
               <h2 className="text-3xl md:text-4xl tracking-[0.1em] mb-8 text-center" style={{fontFamily: 'var(--font-abhaya)'}}>
                 You May Also Like
-              </h2>
+            </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {relatedProducts.map((relatedProduct) => (
                   <ProductCard key={relatedProduct.id} product={relatedProduct} />
-                ))}
-              </div>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+      </div>
       </div>
 
       <Footer />
 
       {/* Image Modal */}
       {isModalOpen && (
-        <div
+        <div 
           className="fixed inset-0 z-50 bg-white flex items-center justify-center p-4"
           onClick={() => setIsModalOpen(false)}
         >
-          <button
-            onClick={() => setIsModalOpen(false)}
+            <button
+              onClick={() => setIsModalOpen(false)}
             className="absolute top-4 right-4 text-black hover:text-gray-600 bg-white rounded-full p-2 shadow-lg"
-          >
+            >
             <X className="w-6 h-6" />
-          </button>
+            </button>
           <div className="relative max-w-5xl w-full h-[90vh]">
             {currentImage && (
               <Image
