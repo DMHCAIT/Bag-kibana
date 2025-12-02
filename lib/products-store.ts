@@ -1,7 +1,8 @@
 // Shared product store for both admin and frontend
 // This module provides a unified way to access and update product data
 
-import { products as staticProducts, Product } from './products-data';
+import { products as staticProducts } from './products-data';
+import type { Product } from './products-data';
 
 // Global store for product updates (shared across API routes)
 // Note: In production, use a database like Supabase
