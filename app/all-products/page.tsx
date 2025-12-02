@@ -22,10 +22,10 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Card className="border-0 shadow-sm hover:shadow-md transition-shadow group">
-      <CardContent className="p-4 space-y-3">
+    <Card className="border-0 shadow-sm hover:shadow-md transition-shadow group h-full flex flex-col">
+      <CardContent className="p-4 space-y-3 flex flex-col h-full">
         <Link href={`/products/${product.id}`}>
-          <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer">
+          <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden cursor-pointer">
             <Image
               src={product.images[0]}
               alt={`${product.name} - ${product.color}`}
@@ -36,9 +36,9 @@ function ProductCard({ product }: { product: Product }) {
           </div>
         </Link>
         
-        <div className="space-y-2">
+        <div className="space-y-2 flex-1 flex flex-col">
           <Link href={`/products/${product.id}`}>
-            <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity line-clamp-1">
+            <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity line-clamp-2">
               {product.name} - {product.color}
             </h3>
           </Link>
@@ -107,7 +107,7 @@ function ProductCard({ product }: { product: Product }) {
             disabled={isAdding}
             variant="outline"
             size="sm"
-            className="w-full uppercase tracking-wider text-xs hover:bg-black hover:text-white transition-all"
+            className="w-full uppercase tracking-wider text-xs hover:bg-black hover:text-white transition-all mt-auto"
           >
             {isAdding ? "Added!" : "Add to Cart +"}
           </Button>
