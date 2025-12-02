@@ -149,7 +149,13 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: var(--font-abhaya);
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Apply Abhaya Libre to all text elements by default */
+  h1, h2, h3, h4, h5, h6, p, span, div, button, input, textarea, select, label, a {
+    font-family: var(--font-abhaya);
   }
 }
 

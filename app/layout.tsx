@@ -47,7 +47,8 @@ export default function RootLayout({
         <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
       </head>
       <body
-        className={`${playfair.variable} ${inter.variable} ${outfit.variable} ${abhayaLibre.variable} font-sans antialiased`}
+        className={`${playfair.variable} ${inter.variable} ${outfit.variable} ${abhayaLibre.variable} antialiased`}
+        style={{ fontFamily: 'var(--font-abhaya)' }}
       >
         <ErrorBoundary>
           <Providers>

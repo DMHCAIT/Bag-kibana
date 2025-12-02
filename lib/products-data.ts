@@ -140,8 +140,8 @@ export const products: Product[] = [
     rating: 4.9,
     reviews: 12,
     images: [
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/02.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/03.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/04.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/09-10-2025--livia00473.jpg",
@@ -239,9 +239,9 @@ export const products: Product[] = [
     rating: 4.8,
     reviews: 15,
     images: [
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/01.png",
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/02.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/03.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/02.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/05.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/09-10-2025--livia00834.jpg",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/09-10-2025--livia00838.jpg",
@@ -337,8 +337,8 @@ export const products: Product[] = [
     rating: 4.8,
     reviews: 15,
     images: [
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Mocha%20Tan/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Mocha%20Tan/02.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Mocha%20Tan/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Mocha%20Tan/03.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Mocha%20Tan/04.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Mocha%20Tan/05.png",
@@ -483,9 +483,9 @@ export const products: Product[] = [
     rating: 4.9,
     reviews: 18,
     images: [
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Mint%20Green/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Mint%20Green/02.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Mint%20Green/03.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Mint%20Green/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Mint%20Green/04.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Mint%20Green/09-10-2025--livia00450.jpg",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Mint%20Green/09-10-2025--livia00452.jpg",
@@ -572,20 +572,24 @@ export const products: Product[] = [
       { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
     ]
   },
-  // VISTAPACK - Milky Blue
+  // VISTAPACK - Green
   {
-    id: "vistapack-milky-blue",
+    id: "vistapack-green",
     name: "VISTAPACK",
     category: "Backpack",
-    color: "Milky Blue",
+    color: "Green",
     price: 4499,
     rating: 4.9,
     reviews: 18,
     images: [
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Milky%20Blue/01.png",
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Milky%20Blue/02.png",
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Milky%20Blue/03.png",
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK%20-%20Milky%20Blue/04.png"
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK(%20green%20)/png_1.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK(%20green%20)/png_2.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK(%20green%20)/png_3.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK(%20green%20)/png_4.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK(%20green%20)/09-10-2025--livia00421.jpg",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK(%20green%20)/09-10-2025--livia00427.jpg",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK(%20green%20)/09-10-2025--livia00439.jpg",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/png%20(VISTAPACK%20)/VISTAPACK(%20green%20)/09-10-2025--livia00445.jpg"
     ],
     description: "VISTAPACK – Where Structure Meets Style. Step into a world of effortless charm with the VISTAPACK, a modern emblem of strength, style, and versatility. Defined by its bold chevron-inspired stitching and structured leather silhouette, this backpack whispers stories of movement, freedom, and self-expression. Designed to carry both your essentials and your spirit with ease, it is more than just a bag—it is a companion for journeys, both near and far.",
     specifications: {
@@ -614,7 +618,7 @@ export const products: Product[] = [
       { name: "Teal Blue", value: "#006D77.jpg", available: true },
       { name: "Mint Green", value: "#98D8C8.jpg", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Green", value: "#228B22", available: true }
     ]
   },
   // SANDESH LAPTOP BAG - Teal Blue
@@ -676,9 +680,9 @@ export const products: Product[] = [
     rating: 4.9,
     reviews: 10,
     images: [
-      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20LAPTOP%20BAG%20(%20png%20)%202/SANDESH%20LAPTOP%20BAG%20-%20Mint%20Green/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20LAPTOP%20BAG%20(%20png%20)%202/SANDESH%20LAPTOP%20BAG%20-%20Mint%20Green/02.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20LAPTOP%20BAG%20(%20png%20)%202/SANDESH%20LAPTOP%20BAG%20-%20Mint%20Green/03.png",
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20LAPTOP%20BAG%20(%20png%20)%202/SANDESH%20LAPTOP%20BAG%20-%20Mint%20Green/01.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20LAPTOP%20BAG%20(%20png%20)%202/SANDESH%20LAPTOP%20BAG%20-%20Mint%20Green/04.png",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20LAPTOP%20BAG%20(%20png%20)%202/SANDESH%20LAPTOP%20BAG%20-%20Mint%20Green/09-10-2025--livia00662.jpg",
       "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20LAPTOP%20BAG%20(%20png%20)%202/SANDESH%20LAPTOP%20BAG%20-%20Mint%20Green/09-10-2025--livia00669.jpg",

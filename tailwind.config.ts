@@ -21,7 +21,7 @@ const config: Config = {
         playfair: ['var(--font-playfair)', 'serif'],
         outfit: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
         abhaya: ['var(--font-abhaya)', 'serif'],
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-abhaya)', 'system-ui', 'sans-serif'], // Default to Abhaya Libre
         serif: ['var(--font-playfair)', 'serif'],
         display: ['var(--font-abhaya)', 'serif'],
       },
