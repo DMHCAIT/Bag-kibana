@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateCustomerFromOrder } from '../customers/route';
-
-// In-memory order storage - starts empty, will be populated by real orders
-let ordersDatabase: any[] = [];
+import { 
+  getAllOrders, 
+  searchOrders, 
+  getOrdersByStatus, 
+  createOrder,
+  getOrderStats,
+  Order 
+} from '@/lib/orders-store';
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,21 +16,23 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100');
 
-    let filteredOrders = [...ordersDatabase];
+    let filteredOrders: Order[];
 
-    // Filter by status
-    if (status && status !== 'all') {
-      filteredOrders = filteredOrders.filter(order => order.order_status === status);
-    }
-
-    // Search by customer name, email, or order ID (with null checks)
+    // Get orders based on filters
     if (search) {
-      filteredOrders = filteredOrders.filter(order =>
-        (order.customer_name?.toLowerCase() || '').includes(search) ||
-        (order.customer_email?.toLowerCase() || '').includes(search) ||
-        (order.id?.toLowerCase() || '').includes(search)
-      );
+      filteredOrders = searchOrders(search);
+    } else if (status && status !== 'all') {
+      filteredOrders = getOrdersByStatus(status);
+    } else {
+      filteredOrders = getAllOrders();
     }
+
+    // Sort by created_at (newest first)
+    filteredOrders.sort((a, b) => {
+      const dateA = new Date(a.created_at).getTime();
+      const dateB = new Date(b.created_at).getTime();
+      return dateB - dateA;
+    });
 
     // Pagination
     const totalOrders = filteredOrders.length;
@@ -35,12 +41,16 @@ export async function GET(req: NextRequest) {
     const endIndex = page * limit;
     const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
 
+    // Get stats
+    const stats = getOrderStats();
+
     return NextResponse.json({
       orders: paginatedOrders,
       totalOrders,
       totalPages,
       currentPage: page,
       limit,
+      stats,
     }, {
       status: 200,
       headers: {
@@ -63,36 +73,25 @@ export async function POST(req: NextRequest) {
   try {
     const orderData = await req.json();
 
-    const newOrder = {
-      id: `ORD-${Date.now().toString().slice(-6)}`,
+    const newOrder = createOrder({
       user_id: orderData.user_id || null,
-      customer_name: orderData.customer_name || `${orderData.firstName} ${orderData.lastName}`,
-      customer_email: orderData.customer_email || orderData.email,
-      customer_phone: orderData.customer_phone || orderData.phone,
+      customer_name: orderData.customer_name || `${orderData.firstName || ''} ${orderData.lastName || ''}`.trim(),
+      customer_email: orderData.customer_email || orderData.email || '',
+      customer_phone: orderData.customer_phone || orderData.phone || '',
       order_status: orderData.order_status || 'pending',
       payment_status: orderData.payment_status || (orderData.payment_method === 'cod' ? 'pending' : 'paid'),
-      total: orderData.total,
+      total: orderData.total || 0,
       items: orderData.items || [],
-      created_at: new Date().toISOString(),
-      shipping_address: orderData.shipping_address || `${orderData.address}, ${orderData.city}, ${orderData.state} - ${orderData.pincode}`,
-      payment_method: orderData.payment_method,
+      shipping_address: orderData.shipping_address || `${orderData.address || ''}, ${orderData.city || ''}, ${orderData.state || ''} - ${orderData.pincode || ''}`,
+      payment_method: orderData.payment_method || 'razorpay',
       razorpay_order_id: orderData.razorpay_order_id,
       razorpay_payment_id: orderData.razorpay_payment_id,
-    };
-
-    ordersDatabase.unshift(newOrder); // Add to beginning of array
-
-    // Update customer database
-    try {
-      updateCustomerFromOrder(newOrder);
-    } catch (customerError) {
-      console.error('Error updating customer:', customerError);
-      // Continue even if customer update fails
-    }
+    });
 
     return NextResponse.json({
       success: true,
       order: newOrder,
+      message: 'Order created successfully',
     }, {
       status: 201,
     });

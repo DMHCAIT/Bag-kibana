@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// In-memory customer database - will be populated from actual orders
-let customersDatabase: any[] = [];
+import { 
+  getAllCustomers, 
+  searchCustomers, 
+  getCustomerStats,
+  Customer 
+} from '@/lib/orders-store';
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,14 +13,13 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100');
 
-    let filteredCustomers = [...customersDatabase];
+    let filteredCustomers: Customer[];
 
-    // Search by name or email (with null checks)
+    // Get customers based on search
     if (search) {
-      filteredCustomers = filteredCustomers.filter(customer =>
-        (customer.full_name?.toLowerCase() || '').includes(search) ||
-        (customer.email?.toLowerCase() || '').includes(search)
-      );
+      filteredCustomers = searchCustomers(search);
+    } else {
+      filteredCustomers = getAllCustomers();
     }
 
     // Sort by created_at (newest first)
@@ -34,12 +36,16 @@ export async function GET(req: NextRequest) {
     const endIndex = page * limit;
     const paginatedCustomers = filteredCustomers.slice(startIndex, endIndex);
 
+    // Get stats
+    const stats = getCustomerStats();
+
     return NextResponse.json({
       customers: paginatedCustomers,
       totalCustomers,
       totalPages,
       currentPage: page,
       limit,
+      stats,
     }, {
       status: 200,
       headers: {
@@ -56,29 +62,3 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
-// Helper function to update customer data from orders
-export function updateCustomerFromOrder(orderData: any) {
-  const existingCustomerIndex = customersDatabase.findIndex(
-    c => c.email === orderData.customer_email
-  );
-
-  if (existingCustomerIndex >= 0) {
-    // Update existing customer
-    const customer = customersDatabase[existingCustomerIndex];
-    customer.order_count = (customer.order_count || 0) + 1;
-    customer.total_spent = (customer.total_spent || 0) + (orderData.total || 0);
-  } else {
-    // Add new customer
-    customersDatabase.push({
-      id: `CUST-${Date.now().toString().slice(-6)}`,
-      email: orderData.customer_email,
-      full_name: orderData.customer_name,
-      role: 'customer',
-      created_at: new Date().toISOString(),
-      order_count: 1,
-      total_spent: orderData.total || 0,
-    });
-  }
-}
-
