@@ -178,38 +178,30 @@ export default function ShopPage() {
   const [openFilter, setOpenFilter] = useState<string | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // Fetch products from database only
+  // Fetch products from API (uses static products)
   useEffect(() => {
     async function fetchProducts() {
       try {
         setLoading(true);
-        setError(null);
         
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
-        
-        const response = await fetch('/api/products', {
-          signal: controller.signal,
-          cache: 'no-store', // Always fetch fresh data
-        });
-        clearTimeout(timeoutId);
-        
+        const response = await fetch('/api/products');
         const data = await response.json();
         
         if (response.ok && data.products) {
           setProducts(data.products);
-          if (data.products.length === 0) {
-            setError('No products available. Please add products from the admin panel.');
-          }
         } else {
-          setError(data.error || 'Failed to load products');
+          // Fallback to static products
+          const { products: staticProducts } = await import('@/lib/products-data');
+          setProducts(staticProducts);
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error('Error fetching products:', err);
-        if (err.name === 'AbortError') {
-          setError('Request timed out. Please try again.');
-        } else {
-          setError('Failed to load products. Please try again.');
+        // Fallback to static products
+        try {
+          const { products: staticProducts } = await import('@/lib/products-data');
+          setProducts(staticProducts);
+        } catch {
+          setError('Failed to load products');
         }
       } finally {
         setLoading(false);

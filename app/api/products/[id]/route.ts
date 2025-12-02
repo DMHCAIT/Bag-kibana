@@ -1,41 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase';
-
-// Helper to extract database ID from product ID
-function extractDbId(id: string): number | null {
-  if (id.startsWith('product-')) {
-    const numId = parseInt(id.replace('product-', ''));
-    return isNaN(numId) ? null : numId;
-  }
-  const numId = parseInt(id);
-  return isNaN(numId) ? null : numId;
-}
-
-// Helper function to format database product for frontend
-function formatDbProduct(dbProduct: any) {
-  return {
-    id: `product-${dbProduct.id}`,
-    dbId: dbProduct.id,
-    name: dbProduct.name,
-    category: dbProduct.category,
-    color: dbProduct.color,
-    price: dbProduct.price,
-    salePrice: dbProduct.sale_price,
-    stock: dbProduct.stock,
-    rating: dbProduct.rating || 4.5,
-    reviews: dbProduct.reviews || 0,
-    images: dbProduct.images || [],
-    description: dbProduct.description,
-    specifications: dbProduct.specifications || {},
-    features: dbProduct.features || [],
-    careInstructions: dbProduct.care_instructions || [],
-    colors: [],
-    sections: [
-      ...(dbProduct.is_bestseller ? ['bestsellers'] : []),
-      ...(dbProduct.is_new ? ['new-arrivals'] : []),
-    ],
-  };
-}
+import { products as staticProducts } from '@/lib/products-data';
 
 export async function GET(
   request: NextRequest,
@@ -51,31 +15,10 @@ export async function GET(
       );
     }
 
-    const dbId = extractDbId(id);
-    
-    if (dbId === null) {
-      return NextResponse.json(
-        { error: 'Invalid product ID format', id },
-        { status: 400 }
-      );
-    }
+    // Find product in static data
+    const product = staticProducts.find((p: any) => p.id === id);
 
-    // Fetch from Supabase
-    const { data: dbProduct, error } = await supabaseAdmin
-      .from('products')
-      .select('*')
-      .eq('id', dbId)
-      .single();
-
-    if (error) {
-      console.error('Supabase error fetching product:', error);
-      return NextResponse.json(
-        { error: 'Product not found', id },
-        { status: 404 }
-      );
-    }
-
-    if (!dbProduct) {
+    if (!product) {
       return NextResponse.json(
         { error: 'Product not found', id },
         { status: 404 }
@@ -84,13 +27,13 @@ export async function GET(
 
     return NextResponse.json(
       { 
-        product: formatDbProduct(dbProduct),
-        source: 'database',
+        product,
+        source: 'static',
         status: 'success'
       },
       {
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Cache-Control': 'public, max-age=60, stale-while-revalidate=30',
         },
       }
     );
