@@ -126,20 +126,36 @@ export default function CheckoutPage() {
     setLoading(true);
 
     try {
+      // Build proper address object for database
+      const shippingAddress = {
+        full_name: `${formData.firstName} ${formData.lastName}`,
+        phone: formData.phone,
+        address_line1: formData.address,
+        city: formData.city,
+        state: formData.state,
+        postal_code: formData.pincode,
+        country: "India",
+      };
+
       if (formData.paymentMethod === "cod") {
         // Cash on Delivery - Direct order creation
         const orderData = {
-          user_id: user?.id,
+          user_id: user?.id || null,
           customer_name: `${formData.firstName} ${formData.lastName}`,
           customer_email: formData.email,
           customer_phone: formData.phone,
-          shipping_address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
+          shipping_address: shippingAddress,
+          billing_address: shippingAddress,
           items: cart.items.map((item) => ({
             product_id: item.product.id,
             name: `${item.product.name} - ${item.product.color}`,
+            color: item.product.color,
             quantity: item.quantity,
             price: item.product.price,
+            image: item.product.images?.[0] || "",
           })),
+          subtotal: cart.subtotal,
+          shipping_fee: 0,
           total: cart.subtotal,
           payment_method: "cod",
           payment_status: "pending",
@@ -212,33 +228,39 @@ export default function CheckoutPage() {
             const verifyData = await verifyResponse.json();
 
             if (verifyResponse.ok) {
-              // Save order to admin
+              // Save order to admin with proper address format
               const orderData = {
-                user_id: user?.id,
+                user_id: user?.id || null,
                 customer_name: `${formData.firstName} ${formData.lastName}`,
                 customer_email: formData.email,
                 customer_phone: formData.phone,
-                shipping_address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
+                shipping_address: shippingAddress,
+                billing_address: shippingAddress,
                 items: cart.items.map((item) => ({
                   product_id: item.product.id,
                   name: `${item.product.name} - ${item.product.color}`,
+                  color: item.product.color,
                   quantity: item.quantity,
                   price: item.product.price,
+                  image: item.product.images?.[0] || "",
                 })),
+                subtotal: cart.subtotal,
+                shipping_fee: 0,
                 total: cart.subtotal,
                 payment_method: "razorpay",
                 payment_status: "paid",
                 order_status: "confirmed",
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
+                payment_id: response.razorpay_payment_id,
               };
 
               try {
-                await fetch("/api/admin/orders", {
+                const saveResponse = await fetch("/api/admin/orders", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(orderData),
                 });
+                const savedOrder = await saveResponse.json();
+                console.log("Order saved:", savedOrder);
               } catch (saveError) {
                 console.error("Error saving order to admin:", saveError);
               }
