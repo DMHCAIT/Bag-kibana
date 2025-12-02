@@ -113,31 +113,41 @@ export default function CheckoutPage() {
           customer_name: `${formData.firstName} ${formData.lastName}`,
           customer_email: formData.email,
           customer_phone: formData.phone,
-          shipping_address: {
-            address: formData.address,
-            city: formData.city,
-            state: formData.state,
-            pincode: formData.pincode,
-          },
+          shipping_address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
           items: cart.items.map((item) => ({
             product_id: item.product.id,
-            product_name: item.product.name,
+            name: `${item.product.name} - ${item.product.color}`,
             quantity: item.quantity,
             price: item.product.price,
           })),
-          subtotal: cart.subtotal,
-          shipping: 0,
           total: cart.subtotal,
           payment_method: "cod",
+          payment_status: "pending",
           order_status: "pending",
         };
 
-        // Save order (you can call an API here)
-        console.log("Order placed:", orderData);
-        
-        // Clear cart and redirect
-        clearCart();
-        router.push(`/order-success?orderId=COD-${Date.now()}&method=cod`);
+        // Save order to admin
+        try {
+          const saveResponse = await fetch("/api/admin/orders", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderData),
+          });
+
+          const savedOrder = await saveResponse.json();
+          
+          if (saveResponse.ok && savedOrder.order) {
+            clearCart();
+            router.push(`/order-success?orderId=${savedOrder.order.id}&method=cod`);
+          } else {
+            throw new Error("Failed to save order");
+          }
+        } catch (saveError) {
+          console.error("Error saving COD order:", saveError);
+          // Still proceed to success page
+          clearCart();
+          router.push(`/order-success?orderId=COD-${Date.now()}&method=cod`);
+        }
       } else {
         // Razorpay Payment
         const response = await fetch("/api/razorpay/create-order", {
@@ -166,7 +176,7 @@ export default function CheckoutPage() {
           description: "Purchase from KIBANA",
           order_id: data.id,
           handler: async function (response: any) {
-            // Verify payment
+            // Verify payment and save order
             const verifyResponse = await fetch("/api/razorpay/verify-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -179,7 +189,39 @@ export default function CheckoutPage() {
               }),
             });
 
+            const verifyData = await verifyResponse.json();
+
             if (verifyResponse.ok) {
+              // Save order to admin
+              const orderData = {
+                customer_name: `${formData.firstName} ${formData.lastName}`,
+                customer_email: formData.email,
+                customer_phone: formData.phone,
+                shipping_address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
+                items: cart.items.map((item) => ({
+                  product_id: item.product.id,
+                  name: `${item.product.name} - ${item.product.color}`,
+                  quantity: item.quantity,
+                  price: item.product.price,
+                })),
+                total: cart.subtotal,
+                payment_method: "razorpay",
+                payment_status: "paid",
+                order_status: "confirmed",
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+              };
+
+              try {
+                await fetch("/api/admin/orders", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(orderData),
+                });
+              } catch (saveError) {
+                console.error("Error saving order to admin:", saveError);
+              }
+
               clearCart();
               router.push(
                 `/order-success?orderId=${response.razorpay_order_id}&paymentId=${response.razorpay_payment_id}`
