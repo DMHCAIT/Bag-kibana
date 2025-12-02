@@ -44,15 +44,15 @@ export async function GET(req: NextRequest) {
 
     const stats = {
       total: allOrders?.length || 0,
-      pending: allOrders?.filter(o => o.order_status === 'pending').length || 0,
-      confirmed: allOrders?.filter(o => o.order_status === 'confirmed').length || 0,
-      processing: allOrders?.filter(o => o.order_status === 'processing').length || 0,
-      shipped: allOrders?.filter(o => o.order_status === 'shipped').length || 0,
-      delivered: allOrders?.filter(o => o.order_status === 'delivered').length || 0,
-      cancelled: allOrders?.filter(o => o.order_status === 'cancelled').length || 0,
-      codOrders: allOrders?.filter(o => o.payment_method === 'cod').length || 0,
-      razorpayOrders: allOrders?.filter(o => o.payment_method === 'razorpay').length || 0,
-      totalRevenue: allOrders?.filter(o => o.payment_status === 'paid').reduce((sum, o) => sum + (o.total || 0), 0) || 0,
+      pending: allOrders?.filter((o: any) => o.order_status === 'pending').length || 0,
+      confirmed: allOrders?.filter((o: any) => o.order_status === 'confirmed').length || 0,
+      processing: allOrders?.filter((o: any) => o.order_status === 'processing').length || 0,
+      shipped: allOrders?.filter((o: any) => o.order_status === 'shipped').length || 0,
+      delivered: allOrders?.filter((o: any) => o.order_status === 'delivered').length || 0,
+      cancelled: allOrders?.filter((o: any) => o.order_status === 'cancelled').length || 0,
+      codOrders: allOrders?.filter((o: any) => o.payment_method === 'cod').length || 0,
+      razorpayOrders: allOrders?.filter((o: any) => o.payment_method === 'razorpay').length || 0,
+      totalRevenue: allOrders?.filter((o: any) => o.payment_status === 'paid').reduce((sum: number, o: any) => sum + (o.total || 0), 0) || 0,
     };
 
     return NextResponse.json({
