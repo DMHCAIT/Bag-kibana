@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ interface FormErrors {
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
+  const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -45,12 +47,29 @@ export default function CheckoutPage() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
-  // Redirect if cart is empty
+  // Redirect if not authenticated or cart is empty
   useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/signin?redirect=/checkout&message=Please sign in to continue checkout");
+    }
     if (cart.isEmpty) {
       router.push("/cart");
     }
-  }, [cart.isEmpty, router]);
+  }, [user, authLoading, cart.isEmpty, router]);
+
+  // Pre-fill form with user data
+  useEffect(() => {
+    if (user) {
+      const [firstName, ...lastNameParts] = user.name.split(' ');
+      setFormData(prev => ({
+        ...prev,
+        email: user.email,
+        firstName: firstName,
+        lastName: lastNameParts.join(' ') || '',
+        phone: user.phone,
+      }));
+    }
+  }, [user]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -110,6 +129,7 @@ export default function CheckoutPage() {
       if (formData.paymentMethod === "cod") {
         // Cash on Delivery - Direct order creation
         const orderData = {
+          user_id: user?.id,
           customer_name: `${formData.firstName} ${formData.lastName}`,
           customer_email: formData.email,
           customer_phone: formData.phone,
@@ -194,6 +214,7 @@ export default function CheckoutPage() {
             if (verifyResponse.ok) {
               // Save order to admin
               const orderData = {
+                user_id: user?.id,
                 customer_name: `${formData.firstName} ${formData.lastName}`,
                 customer_email: formData.email,
                 customer_phone: formData.phone,

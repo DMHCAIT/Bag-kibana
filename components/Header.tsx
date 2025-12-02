@@ -1,19 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Search, User, ShoppingBag, Menu, X, LogOut, Package } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
   const { cart } = useCart();
+  const { user, signOut, isLoading } = useAuth();
+  const router = useRouter();
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   // Handle hydration
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    }
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [userMenuOpen]);
+
+  const handleSignOut = () => {
+    signOut();
+    setUserMenuOpen(false);
+    router.push('/');
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white border-b border-[#EDEDED]">
@@ -74,9 +99,51 @@ export default function Header() {
               <button className="hover:opacity-60 transition-opacity" aria-label="Search">
                 <Search className="w-5 h-5" />
               </button>
-              <button className="hover:opacity-60 transition-opacity" aria-label="Account">
-                <User className="w-5 h-5" />
-              </button>
+              
+              {/* User Menu */}
+              {isClient && (
+                isLoading ? (
+                  <div className="w-5 h-5 animate-pulse bg-gray-200 rounded-full"></div>
+                ) : user ? (
+                  <div className="relative" ref={userMenuRef}>
+                    <button
+                      onClick={() => setUserMenuOpen(!userMenuOpen)}
+                      className="hover:opacity-60 transition-opacity flex items-center gap-2"
+                      aria-label="Account"
+                    >
+                      <User className="w-5 h-5" />
+                    </button>
+                    
+                    {userMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                        </div>
+                        <Link
+                          href="/account"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        >
+                          <Package className="w-4 h-4" />
+                          My Orders
+                        </Link>
+                        <button
+                          onClick={handleSignOut}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Link href="/signin" className="hover:opacity-60 transition-opacity">
+                    <User className="w-5 h-5" />
+                  </Link>
+                )
+              )}
             </div>
 
             {/* Cart Icon */}

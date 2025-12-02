@@ -187,10 +187,10 @@ export default function Footer() {
             <div className="text-sm text-gray-400">
               <p className="mb-2">Call/WhatsApp:</p>
               <a
-                href="tel:+919876543210"
+                href="tel:+919711414110"
                 className="hover:text-white transition-colors"
               >
-                +91 98765 43210
+                +91 97114 14110
               </a>
             </div>
           </div>

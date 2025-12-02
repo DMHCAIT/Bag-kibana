@@ -81,6 +81,18 @@ export async function POST(req: NextRequest) {
 
     ordersDatabase.unshift(newOrder); // Add to beginning of array
 
+    // Also save to user-specific orders in localStorage
+    if (newOrder.user_id) {
+      try {
+        // Save to localStorage for user access
+        const existingOrders = JSON.parse(localStorage?.getItem?.('kibana_orders') || '[]');
+        existingOrders.unshift(newOrder);
+        localStorage?.setItem?.('kibana_orders', JSON.stringify(existingOrders));
+      } catch (localStorageError) {
+        console.error('Error saving to localStorage:', localStorageError);
+      }
+    }
+
     // Update customer database
     try {
       updateCustomerFromOrder(newOrder);

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter, Outfit, Abhaya_Libre } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/contexts/CartContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
@@ -52,7 +53,9 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <Providers>
-            <CartProvider>{children}</CartProvider>
+            <AuthProvider>
+              <CartProvider>{children}</CartProvider>
+            </AuthProvider>
           </Providers>
         </ErrorBoundary>
       </body>
