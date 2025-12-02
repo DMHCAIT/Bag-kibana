@@ -146,6 +146,10 @@
     outline-color: hsl(var(--ring) / 0.5);
   }
   
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -171,6 +175,39 @@
 /* Smooth scroll behavior */
 .scroll-smooth {
   scroll-behavior: smooth;
+}
+
+/* Mobile 2-row grid with smooth horizontal scroll */
+.mobile-grid-scroll {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mobile-grid-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-grid-scroll > * {
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .mobile-grid-scroll {
+    display: grid;
+    grid-auto-flow: unset;
+    grid-template-rows: unset;
+    grid-template-columns: repeat(4, 1fr);
+    overflow-x: visible;
+  }
 }
 
 /* Abhaya Libre Font Utilities */

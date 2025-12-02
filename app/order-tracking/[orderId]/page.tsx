@@ -41,28 +41,37 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
       return;
     }
 
-    if (user && orderId) {
-      try {
-        // Get all orders from localStorage
-        const allOrders = JSON.parse(localStorage.getItem('kibana_orders') || '[]');
-        
-        // Find the specific order
-        const foundOrder = allOrders.find((o: Order) => o.id === orderId);
+    async function fetchOrder() {
+      if (user && orderId) {
+        try {
+          // Fetch orders from admin API
+          const response = await fetch('/api/admin/orders');
+          const data = await response.json();
+          
+          if (response.ok && data.orders) {
+            // Find the specific order
+            const foundOrder = data.orders.find((o: Order) => o.id === orderId);
 
-        if (!foundOrder) {
-          setError('Order not found');
-        } else if (foundOrder.user_id !== user.id) {
-          setError('You do not have permission to view this order');
-        } else {
-          setOrder(foundOrder);
+            if (!foundOrder) {
+              setError('Order not found');
+            } else if (foundOrder.user_id && foundOrder.user_id !== user.id) {
+              setError('You do not have permission to view this order');
+            } else {
+              setOrder(foundOrder);
+            }
+          } else {
+            setError('Failed to load order');
+          }
+        } catch (err) {
+          console.error('Error loading order:', err);
+          setError('Failed to load order details');
+        } finally {
+          setLoading(false);
         }
-      } catch (err) {
-        console.error('Error loading order:', err);
-        setError('Failed to load order details');
-      } finally {
-        setLoading(false);
       }
     }
+    
+    fetchOrder();
   }, [orderId, user, authLoading, router]);
 
   const getStatusStep = (status: string) => {
