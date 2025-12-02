@@ -190,38 +190,39 @@ export default function NewCollectionCarousel() {
           </div>
         ) : (
           <>
-            {/* Carousel */}
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-4">
+            {/* Mobile: 2-row horizontal scroll */}
+            <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
+              <div className="grid grid-rows-2 grid-flow-col gap-4" style={{ gridAutoColumns: 'minmax(160px, 1fr)' }}>
                 {newProducts.map((product) => (
-                  <CarouselItem
-                    key={product.id}
-                    className="pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4"
-                  >
+                  <div key={product.id} className="w-[160px]">
                     <ProductCard product={product} />
-                  </CarouselItem>
+                  </div>
                 ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden md:flex -left-4" />
-              <CarouselNext className="hidden md:flex -right-4" />
-            </Carousel>
-
-            {/* Dot Indicators - Mobile */}
-            <div className="flex justify-center gap-2 mt-8 md:hidden">
-              {[0, 1, 2].map((idx) => (
-                <div
-                  key={idx}
-                  className={`w-2 h-2 rounded-full ${
-                    idx === 0 ? "bg-black" : "bg-gray-300"
-                  }`}
-                />
-              ))}
+              </div>
+            </div>
+            
+            {/* Desktop: Carousel with 4 items */}
+            <div className="hidden lg:block">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent className="-ml-4">
+                  {newProducts.map((product) => (
+                    <CarouselItem
+                      key={product.id}
+                      className="pl-4 basis-1/4"
+                    >
+                      <ProductCard product={product} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="-left-4" />
+                <CarouselNext className="-right-4" />
+              </Carousel>
             </div>
           </>
         )}

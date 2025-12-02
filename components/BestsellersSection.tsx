@@ -214,7 +214,19 @@ export default function BestsellersSection() {
             </TabsList>
 
             <TabsContent value="women">
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+              {/* Mobile: 2-row horizontal scroll */}
+              <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
+                <div className="grid grid-rows-2 grid-flow-col gap-4" style={{ gridAutoColumns: 'minmax(160px, 1fr)' }}>
+                  {bestsellers.map((product) => (
+                    <div key={product.id} className="w-[160px]">
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Desktop: 4-column grid */}
+              <div className="hidden lg:grid lg:grid-cols-4 gap-8">
                 {bestsellers.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
