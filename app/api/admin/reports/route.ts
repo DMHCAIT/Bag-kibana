@@ -34,14 +34,14 @@ export async function GET(req: NextRequest) {
       .lt('created_at', cutoffISO);
 
     // Calculate totals
-    const paidOrders = orders?.filter(o => o.payment_status === 'paid') || [];
-    const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    const paidOrders = orders?.filter((o: any) => o.payment_status === 'paid') || [];
+    const totalRevenue = paidOrders.reduce((sum: number, o: any) => sum + (o.total || 0), 0);
     const totalOrders = orders?.length || 0;
     const avgOrderValue = totalOrders > 0 ? Math.floor(totalRevenue / totalOrders) : 0;
 
     // Previous period calculations
-    const previousPaidOrders = previousOrders?.filter(o => o.payment_status === 'paid') || [];
-    const previousRevenue = previousPaidOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+    const previousPaidOrders = previousOrders?.filter((o: any) => o.payment_status === 'paid') || [];
+    const previousRevenue = previousPaidOrders.reduce((sum: number, o: any) => sum + (o.total || 0), 0);
     const previousOrderCount = previousOrders?.length || 0;
 
     const revenueChange = previousRevenue > 0 
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
     // Calculate top products from order items
     const productSales: Record<string, { name: string; color: string; total_sold: number; revenue: number }> = {};
     
-    orders?.forEach(order => {
+    orders?.forEach((order: any) => {
       const items = order.items || [];
       items.forEach((item: any) => {
         const key = item.name || item.product_id;
