@@ -76,17 +76,43 @@ function ProductCard({ product }: { product: Product }) {
             ₹{product.price.toLocaleString()}
           </p>
 
-          {/* Color Options */}
+          {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
             <div className="flex gap-2">
-              {product.colors.map((colorOption, idx) => (
-                <button
-                  key={idx}
-                  className="w-6 h-6 rounded-full border-2 border-gray-300 hover:border-black transition-colors"
-                  style={{ backgroundColor: colorOption.value }}
-                  aria-label={colorOption.name}
-                />
-              ))}
+              {product.colors.map((colorOption, idx) => {
+                // Fix color values that have .jpg extension
+                let colorValue = colorOption.value;
+                if (colorValue.includes('.jpg')) {
+                  const colorMap: {[key: string]: string} = {
+                    '#006D77.jpg': '#006D77',
+                    '#98D8C8.jpg': '#98D8C8', 
+                    '#B8D4E8.jpg': '#B8D4E8',
+                    '#9B6B4F': '#9B6B4F'
+                  };
+                  colorValue = colorMap[colorValue] || '#9B6B4F';
+                }
+                
+                // Generate product ID for this color variant
+                const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
+                const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
+                const colorVariantId = `${productNameSlug}-${colorSlug}`;
+                const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
+                
+                return (
+                  <Link
+                    key={idx}
+                    href={`/products/${colorVariantId}`}
+                    className={`w-7 h-7 rounded-full border-2 transition-all ring-1 ${
+                      isCurrentColor 
+                        ? 'border-black ring-black ring-2' 
+                        : 'border-gray-300 hover:border-black ring-gray-200'
+                    }`}
+                    style={{ backgroundColor: colorValue }}
+                    aria-label={`View ${colorOption.name} variant`}
+                    title={colorOption.name}
+                  />
+                );
+              })}
             </div>
           )}
 

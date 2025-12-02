@@ -77,12 +77,24 @@ function ProductCard({ product }: { product: Product }) {
                   colorValue = colorMap[colorValue] || '#9B6B4F';
                 }
                 
+                // Generate product ID for this color variant
+                const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
+                const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
+                const colorVariantId = `${productNameSlug}-${colorSlug}`;
+                const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
+                
                 return (
-                  <button
+                  <Link
                     key={idx}
-                    className="w-7 h-7 rounded-full border-2 border-gray-300 hover:border-black transition-colors ring-1 ring-gray-200"
+                    href={`/products/${colorVariantId}`}
+                    className={`w-7 h-7 rounded-full border-2 transition-all ring-1 ${
+                      isCurrentColor 
+                        ? 'border-black ring-black ring-2' 
+                        : 'border-gray-300 hover:border-black ring-gray-200'
+                    }`}
                     style={{ backgroundColor: colorValue }}
-                    aria-label={colorOption.name}
+                    aria-label={`View ${colorOption.name} variant`}
+                    title={colorOption.name}
                   />
                 );
               })}
