@@ -260,7 +260,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Product Images */}
             <div className="space-y-4">
               {/* Main Image */}
-              <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-zoom-in"
+              <div className="relative aspect-[4/5] bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in"
                    onClick={() => setIsModalOpen(true)}>
                 {currentImage && (
                   <Image
@@ -268,7 +268,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     alt={`${product.name} - ${product.color}`}
                     fill
                     priority
-                    className="object-cover"
+                    className="object-contain p-4"
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 )}
@@ -281,7 +281,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`relative aspect-square bg-gray-100 rounded-md overflow-hidden border-2 transition-all ${
+                      className={`relative aspect-square bg-gray-50 rounded-md overflow-hidden border-2 transition-all ${
                         selectedImage === index
                           ? "border-black"
                           : "border-transparent hover:border-gray-300"
@@ -291,7 +291,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         src={image}
                         alt={`View ${index + 1}`}
                         fill
-                        className="object-cover"
+                        className="object-contain p-2"
                         sizes="150px"
                       />
                     </button>
@@ -404,23 +404,23 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       {/* Image Modal */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-white flex items-center justify-center p-4"
           onClick={() => setIsModalOpen(false)}
         >
           <button
             onClick={() => setIsModalOpen(false)}
-            className="absolute top-4 right-4 text-white hover:text-gray-300"
+            className="absolute top-4 right-4 text-black hover:text-gray-600 bg-white rounded-full p-2 shadow-lg"
           >
-            <X className="w-8 h-8" />
+            <X className="w-6 h-6" />
           </button>
-          <div className="relative max-w-4xl w-full aspect-square">
+          <div className="relative max-w-5xl w-full h-[90vh]">
             {currentImage && (
               <Image
                 src={currentImage}
                 alt={`${product.name} - ${product.color}`}
                 fill
                 className="object-contain"
-                sizes="(max-width: 1024px) 100vw, 80vw"
+                sizes="90vw"
               />
             )}
           </div>
