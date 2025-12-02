@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOrderById, updateOrder, deleteOrder } from '@/lib/orders-store';
+import { supabaseAdmin } from '@/lib/supabase';
 
-// GET - Fetch single order by ID
+// GET - Fetch single order by ID from database
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -9,13 +9,20 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const order = getOrderById(id);
+    const { data: order, error } = await supabaseAdmin
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-    if (!order) {
-      return NextResponse.json(
-        { error: 'Order not found', id },
-        { status: 404 }
-      );
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Order not found', id },
+          { status: 404 }
+        );
+      }
+      throw error;
     }
 
     return NextResponse.json({
@@ -26,16 +33,16 @@ export async function GET(
         'Cache-Control': 'no-store, no-cache',
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching order:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch order' },
+      { error: error.message || 'Failed to fetch order' },
       { status: 500 }
     );
   }
 }
 
-// PATCH - Update order status
+// PATCH - Update order status in database
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -44,17 +51,35 @@ export async function PATCH(
     const { id } = await params;
     const data = await request.json();
 
-    const updatedOrder = updateOrder(id, data);
+    // Prepare update data
+    const updateData: any = {
+      updated_at: new Date().toISOString(),
+    };
 
-    if (!updatedOrder) {
-      return NextResponse.json(
-        { error: 'Order not found', id },
-        { status: 404 }
-      );
+    if (data.order_status) updateData.order_status = data.order_status;
+    if (data.payment_status) updateData.payment_status = data.payment_status;
+    if (data.tracking_number) updateData.tracking_number = data.tracking_number;
+    if (data.notes !== undefined) updateData.notes = data.notes;
+
+    const { data: order, error } = await supabaseAdmin
+      .from('orders')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Order not found', id },
+          { status: 404 }
+        );
+      }
+      throw error;
     }
 
     return NextResponse.json({
-      order: updatedOrder,
+      order,
       message: 'Order updated successfully',
       status: 'success'
     }, {
@@ -62,16 +87,16 @@ export async function PATCH(
         'Cache-Control': 'no-store',
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating order:', error);
     return NextResponse.json(
-      { error: 'Failed to update order' },
+      { error: error.message || 'Failed to update order' },
       { status: 500 }
     );
   }
 }
 
-// DELETE - Delete order
+// DELETE - Delete order from database
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -79,13 +104,13 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    const deleted = deleteOrder(id);
+    const { error } = await supabaseAdmin
+      .from('orders')
+      .delete()
+      .eq('id', id);
 
-    if (!deleted) {
-      return NextResponse.json(
-        { error: 'Order not found', id },
-        { status: 404 }
-      );
+    if (error) {
+      throw error;
     }
 
     return NextResponse.json({
@@ -97,12 +122,11 @@ export async function DELETE(
         'Cache-Control': 'no-store',
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting order:', error);
     return NextResponse.json(
-      { error: 'Failed to delete order' },
+      { error: error.message || 'Failed to delete order' },
       { status: 500 }
     );
   }
 }
-

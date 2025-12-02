@@ -426,6 +426,43 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <p className="text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
               </div>
 
+              {/* Available Colors - Moved to top */}
+              {product.colors && product.colors.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-700 mb-3">Available Colors</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {product.colors.map((colorOption, index) => {
+                      const colorValue = colorOption.value.replace('.jpg', '');
+                      const baseName = product.name.toLowerCase().replace(/\s+/g, '-');
+                      const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
+                      const productLink = `/products/${baseName}-${colorSlug}`;
+                      const isCurrentColor = colorOption.name.toLowerCase() === product.color.toLowerCase();
+                      
+                      return (
+                        <Link
+                          key={index}
+                          href={productLink}
+                          className={`group relative flex items-center gap-2 px-3 py-2 border rounded-lg transition-all ${
+                            isCurrentColor 
+                              ? 'border-black bg-gray-50' 
+                              : 'border-gray-200 hover:border-gray-400'
+                          } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
+                        >
+                          <span
+                            className="w-5 h-5 rounded-full border border-gray-300"
+                            style={{ backgroundColor: colorValue }}
+                          />
+                          <span className="text-sm">{colorOption.name}</span>
+                          {isCurrentColor && (
+                            <Check className="w-4 h-4 text-black" />
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Actions */}
               <div className="space-y-3">
               <Button
@@ -576,42 +613,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               )}
 
-              {/* Available Colors */}
-              {product.colors && product.colors.length > 0 && (
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-medium mb-4">Available Colors</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {product.colors.map((colorOption, index) => {
-                      const colorValue = colorOption.value.replace('.jpg', '');
-                      const baseName = product.name.toLowerCase().replace(/\s+/g, '-');
-                      const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
-                      const productLink = `/products/${baseName}-${colorSlug}`;
-                      const isCurrentColor = colorOption.name.toLowerCase() === product.color.toLowerCase();
-                      
-                      return (
-                        <Link
-                          key={index}
-                          href={productLink}
-                          className={`group relative flex items-center gap-2 px-3 py-2 border rounded-lg transition-all ${
-                            isCurrentColor 
-                              ? 'border-black bg-gray-50' 
-                              : 'border-gray-200 hover:border-gray-400'
-                          } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
-                        >
-                          <span
-                            className="w-6 h-6 rounded-full border border-gray-300"
-                            style={{ backgroundColor: colorValue }}
-                          />
-                          <span className="text-sm">{colorOption.name}</span>
-                          {isCurrentColor && (
-                            <Check className="w-4 h-4 text-black" />
-                          )}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
           </div>
         </div>
 

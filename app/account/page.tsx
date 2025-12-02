@@ -34,34 +34,20 @@ export default function AccountPage() {
     }
   }, [user, isLoading, router]);
 
-  // Fetch user's orders from admin API
+  // Fetch user's orders from database
   useEffect(() => {
     async function fetchUserOrders() {
       if (user) {
         try {
-          // Fetch all orders from admin API
-          const response = await fetch('/api/admin/orders');
+          // Fetch orders for this user from the user orders API
+          const response = await fetch(`/api/user/orders?email=${encodeURIComponent(user.email)}`);
           const data = await response.json();
           
           if (response.ok && data.orders) {
-            // Filter orders for current user
-            const userOrders = data.orders.filter((order: any) => order.user_id === user.id);
-            setOrders(userOrders);
-            
-            // Also save to localStorage for offline access
-            localStorage.setItem(`kibana_user_orders_${user.id}`, JSON.stringify(userOrders));
+            setOrders(data.orders);
           }
         } catch (error) {
           console.error('Error loading orders:', error);
-          // Fallback to localStorage if API fails
-          try {
-            const cachedOrders = localStorage.getItem(`kibana_user_orders_${user.id}`);
-            if (cachedOrders) {
-              setOrders(JSON.parse(cachedOrders));
-            }
-          } catch (cacheError) {
-            console.error('Error loading cached orders:', cacheError);
-          }
         } finally {
           setLoadingOrders(false);
         }
