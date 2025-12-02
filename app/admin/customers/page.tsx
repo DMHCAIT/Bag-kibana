@@ -46,8 +46,8 @@ export default function CustomersPage() {
 
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      (customer.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (customer.full_name?.toLowerCase() || '').includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -213,7 +213,7 @@ export default function CustomersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Calendar className="w-4 h-4" />
-                        {format(new Date(customer.created_at), "MMM dd, yyyy")}
+                        {customer.created_at ? format(new Date(customer.created_at), "MMM dd, yyyy") : 'N/A'}
                       </div>
                     </td>
                   </tr>

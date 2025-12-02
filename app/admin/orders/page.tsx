@@ -51,9 +51,9 @@ export default function OrdersPage() {
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
-      order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer_email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.id.toLowerCase().includes(searchTerm.toLowerCase());
+      (order.customer_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (order.customer_email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (order.id?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
     const matchesStatus =
       statusFilter === "all" || order.order_status === statusFilter;
@@ -106,13 +106,13 @@ export default function OrdersPage() {
     const csv = [
       ["Order ID", "Customer", "Email", "Total", "Status", "Payment", "Date"],
       ...filteredOrders.map((order) => [
-        order.id,
-        order.customer_name,
-        order.customer_email,
-        order.total,
-        order.order_status,
-        order.payment_status,
-        format(new Date(order.created_at), "MMM dd, yyyy"),
+        order.id || '',
+        order.customer_name || '',
+        order.customer_email || '',
+        order.total || 0,
+        order.order_status || '',
+        order.payment_status || '',
+        order.created_at ? format(new Date(order.created_at), "MMM dd, yyyy") : 'N/A',
       ]),
     ]
       .map((row) => row.join(","))
@@ -327,7 +327,7 @@ export default function OrdersPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {format(new Date(order.created_at), "MMM dd, yyyy")}
+                      {order.created_at ? format(new Date(order.created_at), "MMM dd, yyyy") : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Link
