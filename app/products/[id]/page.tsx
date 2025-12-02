@@ -2,7 +2,7 @@
 
 import { useState, use, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Star, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Star, ChevronDown, ChevronUp, X, Check } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -77,6 +77,40 @@ function ProductCard({ product }: { product: Product }) {
   );
 }
 
+// Accordion Component
+function AccordionItem({ 
+  title, 
+  children, 
+  isOpen, 
+  onToggle 
+}: { 
+  title: string; 
+  children: React.ReactNode; 
+  isOpen: boolean; 
+  onToggle: () => void;
+}) {
+  return (
+    <div className="border-b border-gray-200">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between py-4 text-left"
+      >
+        <span className="font-medium text-gray-900">{title}</span>
+        {isOpen ? (
+          <ChevronUp className="w-5 h-5 text-gray-500" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-gray-500" />
+        )}
+      </button>
+      {isOpen && (
+        <div className="pb-4 text-gray-600">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const unwrappedParams = use(params);
   const productId = unwrappedParams.id;
@@ -90,12 +124,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quantity] = useState(1);
-  const [showFeatures, setShowFeatures] = useState(true);
-  const [showProductCare, setShowProductCare] = useState(false);
-  const [showShipping, setShowShipping] = useState(false);
-  const [showWarranty, setShowWarranty] = useState(false);
-  const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  
+  // Accordion states
+  const [openSection, setOpenSection] = useState<string | null>("features");
 
   useEffect(() => {
     let isMounted = true;
@@ -201,6 +233,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     
     addToCart(product, quantity);
     router.push("/checkout");
+  };
+
+  const toggleSection = (section: string) => {
+    setOpenSection(openSection === section ? null : section);
   };
 
   if (loading) {
@@ -423,17 +459,157 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       <dt className="text-gray-600">Material:</dt>
                       <dd className="font-medium">{product.specifications.material}</dd>
                   </div>
+                    {product.specifications.texture && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <dt className="text-gray-600">Texture:</dt>
+                        <dd className="font-medium">{product.specifications.texture}</dd>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 gap-2">
                       <dt className="text-gray-600">Closure:</dt>
                       <dd className="font-medium">{product.specifications.closureType}</dd>
                   </div>
+                    {product.specifications.hardware && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <dt className="text-gray-600">Hardware:</dt>
+                        <dd className="font-medium">{product.specifications.hardware}</dd>
+                      </div>
+                    )}
                     {product.specifications.dimensions && (
                       <div className="grid grid-cols-2 gap-2">
                         <dt className="text-gray-600">Dimensions:</dt>
                         <dd className="font-medium">{product.specifications.dimensions}</dd>
+                      </div>
+                    )}
+                    {product.specifications.shoulderDrop && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <dt className="text-gray-600">Shoulder Drop:</dt>
+                        <dd className="font-medium">{product.specifications.shoulderDrop}</dd>
+                      </div>
+                    )}
+                    {product.specifications.capacity && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <dt className="text-gray-600">Capacity:</dt>
+                        <dd className="font-medium">{product.specifications.capacity}</dd>
               </div>
-            )}
+                    )}
+                    {product.specifications.idealFor && (
+                      <div className="grid grid-cols-2 gap-2">
+                        <dt className="text-gray-600">Ideal For:</dt>
+                        <dd className="font-medium">{product.specifications.idealFor}</dd>
+                      </div>
+                    )}
                   </dl>
+                </div>
+              )}
+
+              {/* Compartments */}
+              {product.specifications?.compartments && product.specifications.compartments.length > 0 && (
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-medium mb-4">Compartments</h3>
+                  <ul className="space-y-2">
+                    {product.specifications.compartments.map((compartment, index) => (
+                      <li key={index} className="flex items-center gap-2 text-gray-600">
+                        <Check className="w-4 h-4 text-green-600" />
+                        {compartment}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Features Accordion */}
+              {product.features && product.features.length > 0 && (
+                <div className="border-t pt-4">
+                  <AccordionItem 
+                    title="Features" 
+                    isOpen={openSection === "features"}
+                    onToggle={() => toggleSection("features")}
+                  >
+                    <ul className="space-y-2">
+                      {product.features.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-green-600 mt-1 flex-shrink-0" />
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </AccordionItem>
+
+                  <AccordionItem 
+                    title="Product Care" 
+                    isOpen={openSection === "care"}
+                    onToggle={() => toggleSection("care")}
+                  >
+                    <ul className="space-y-2">
+                      <li>• Keep away from direct sunlight</li>
+                      <li>• Store in a dust bag when not in use</li>
+                      <li>• Clean with a soft, dry cloth</li>
+                      <li>• Avoid contact with water and oils</li>
+                      <li>• Do not overload to maintain shape</li>
+                    </ul>
+                  </AccordionItem>
+
+                  <AccordionItem 
+                    title="Shipping & Returns" 
+                    isOpen={openSection === "shipping"}
+                    onToggle={() => toggleSection("shipping")}
+                  >
+                    <div className="space-y-3">
+                      <p><strong>Free Shipping:</strong> On orders above ₹999</p>
+                      <p><strong>Delivery:</strong> 5-7 business days across India</p>
+                      <p><strong>Returns:</strong> Easy 7-day returns for unused items</p>
+                      <p><strong>Exchange:</strong> Free exchange within 7 days</p>
+                    </div>
+                  </AccordionItem>
+
+                  <AccordionItem 
+                    title="Warranty" 
+                    isOpen={openSection === "warranty"}
+                    onToggle={() => toggleSection("warranty")}
+                  >
+                    <div className="space-y-2">
+                      <p>All KIBANA products come with a 6-month warranty against manufacturing defects.</p>
+                      <p>The warranty does not cover normal wear and tear, misuse, or damage caused by improper handling.</p>
+                    </div>
+                  </AccordionItem>
+                </div>
+              )}
+
+              {/* Available Colors */}
+              {product.colors && product.colors.length > 0 && (
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-medium mb-4">Available Colors</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {product.colors.map((colorOption, index) => {
+                      const colorValue = colorOption.value.replace('.jpg', '');
+                      const baseName = product.name.toLowerCase().replace(/\s+/g, '-');
+                      const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
+                      const productLink = `/products/${baseName}-${colorSlug}`;
+                      const isCurrentColor = colorOption.name.toLowerCase() === product.color.toLowerCase();
+                      
+                      return (
+                        <Link
+                          key={index}
+                          href={productLink}
+                          className={`group relative flex items-center gap-2 px-3 py-2 border rounded-lg transition-all ${
+                            isCurrentColor 
+                              ? 'border-black bg-gray-50' 
+                              : 'border-gray-200 hover:border-gray-400'
+                          } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
+                        >
+                          <span
+                            className="w-6 h-6 rounded-full border border-gray-300"
+                            style={{ backgroundColor: colorValue }}
+                          />
+                          <span className="text-sm">{colorOption.name}</span>
+                          {isCurrentColor && (
+                            <Check className="w-4 h-4 text-black" />
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
           </div>

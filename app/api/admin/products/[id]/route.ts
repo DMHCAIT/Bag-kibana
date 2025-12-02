@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { products, getProductById } from '@/lib/products-data';
 import type { Product as BaseProduct } from '@/lib/products-data';
 
+// In-memory storage for updated products (in production, use a database)
+const updatedProducts = new Map<string, any>();
+
 // GET - Fetch single product by ID
 export async function GET(
   request: NextRequest,
@@ -9,6 +12,15 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    // Check if we have an updated version
+    if (updatedProducts.has(id)) {
+      return NextResponse.json(updatedProducts.get(id), {
+        headers: {
+          'Cache-Control': 'private, no-cache',
+        }
+      });
+    }
 
     const product = getProductById(id);
 
@@ -19,10 +31,21 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({
-      product,
-      status: 'success'
-    }, {
+    // Return product with additional admin fields
+    const adminProduct = {
+      ...product,
+      stock: 50, // Default stock
+      is_bestseller: product.sections?.includes('bestsellers') || false,
+      is_new: product.sections?.includes('new-arrivals') || false,
+      care_instructions: [
+        "Keep away from direct sunlight",
+        "Store in a dust bag when not in use",
+        "Clean with a soft, dry cloth",
+        "Avoid contact with water and oils"
+      ],
+    };
+
+    return NextResponse.json(adminProduct, {
       headers: {
         'Cache-Control': 'private, no-cache',
       }
@@ -36,7 +59,65 @@ export async function GET(
   }
 }
 
-// PUT - Update product
+// PATCH - Update product (partial update)
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const data = await request.json();
+
+    // Find existing product
+    const existingProduct = updatedProducts.has(id) 
+      ? updatedProducts.get(id)
+      : getProductById(id);
+      
+    if (!existingProduct) {
+      return NextResponse.json(
+        { error: 'Product not found', id },
+        { status: 404 }
+      );
+    }
+
+    // Merge update data with existing product
+    const updatedProduct = {
+      ...existingProduct,
+      ...data,
+      id, // Ensure ID doesn't change
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Handle sections based on is_bestseller and is_new flags
+    const sections: string[] = [];
+    if (data.is_bestseller) sections.push('bestsellers');
+    if (data.is_new) sections.push('new-arrivals');
+    if (sections.length > 0) {
+      updatedProduct.sections = sections;
+    }
+
+    // Store the updated product
+    updatedProducts.set(id, updatedProduct);
+
+    return NextResponse.json({
+      ...updatedProduct,
+      message: 'Product updated successfully',
+      status: 'success'
+    }, {
+      headers: {
+        'Cache-Control': 'no-store',
+      }
+    });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return NextResponse.json(
+      { error: 'Failed to update product', details: error },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT - Update product (full update)
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -60,10 +141,15 @@ export async function PUT(
       ...data,
       id, // Ensure ID doesn't change
       updatedAt: new Date().toISOString(),
-      publishedAt: data.status === 'published' && (existingProduct as any).status !== 'published'
-        ? new Date().toISOString()
-        : (existingProduct as any).publishedAt
     };
+
+    // Handle sections based on is_bestseller and is_new flags
+    const sections: string[] = [];
+    if (data.is_bestseller) sections.push('bestsellers');
+    if (data.is_new) sections.push('new-arrivals');
+    if (sections.length > 0) {
+      updatedProduct.sections = sections;
+    }
 
     // Validate required fields
     if (!updatedProduct.name || !updatedProduct.category || !updatedProduct.price || updatedProduct.price <= 0) {
@@ -73,8 +159,9 @@ export async function PUT(
       );
     }
 
-    // In a real app, save to database
-    // For now, just return the updated product
+    // Store the updated product
+    updatedProducts.set(id, updatedProduct);
+
     return NextResponse.json({
       product: updatedProduct,
       message: 'Product updated successfully',
@@ -103,15 +190,16 @@ export async function DELETE(
 
     // Check if product exists
     const product = getProductById(id);
-    if (!product) {
+    if (!product && !updatedProducts.has(id)) {
       return NextResponse.json(
         { error: 'Product not found', id },
         { status: 404 }
       );
     }
 
-    // In a real app, delete from database
-    // For now, just return success
+    // Remove from updated products if exists
+    updatedProducts.delete(id);
+
     return NextResponse.json({
       message: 'Product deleted successfully',
       id,
