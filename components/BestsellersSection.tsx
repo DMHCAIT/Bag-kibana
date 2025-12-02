@@ -21,26 +21,26 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Card className="border-0 shadow-none group">
-      <CardContent className="p-0 space-y-4">
+    <Card className="border-0 shadow-none group h-full flex flex-col">
+      <CardContent className="p-0 space-y-3 flex flex-col h-full">
         {/* Product Image */}
         <Link href={`/products/${product.id}`}>
-          <div className="relative aspect-3/4 bg-linear-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
+          <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
             <Image
               src={product.images[0]}
               alt={`${product.name} - ${product.color}`}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 45vw, 22vw"
+              sizes="(max-width: 768px) 50vw, 25vw"
             />
             <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
           </div>
         </Link>
 
         {/* Product Info */}
-        <div className="space-y-3">
+        <div className="space-y-2 flex-1 flex flex-col">
           <Link href={`/products/${product.id}`}>
-            <h3 className="text-sm md:text-base font-medium tracking-wide hover:opacity-60 transition-opacity cursor-pointer">
+            <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity cursor-pointer line-clamp-2">
               {product.name} - {product.color}
             </h3>
           </Link>
@@ -50,7 +50,7 @@ function ProductCard({ product }: { product: Product }) {
             {[...Array(5)].map((_, idx) => (
               <Star
                 key={idx}
-                className={`w-4 h-4 ${
+                className={`w-3 h-3 ${
                   idx < product.rating
                     ? "fill-black stroke-black"
                     : "fill-none stroke-gray-300"
@@ -59,7 +59,7 @@ function ProductCard({ product }: { product: Product }) {
             ))}
           </div>
 
-          <p className="text-sm md:text-base">₹{product.price.toLocaleString()}</p>
+          <p className="text-sm font-medium">₹{product.price.toLocaleString()}</p>
 
           {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
@@ -105,7 +105,7 @@ function ProductCard({ product }: { product: Product }) {
           <Button
             variant="outline"
             onClick={handleAddToCart}
-            className="w-full uppercase tracking-wider text-xs py-5 hover:bg-black hover:text-white transition-all duration-300"
+            className="w-full uppercase tracking-wider text-xs py-4 hover:bg-black hover:text-white transition-all duration-300 mt-auto"
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
             {isAdded ? "Added!" : "Add to Cart"}
@@ -216,9 +216,9 @@ export default function BestsellersSection() {
             <TabsContent value="women">
               {/* Mobile: 2-row horizontal scroll */}
               <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
-                <div className="grid grid-rows-2 grid-flow-col gap-4" style={{ gridAutoColumns: 'minmax(160px, 1fr)' }}>
+                <div className="grid grid-rows-2 grid-flow-col gap-4 auto-cols-[180px]">
                   {bestsellers.map((product) => (
-                    <div key={product.id} className="w-[160px]">
+                    <div key={product.id} className="w-[180px]">
                       <ProductCard product={product} />
                     </div>
                   ))}
