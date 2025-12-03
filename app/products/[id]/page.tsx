@@ -593,7 +593,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     onToggle={() => toggleSection("shipping")}
                   >
                     <div className="space-y-3">
-                      <p><strong>Free Shipping:</strong> On orders above ₹999</p>
                       <p><strong>Delivery:</strong> 5-7 business days across India</p>
                       <p><strong>Returns:</strong> Easy 7-day returns for unused items</p>
                       <p><strong>Exchange:</strong> Free exchange within 7 days</p>

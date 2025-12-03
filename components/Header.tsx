@@ -184,15 +184,41 @@ export default function Header() {
             >
               Men
             </Link>
-            <div className="flex gap-6 pt-4 border-t border-[#EDEDED]">
-              <button className="flex items-center gap-2 hover:opacity-60 transition-opacity">
-                <Search className="w-5 h-5" />
-                <span className="text-sm uppercase tracking-wider">Search</span>
-              </button>
-              <button className="flex items-center gap-2 hover:opacity-60 transition-opacity">
-                <User className="w-5 h-5" />
-                <span className="text-sm uppercase tracking-wider">Account</span>
-              </button>
+            <div className="flex flex-col gap-4 pt-4 border-t border-[#EDEDED]">
+              {isClient && user ? (
+                <>
+                  <div className="text-sm text-gray-600 mb-2">
+                    Signed in as <span className="font-medium text-black">{user.name}</span>
+                  </div>
+                  <Link
+                    href="/account"
+                    className="flex items-center gap-2 hover:opacity-60 transition-opacity"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Package className="w-5 h-5" />
+                    <span className="text-sm uppercase tracking-wider">My Orders</span>
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      handleSignOut();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex items-center gap-2 text-red-600 hover:opacity-60 transition-opacity"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span className="text-sm uppercase tracking-wider">Sign Out</span>
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/signin"
+                  className="flex items-center gap-2 hover:opacity-60 transition-opacity"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <User className="w-5 h-5" />
+                  <span className="text-sm uppercase tracking-wider">Sign In</span>
+                </Link>
+              )}
             </div>
           </nav>
         </div>

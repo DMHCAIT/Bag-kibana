@@ -197,20 +197,15 @@ export default function Footer() {
         </div>
 
         {/* Features */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 pb-16 border-b border-gray-800">
+        <div className="grid grid-cols-3 gap-6 mb-16 pb-16 border-b border-gray-800">
           <div className="text-center">
             <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              Lifetime Warranty
+              Premium Quality
             </p>
           </div>
           <div className="text-center">
             <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              Premium Leather
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              Free Shipping
+              Easy Returns
             </p>
           </div>
           <div className="text-center">

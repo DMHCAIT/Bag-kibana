@@ -226,3 +226,51 @@
   font-weight: 700;
   letter-spacing: 0.1em;
 }
+
+/* Mobile-friendly touch interactions */
+@media (max-width: 767px) {
+  /* Larger tap targets on mobile */
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+  
+  /* Improve input fields on mobile */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+  
+  /* Better spacing on mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Smooth momentum scrolling on touch */
+  .overflow-x-auto, .overflow-y-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Prevent text selection on buttons */
+button, [role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Better focus states for accessibility */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Smooth image loading */
+img {
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Fix for sticky header on iOS */
+@supports (-webkit-touch-callout: none) {
+  .sticky {
+    position: -webkit-sticky;
+  }
+}
