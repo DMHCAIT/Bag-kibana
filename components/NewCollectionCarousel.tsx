@@ -228,6 +228,16 @@ export default function NewCollectionCarousel() {
                 <CarouselNext className="-right-4" />
               </Carousel>
             </div>
+            
+            {/* View All Link */}
+            <div className="flex justify-center mt-8">
+              <Link 
+                href="/shop"
+                className="text-sm uppercase tracking-wider text-black hover:opacity-60 transition-opacity underline underline-offset-4"
+              >
+                View All
+              </Link>
+            </div>
           </>
         )}
       </div>
