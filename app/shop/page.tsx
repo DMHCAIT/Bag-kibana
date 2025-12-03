@@ -359,36 +359,36 @@ export default function ShopPage() {
       <>
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Page Title */}
-        <h1 className="text-3xl md:text-4xl font-serif text-center mb-8 tracking-wider">SHOP ALL</h1>
+        <h1 className="text-3xl md:text-4xl font-serif text-center mb-8 tracking-wider">KIBANA</h1>
 
         {/* Category Links */}
-        <div className="flex justify-center gap-8 mb-12">
-          <Link href="/men">
-            <button className="flex flex-col items-center gap-3 group">
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
-                <Image
-                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/category-men.jpg"
-                  alt="Men's Collection"
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                />
-              </div>
-              <span className="text-sm font-medium">Shop Men</span>
-            </button>
-          </Link>
+        <div className="flex justify-center gap-6 mb-12">
           <Link href="/women">
-            <button className="flex flex-col items-center gap-3 group">
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
+            <button className="flex flex-col items-center gap-2 group">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
                 <Image
                   src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/category-women.jpg"
                   alt="Women's Collection"
                   fill
                   className="object-cover"
-                  sizes="96px"
+                  sizes="64px"
                 />
               </div>
-              <span className="text-sm font-medium">Shop Women</span>
+              <span className="text-xs font-medium">Shop Women</span>
+            </button>
+          </Link>
+          <Link href="/men">
+            <button className="flex flex-col items-center gap-2 group">
+              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
+                <Image
+                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/category-men.jpg"
+                  alt="Men's Collection"
+                  fill
+                  className="object-cover"
+                  sizes="64px"
+                />
+              </div>
+              <span className="text-xs font-medium">Shop Men</span>
             </button>
           </Link>
         </div>
