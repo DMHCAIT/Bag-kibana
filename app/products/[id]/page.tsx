@@ -125,7 +125,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
-  
+
   // Accordion states
   const [openSection, setOpenSection] = useState<string | null>("features");
 
@@ -298,18 +298,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {/* Main Image - Swipeable */}
               <div className="relative">
                 <div 
-                  className="overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+                  className="overflow-x-auto snap-x snap-mandatory scrollbar-hide image-scroll-container"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  onScroll={(e) => {
+                    const container = e.currentTarget;
+                    const scrollLeft = container.scrollLeft;
+                    const containerWidth = container.clientWidth;
+                    const newIndex = Math.round(scrollLeft / containerWidth);
+                    if (newIndex !== selectedImage && newIndex >= 0 && newIndex < images.length) {
+                      setSelectedImage(newIndex);
+                    }
+                  }}
                 >
-                  <div className="flex gap-4">
+                  <div className="flex">
                     {images.map((image, index) => (
                       <div
                         key={index}
                         className="relative aspect-[4/5] bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 w-full snap-center"
-                  onClick={() => {
+                        onClick={() => {
                           setSelectedImage(index);
-                    setIsModalOpen(true);
-                  }}
+                          setIsModalOpen(true);
+                        }}
                 >
                   <Image
                           src={image}
@@ -326,13 +335,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 
                 {/* Scroll Indicator Dots */}
                 {images.length > 1 && (
-                  <div className="flex justify-center gap-2 mt-4">
+                  <div className="flex justify-center gap-1.5 mt-3">
                     {images.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => {
                           setSelectedImage(index);
-                          const container = document.querySelector('.overflow-x-auto');
+                          const container = document.querySelector('.image-scroll-container');
                           if (container) {
                             container.scrollTo({
                               left: index * container.clientWidth,
@@ -340,10 +349,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             });
                           }
                         }}
-                        className={`h-2 rounded-full transition-all ${
+                        className={`rounded-full transition-all ${
                           selectedImage === index
-                            ? "w-8 bg-black"
-                            : "w-2 bg-gray-300 hover:bg-gray-400"
+                            ? "w-5 h-1.5 bg-black"
+                            : "w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400"
                         }`}
                         aria-label={`View image ${index + 1}`}
                       />
@@ -358,13 +367,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   className="overflow-x-auto scrollbar-hide pb-2"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                  <div className="flex gap-3 min-w-max">
+                  <div className="flex gap-2 md:gap-3 min-w-max">
                     {images.map((image, index) => (
                     <button
                         key={index}
                       onClick={() => {
                           setSelectedImage(index);
-                          const container = document.querySelector('.overflow-x-auto');
+                          const container = document.querySelector('.image-scroll-container');
                           if (container) {
                             container.scrollTo({
                               left: index * container.clientWidth,
@@ -374,16 +383,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         }}
                         className={`relative aspect-square bg-gray-50 rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
                           selectedImage === index
-                            ? "border-black w-20 h-20"
-                            : "border-transparent hover:border-gray-300 w-20 h-20"
+                            ? "border-black w-14 h-14 md:w-20 md:h-20"
+                            : "border-transparent hover:border-gray-300 w-14 h-14 md:w-20 md:h-20"
                       }`}
                     >
                       <Image
                           src={image}
                           alt={`Thumbnail ${index + 1}`}
                         fill
-                          className="object-contain p-2"
-                          sizes="80px"
+                          className="object-contain p-1 md:p-2"
+                          sizes="(max-width: 768px) 56px, 80px"
                       />
                     </button>
                   ))}
@@ -424,10 +433,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <div className="py-4 border-y">
                 <p className="text-3xl font-medium">₹{product.price.toLocaleString()}</p>
                 <p className="text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
-              </div>
+            </div>
 
               {/* Available Colors - Moved to top */}
-              {product.colors && product.colors.length > 0 && (
+            {product.colors && product.colors.length > 0 && (
                 <div>
                   <h3 className="text-xs md:text-sm font-medium text-gray-700 mb-2">Available Colors</h3>
                   <div className="flex flex-wrap gap-1.5 md:gap-2">
@@ -459,9 +468,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         </Link>
                       );
                     })}
-                  </div>
                 </div>
-              )}
+              </div>
+            )}
 
               {/* Actions */}
               <div className="space-y-3">
@@ -485,7 +494,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <div>
                 <h3 className="text-lg font-medium mb-3">Description</h3>
                 <p className="text-gray-600 leading-relaxed">{product.description}</p>
-          </div>
+            </div>
 
               {/* Specifications */}
               {product.specifications && (
@@ -500,8 +509,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       <div className="grid grid-cols-2 gap-2">
                         <dt className="text-gray-600">Texture:</dt>
                         <dd className="font-medium">{product.specifications.texture}</dd>
-                      </div>
-                    )}
+                  </div>
+                )}
                     <div className="grid grid-cols-2 gap-2">
                       <dt className="text-gray-600">Closure:</dt>
                       <dd className="font-medium">{product.specifications.closureType}</dd>
@@ -510,31 +519,31 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       <div className="grid grid-cols-2 gap-2">
                         <dt className="text-gray-600">Hardware:</dt>
                         <dd className="font-medium">{product.specifications.hardware}</dd>
-                      </div>
-                    )}
-                    {product.specifications.dimensions && (
+              </div>
+            )}
+                {product.specifications.dimensions && (
                       <div className="grid grid-cols-2 gap-2">
                         <dt className="text-gray-600">Dimensions:</dt>
                         <dd className="font-medium">{product.specifications.dimensions}</dd>
-                      </div>
-                    )}
+                  </div>
+                )}
                     {product.specifications.shoulderDrop && (
                       <div className="grid grid-cols-2 gap-2">
                         <dt className="text-gray-600">Shoulder Drop:</dt>
                         <dd className="font-medium">{product.specifications.shoulderDrop}</dd>
-                      </div>
+          </div>
                     )}
                     {product.specifications.capacity && (
                       <div className="grid grid-cols-2 gap-2">
                         <dt className="text-gray-600">Capacity:</dt>
                         <dd className="font-medium">{product.specifications.capacity}</dd>
               </div>
-                    )}
+            )}
                     {product.specifications.idealFor && (
                       <div className="grid grid-cols-2 gap-2">
                         <dt className="text-gray-600">Ideal For:</dt>
                         <dd className="font-medium">{product.specifications.idealFor}</dd>
-                      </div>
+          </div>
                     )}
                   </dl>
                 </div>
@@ -596,7 +605,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       <p><strong>Delivery:</strong> 5-7 business days across India</p>
                       <p><strong>Returns:</strong> Easy 7-day returns for unused items</p>
                       <p><strong>Exchange:</strong> Free exchange within 7 days</p>
-                    </div>
+                  </div>
                   </AccordionItem>
 
                   <AccordionItem 
@@ -607,10 +616,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     <div className="space-y-2">
                       <p>All KIBANA products come with a 6-month warranty against manufacturing defects.</p>
                       <p>The warranty does not cover normal wear and tear, misuse, or damage caused by improper handling.</p>
-                    </div>
+                  </div>
                   </AccordionItem>
-                </div>
-              )}
+              </div>
+            )}
 
           </div>
         </div>
