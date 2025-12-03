@@ -64,7 +64,7 @@ function ProductCard({ product }: { product: Product }) {
           
           {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-2">
+            <div className="flex gap-1 md:gap-1.5 flex-wrap">
               {product.colors.map((colorOption, idx) => {
                 // Fix color values that have .jpg extension
                 let colorValue = colorOption.value;
@@ -88,10 +88,10 @@ function ProductCard({ product }: { product: Product }) {
                   <Link
                     key={idx}
                     href={`/products/${colorVariantId}`}
-                    className={`w-7 h-7 rounded-full border-2 transition-all ring-1 ${
+                    className={`w-4 h-4 md:w-5 md:h-5 rounded-full border transition-all ${
                       isCurrentColor 
-                        ? 'border-black ring-black ring-2' 
-                        : 'border-gray-300 hover:border-black ring-gray-200'
+                        ? 'border-black ring-1 ring-black' 
+                        : 'border-gray-300 hover:border-black'
                     }`}
                     style={{ backgroundColor: colorValue }}
                     aria-label={`View ${colorOption.name} variant`}

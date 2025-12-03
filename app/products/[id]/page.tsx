@@ -429,8 +429,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {/* Available Colors - Moved to top */}
               {product.colors && product.colors.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-700 mb-3">Available Colors</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <h3 className="text-xs md:text-sm font-medium text-gray-700 mb-2">Available Colors</h3>
+                  <div className="flex flex-wrap gap-1.5 md:gap-2">
                     {product.colors.map((colorOption, index) => {
                       const colorValue = colorOption.value.replace('.jpg', '');
                       const baseName = product.name.toLowerCase().replace(/\s+/g, '-');
@@ -442,19 +442,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         <Link
                           key={index}
                           href={productLink}
-                          className={`group relative flex items-center gap-2 px-3 py-2 border rounded-lg transition-all ${
+                          className={`group relative flex items-center gap-1 md:gap-2 px-2 py-1 md:px-3 md:py-2 border rounded-md md:rounded-lg transition-all ${
                             isCurrentColor 
                               ? 'border-black bg-gray-50' 
                               : 'border-gray-200 hover:border-gray-400'
                           } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
                         >
                           <span
-                            className="w-5 h-5 rounded-full border border-gray-300"
+                            className="w-3.5 h-3.5 md:w-5 md:h-5 rounded-full border border-gray-300"
                             style={{ backgroundColor: colorValue }}
                           />
-                          <span className="text-sm">{colorOption.name}</span>
+                          <span className="text-xs md:text-sm">{colorOption.name}</span>
                           {isCurrentColor && (
-                            <Check className="w-4 h-4 text-black" />
+                            <Check className="w-3 h-3 md:w-4 md:h-4 text-black" />
                           )}
                         </Link>
                       );
