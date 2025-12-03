@@ -550,7 +550,15 @@ export default function CheckoutPage() {
                 <div className="space-y-4 max-h-64 overflow-y-auto">
                   {cart.items.map((item) => (
                     <div key={item.product.id} className="flex gap-3 text-sm">
-                      <div className="w-16 h-16 bg-gray-100 rounded flex-shrink-0"></div>
+                      <div className="w-16 h-16 bg-gray-100 rounded flex-shrink-0 relative overflow-hidden">
+                        {item.product.images && item.product.images[0] && (
+                          <img
+                            src={item.product.images[0]}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium line-clamp-1">
                           {item.product.name} - {item.product.color}
@@ -588,11 +596,7 @@ export default function CheckoutPage() {
                   </p>
                   <p className="flex items-center gap-2">
                     <Truck className="w-4 h-4 text-green-600" />
-                    Free shipping
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <Package className="w-4 h-4 text-green-600" />
-                    Easy returns
+                    Fast delivery
                   </p>
                 </div>
               </CardContent>

@@ -183,15 +183,11 @@ export default function CartPage() {
                 <div className="pt-6 border-t space-y-3 text-xs text-gray-600">
                   <p className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                    Free shipping on all orders
+                    Fast delivery across India
                   </p>
                   <p className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-green-600 rounded-full"></span>
                     Secure payment
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-600 rounded-full"></span>
-                    Easy returns within 30 days
                   </p>
                 </div>
               </CardContent>
