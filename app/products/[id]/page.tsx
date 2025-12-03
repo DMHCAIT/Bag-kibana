@@ -284,11 +284,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       <div className="flex-1">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm mb-8">
-            <Link href="/" className="text-gray-500 hover:text-black">Home</Link>
-            <span className="text-gray-300">/</span>
-            <Link href="/shop" className="text-gray-500 hover:text-black">Shop</Link>
-            <span className="text-gray-300">/</span>
+          <nav className="text-sm mb-6 md:mb-8">
+            <span className="text-gray-500">
+              <Link href="/" className="hover:text-black">Home</Link>
+              {" / "}
+              <Link href="/shop" className="hover:text-black">Shop</Link>
+              {" / "}
+            </span>
             <span className="text-black">{product.name}</span>
           </nav>
 
@@ -335,9 +337,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 
                 {/* Scroll Indicator Dots */}
                 {images.length > 1 && (
-                  <div className="flex justify-center gap-1 mt-2">
+                  <div className="flex justify-center items-center gap-1.5 mt-3 py-2">
                     {images.map((_, index) => (
-                      <button
+                      <span
                         key={index}
                         onClick={() => {
                           setSelectedImage(index);
@@ -349,15 +351,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             });
                           }
                         }}
-                        className={`rounded-full transition-all ${
+                        className={`inline-block cursor-pointer transition-all duration-200 ${
                           selectedImage === index
-                            ? "w-2 h-2 bg-black"
-                            : "w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400"
+                            ? "w-2 h-2 bg-black rounded-full"
+                            : "w-1.5 h-1.5 bg-gray-400 rounded-full"
                         }`}
-                        aria-label={`View image ${index + 1}`}
                       />
-              ))}
-            </div>
+                    ))}
+                  </div>
                 )}
               </div>
               
