@@ -335,7 +335,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 
                 {/* Scroll Indicator Dots */}
                 {images.length > 1 && (
-                  <div className="flex justify-center gap-1.5 mt-3">
+                  <div className="flex justify-center gap-1 mt-2">
                     {images.map((_, index) => (
                       <button
                         key={index}
@@ -351,7 +351,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         }}
                         className={`rounded-full transition-all ${
                           selectedImage === index
-                            ? "w-5 h-1.5 bg-black"
+                            ? "w-2 h-2 bg-black"
                             : "w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400"
                         }`}
                         aria-label={`View image ${index + 1}`}
