@@ -365,16 +365,28 @@ export default function ShopPage() {
         <div className="flex justify-center gap-8 mb-12">
           <Link href="/men">
             <button className="flex flex-col items-center gap-3 group">
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <span className="text-white text-xs uppercase tracking-wider">Men</span>
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
+                <Image
+                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/category-men.jpg"
+                  alt="Men's Collection"
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
               </div>
               <span className="text-sm font-medium">Shop Men</span>
             </button>
           </Link>
           <Link href="/women">
             <button className="flex flex-col items-center gap-3 group">
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-pink-200 to-pink-300 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <span className="text-gray-700 text-xs uppercase tracking-wider">Women</span>
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
+                <Image
+                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/category-women.jpg"
+                  alt="Women's Collection"
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
               </div>
               <span className="text-sm font-medium">Shop Women</span>
             </button>
