@@ -33,20 +33,22 @@ export async function GET(req: NextRequest) {
       .gte('created_at', previousCutoff.toISOString())
       .lt('created_at', cutoffISO);
 
-    // Calculate totals
+    // Calculate totals - include ALL orders (paid + pending COD)
+    const allOrdersTotal = orders?.reduce((sum: number, o: any) => sum + (o.total || 0), 0) || 0;
     const paidOrders = orders?.filter((o: any) => o.payment_status === 'paid') || [];
-    const totalRevenue = paidOrders.reduce((sum: number, o: any) => sum + (o.total || 0), 0);
+    const paidRevenue = paidOrders.reduce((sum: number, o: any) => sum + (o.total || 0), 0);
+    const pendingOrders = orders?.filter((o: any) => o.payment_status === 'pending') || [];
+    const pendingRevenue = pendingOrders.reduce((sum: number, o: any) => sum + (o.total || 0), 0);
     const totalOrders = orders?.length || 0;
-    const avgOrderValue = totalOrders > 0 ? Math.floor(totalRevenue / totalOrders) : 0;
+    const avgOrderValue = totalOrders > 0 ? Math.floor(allOrdersTotal / totalOrders) : 0;
 
-    // Previous period calculations
-    const previousPaidOrders = previousOrders?.filter((o: any) => o.payment_status === 'paid') || [];
-    const previousRevenue = previousPaidOrders.reduce((sum: number, o: any) => sum + (o.total || 0), 0);
+    // Previous period calculations - compare all orders (not just paid)
+    const previousAllRevenue = previousOrders?.reduce((sum: number, o: any) => sum + (o.total || 0), 0) || 0;
     const previousOrderCount = previousOrders?.length || 0;
 
-    const revenueChange = previousRevenue > 0 
-      ? parseFloat(((totalRevenue - previousRevenue) / previousRevenue * 100).toFixed(1))
-      : (totalRevenue > 0 ? 100 : 0);
+    const revenueChange = previousAllRevenue > 0 
+      ? parseFloat(((allOrdersTotal - previousAllRevenue) / previousAllRevenue * 100).toFixed(1))
+      : (allOrdersTotal > 0 ? 100 : 0);
 
     const ordersChange = previousOrderCount > 0
       ? parseFloat(((totalOrders - previousOrderCount) / previousOrderCount * 100).toFixed(1))
@@ -103,15 +105,15 @@ export async function GET(req: NextRequest) {
       .sort((a, b) => b.total_spent - a.total_spent)
       .slice(0, 5);
 
-    // Generate daily revenue data
+    // Generate daily revenue data - include ALL orders
     const revenueByDay: Array<{ date: string; revenue: number }> = [];
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date();
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
       
-      const dayRevenue = paidOrders
-        .filter((o: any) => o.created_at.split('T')[0] === dateStr)
+      const dayRevenue = (orders || [])
+        .filter((o: any) => o.created_at && o.created_at.split('T')[0] === dateStr)
         .reduce((sum: number, o: any) => sum + (o.total || 0), 0);
       
       revenueByDay.push({ date: dateStr, revenue: dayRevenue });
@@ -123,8 +125,12 @@ export async function GET(req: NextRequest) {
       .select('*', { count: 'exact', head: true });
 
     return NextResponse.json({
-      totalRevenue,
+      totalRevenue: allOrdersTotal,
+      paidRevenue,
+      pendingRevenue,
       totalOrders,
+      paidOrdersCount: paidOrders.length,
+      pendingOrdersCount: pendingOrders.length,
       averageOrderValue: avgOrderValue,
       totalCustomers: totalCustomers || customerMap.size,
       revenueChange,

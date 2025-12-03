@@ -46,6 +46,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Google Site Verification */}
+        <meta name="google-site-verification" content="LQ3U2aQ8AkdDAeHDzrkraDym6EhCvRT_VAKHVqkYVMo" />
+        
         {/* Meta Pixel Code */}
         <Script
           id="meta-pixel"

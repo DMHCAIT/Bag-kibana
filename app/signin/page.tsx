@@ -15,11 +15,11 @@ import { Eye, EyeOff, Loader2 } from 'lucide-react';
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signIn, isAuthenticated } = useAuth();
+  const { signInWithPhone, isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
+    phone: '',
     password: '',
   });
   const [errors, setErrors] = useState<{[key: string]: string}>({});
@@ -36,10 +36,10 @@ function SignInForm() {
   const validate = () => {
     const newErrors: {[key: string]: string} = {};
 
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
+    if (!formData.phone) {
+      newErrors.phone = 'Mobile number is required';
+    } else if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/\s/g, ''))) {
+      newErrors.phone = 'Enter a valid 10-digit Indian mobile number';
     }
 
     if (!formData.password) {
@@ -58,7 +58,7 @@ function SignInForm() {
     setLoading(true);
     setErrors({});
 
-    const result = await signIn(formData.email, formData.password);
+    const result = await signInWithPhone(formData.phone.replace(/\s/g, ''), formData.password);
 
     setLoading(false);
 
@@ -109,18 +109,24 @@ function SignInForm() {
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter your email"
-                    className={errors.email ? 'border-red-500' : ''}
-                  />
-                  {errors.email && (
-                    <p className="text-xs text-red-600">{errors.email}</p>
+                  <Label htmlFor="phone">Mobile Number</Label>
+                  <div className="flex">
+                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                      +91
+                    </span>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="Enter your mobile number"
+                      maxLength={10}
+                      className={`rounded-l-none ${errors.phone ? 'border-red-500' : ''}`}
+                    />
+                  </div>
+                  {errors.phone && (
+                    <p className="text-xs text-red-600">{errors.phone}</p>
                   )}
                 </div>
 

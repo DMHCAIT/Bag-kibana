@@ -195,7 +195,7 @@ export default function SignupPage() {
               {/* Phone */}
               <div>
                 <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
+                  Mobile Number <span className="text-xs text-gray-500">(Used for Sign In)</span>
                 </label>
                 <div className="relative">
                   <Phone className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -209,13 +209,14 @@ export default function SignupPage() {
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
-                      placeholder="Enter your phone number"
+                      placeholder="Enter your mobile number"
                       className="w-full pr-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                       maxLength={10}
                       required
                     />
                   </div>
                 </div>
+                <p className="text-xs text-gray-500 mt-1">You will use this number to sign in</p>
               </div>
               
               {/* Password */}

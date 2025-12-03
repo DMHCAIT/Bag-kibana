@@ -13,7 +13,11 @@ import {
 
 interface ReportData {
   totalRevenue: number;
+  paidRevenue: number;
+  pendingRevenue: number;
   totalOrders: number;
+  paidOrdersCount: number;
+  pendingOrdersCount: number;
   averageOrderValue: number;
   totalCustomers: number;
   revenueChange: number;
@@ -181,6 +185,40 @@ export default function ReportsPage() {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
+              <p className="text-sm text-gray-600">Paid Revenue</p>
+              <p className="text-2xl font-bold text-green-600 mt-1">
+                ₹{(reportData?.paidRevenue || 0).toLocaleString("en-IN")}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {reportData?.paidOrdersCount || 0} paid orders
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Pending Revenue (COD)</p>
+              <p className="text-2xl font-bold text-yellow-600 mt-1">
+                ₹{(reportData?.pendingRevenue || 0).toLocaleString("en-IN")}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {reportData?.pendingOrdersCount || 0} pending orders
+              </p>
+            </div>
+            <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-yellow-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
               <p className="text-sm text-gray-600">Total Orders</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">
                 {reportData?.totalOrders || 0}
@@ -197,7 +235,10 @@ export default function ReportsPage() {
             </div>
           </div>
         </div>
+      </div>
 
+      {/* Additional Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -222,6 +263,23 @@ export default function ReportsPage() {
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
               <Users className="w-6 h-6 text-orange-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Conversion Rate</p>
+              <p className="text-2xl font-bold text-gray-900 mt-1">
+                {reportData?.totalOrders && reportData?.totalCustomers 
+                  ? ((reportData.totalOrders / Math.max(reportData.totalCustomers, 1)) * 100).toFixed(1)
+                  : '0'}%
+              </p>
+              <p className="text-xs text-gray-500 mt-1">Orders per customer</p>
+            </div>
+            <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-indigo-600" />
             </div>
           </div>
         </div>
