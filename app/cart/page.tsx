@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import type { CartItem } from "@/lib/types/cart";
 
 export default function CartPage() {
@@ -49,10 +50,20 @@ export default function CartPage() {
                   <div className="flex gap-4 md:gap-6">
                     {/* Product Image */}
                     <Link href={`/products/${item.product.id}`}>
-                      <div className="relative w-24 h-24 md:w-32 md:h-32 bg-linear-to-br from-gray-100 to-gray-200 rounded-sm shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-xs">
-                          {item.product.name}
-                        </div>
+                      <div className="relative w-24 h-24 md:w-32 md:h-32 bg-gray-100 rounded-sm shrink-0 cursor-pointer hover:opacity-80 transition-opacity overflow-hidden">
+                        {item.product.images && item.product.images[0] ? (
+                          <Image
+                            src={item.product.images[0]}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 96px, 128px"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-xs">
+                            {item.product.name}
+                          </div>
+                        )}
                       </div>
                     </Link>
 
