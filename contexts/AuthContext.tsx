@@ -256,13 +256,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-      return { success: true };
-    } catch (error) {
-      console.error('OTP sign up error:', error);
-      return { success: false, error: 'Failed to create account' };
-    }
-  };
-
   const signOut = () => {
     localStorage.removeItem('kibana_user');
     setUser(null);
