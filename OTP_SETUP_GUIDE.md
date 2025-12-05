@@ -67,11 +67,6 @@ TWILIO_PHONE_NUMBER=your_twilio_phone_number
 - 💰 **Charges apply**: Per SMS pricing
 - 🔒 **Secure**: Industry-standard SMS delivery
 
-### Production Mode (with Twilio credentials)
-- 🚀 **Real SMS**: OTP sent to user's phone
-- 💰 **Charges apply**: Per SMS pricing
-- 🔒 **Secure**: Industry-standard SMS delivery
-
 ## Twilio Console Setup
 
 ### Step-by-Step:
