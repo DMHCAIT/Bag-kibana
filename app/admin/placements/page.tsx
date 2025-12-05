@@ -44,6 +44,7 @@ export default function PlacementsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedSection, setSelectedSection] = useState("bestsellers");
   const [selectedProduct, setSelectedProduct] = useState<string>("");
+  const [selectedPosition, setSelectedPosition] = useState<string>("end");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -83,13 +84,45 @@ export default function PlacementsPage() {
 
     setLoading(true);
     try {
+      // Calculate display order based on selected position
+      let displayOrder = placements.length; // Default: add at end
+      
+      if (selectedPosition === "start") {
+        displayOrder = 0;
+        // Shift all existing placements down by 1
+        await Promise.all(
+          placements.map((p, index) =>
+            fetch(`/api/admin/placements/${p.id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ display_order: index + 1 }),
+            })
+          )
+        );
+      } else if (selectedPosition !== "end") {
+        // Specific position selected (1, 2, 3, etc.)
+        displayOrder = parseInt(selectedPosition);
+        // Shift placements at and after this position down by 1
+        await Promise.all(
+          placements
+            .filter((p) => p.display_order >= displayOrder)
+            .map((p) =>
+              fetch(`/api/admin/placements/${p.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ display_order: p.display_order + 1 }),
+              })
+            )
+        );
+      }
+
       const response = await fetch("/api/admin/placements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           product_id: parseInt(selectedProduct),
           section: selectedSection,
-          display_order: placements.length,
+          display_order: displayOrder,
           is_active: true,
         }),
       });
@@ -98,6 +131,7 @@ export default function PlacementsPage() {
         showMessage("Product added successfully", "success");
         fetchPlacements();
         setSelectedProduct("");
+        setSelectedPosition("end");
       } else {
         const error = await response.json();
         showMessage(error.error || "Error adding product", "error");
@@ -239,30 +273,55 @@ export default function PlacementsPage() {
           <CardTitle>Add Product to {SECTIONS.find(s => s.value === selectedSection)?.label}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
-            <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-              <SelectTrigger className="flex-1">
-                <SelectValue placeholder="Select a product" />
-              </SelectTrigger>
-              <SelectContent>
-                {products
-                  .filter(
-                    (p) =>
-                      !placements.some((pl) => pl.product_id === p.id)
-                  )
-                  .map((product) => (
-                    <SelectItem key={product.id} value={product.id.toString()}>
-                      {product.name} - {product.color}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+          <div className="space-y-4">
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium mb-2 block">Select Product</label>
+                <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a product" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {products
+                      .filter(
+                        (p) =>
+                          !placements.some((pl) => pl.product_id === p.id)
+                      )
+                      .map((product) => (
+                        <SelectItem key={product.id} value={product.id.toString()}>
+                          {product.name} - {product.color}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="w-48">
+                <label className="text-sm font-medium mb-2 block">Position</label>
+                <Select value={selectedPosition} onValueChange={setSelectedPosition}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="start">At Start (Position 1)</SelectItem>
+                    {placements.map((_, index) => (
+                      <SelectItem key={index} value={index.toString()}>
+                        Position {index + 1}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="end">At End (Position {placements.length + 1})</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            
             <Button
               onClick={addPlacement}
               disabled={loading || !selectedProduct}
+              className="w-full"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Product
+              Add Product at Selected Position
             </Button>
           </div>
         </CardContent>
@@ -376,8 +435,9 @@ export default function PlacementsPage() {
         </CardHeader>
         <CardContent className="text-sm space-y-2">
           <p>• <strong>Select Section:</strong> Choose which homepage section to manage</p>
-          <p>• <strong>Add Products:</strong> Select a product and click "Add Product"</p>
-          <p>• <strong>Reorder:</strong> Use arrow buttons to change display order</p>
+          <p>• <strong>Add Products:</strong> Select a product and choose where to place it (start, middle, or end)</p>
+          <p>• <strong>Position Control:</strong> New products can be inserted at any position - existing products automatically shift</p>
+          <p>• <strong>Reorder:</strong> Use arrow buttons to move products up/down one position at a time</p>
           <p>• <strong>Toggle Visibility:</strong> Eye icon to show/hide without removing</p>
           <p>• <strong>Remove:</strong> Trash icon to permanently remove from section</p>
         </CardContent>
