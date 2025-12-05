@@ -6,22 +6,31 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const email = searchParams.get('email');
+    const phone = searchParams.get('phone');
 
-    if (!email) {
+    if (!email && !phone) {
       return NextResponse.json(
-        { error: 'Email is required', orders: [] },
+        { error: 'Email or phone is required', orders: [] },
         { status: 400 }
       );
     }
 
-    console.log('Fetching orders for:', email);
+    console.log('Fetching orders for:', { email, phone });
 
-    // Query orders by email (case-insensitive)
-    const { data: orders, error } = await supabaseAdmin
-      .from('orders')
-      .select('*')
-      .ilike('customer_email', email)
-      .order('created_at', { ascending: false });
+    let query = supabaseAdmin.from('orders').select('*');
+
+    // Query by email if provided
+    if (email) {
+      query = query.or(`customer_email.ilike.${email},customer_email.ilike.%${email}%`);
+    }
+
+    // Also query by phone if provided  
+    if (phone) {
+      const cleanPhone = phone.replace(/\s+/g, '');
+      query = query.or(`customer_phone.ilike.%${cleanPhone}%,customer_phone.ilike.${cleanPhone}`);
+    }
+
+    const { data: orders, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching orders:', error);
@@ -31,7 +40,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    console.log(`Found ${orders?.length || 0} orders for ${email}`);
+    console.log(`Found ${orders?.length || 0} orders for user`);
 
     return NextResponse.json({
       orders: orders || [],

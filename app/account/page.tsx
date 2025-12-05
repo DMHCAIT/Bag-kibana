@@ -39,8 +39,12 @@ export default function AccountPage() {
     async function fetchUserOrders() {
       if (user) {
         try {
-          // Fetch orders for this user from the user orders API
-          const response = await fetch(`/api/user/orders?email=${encodeURIComponent(user.email)}`);
+          // Fetch orders for this user from the user orders API using both email and phone
+          const params = new URLSearchParams();
+          if (user.email) params.append('email', user.email);
+          if (user.phone) params.append('phone', user.phone);
+          
+          const response = await fetch(`/api/user/orders?${params.toString()}`);
           const data = await response.json();
           
           if (response.ok && data.orders) {

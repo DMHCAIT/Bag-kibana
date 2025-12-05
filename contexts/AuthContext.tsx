@@ -28,7 +28,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [otpStorage, setOtpStorage] = useState<{[phone: string]: {otp: string, expiry: number, userData?: any}}>({});
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -142,19 +141,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const requestOTP = async (phone: string) => {
     try {
-      // Simulate OTP generation (in production, use SMS service)
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      const expiry = Date.now() + 5 * 60 * 1000; // 5 minutes
-      
-      // Store OTP temporarily
-      setOtpStorage(prev => ({
-        ...prev,
-        [phone]: { otp, expiry }
-      }));
-      
-      // In production, send OTP via SMS service
-      console.log(`OTP for ${phone}: ${otp}`);
-      
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone.replace(/\s+/g, '') })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Failed to send OTP' };
+      }
+
+      // In development, show OTP in console
+      if (data.otp) {
+        console.log(`Development OTP for ${phone}: ${data.otp}`);
+        alert(`Development Mode - OTP: ${data.otp}`);
+      }
+
       return { success: true };
     } catch (error) {
       console.error('OTP request error:', error);
@@ -164,15 +168,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithOTP = async (phone: string, otp: string) => {
     try {
-      // Verify OTP
-      const otpData = otpStorage[phone];
-      if (!otpData || otpData.otp !== otp || Date.now() > otpData.expiry) {
-        return { success: false, error: 'Invalid or expired OTP' };
+      // First verify the OTP
+      const verifyResponse = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone.replace(/\s+/g, ''), otp })
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        return { success: false, error: verifyData.error || 'Invalid OTP' };
       }
 
       // Check if user exists
       const existingUsers = JSON.parse(localStorage.getItem('kibana_users') || '[]');
-      const user = existingUsers.find((u: any) => u.phone === phone);
+      const user = existingUsers.find((u: any) => u.phone === phone.replace(/\s+/g, ''));
       
       if (!user) {
         return { success: false, error: 'User not found. Please sign up first.' };
@@ -185,13 +196,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('kibana_user', JSON.stringify(userWithoutPassword));
       setUser(userWithoutPassword as User);
 
-      // Clear OTP
-      setOtpStorage(prev => {
-        const newStorage = { ...prev };
-        delete newStorage[phone];
-        return newStorage;
-      });
-
       return { success: true };
     } catch (error) {
       console.error('OTP sign in error:', error);
@@ -201,21 +205,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUpWithOTP = async (name: string, email: string, phone: string, otp: string) => {
     try {
-      // Verify OTP
-      const otpData = otpStorage[phone];
-      if (!otpData || otpData.otp !== otp || Date.now() > otpData.expiry) {
-        return { success: false, error: 'Invalid or expired OTP' };
+      // First verify the OTP
+      const verifyResponse = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone.replace(/\s+/g, ''), otp })
+      });
+
+      const verifyData = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        return { success: false, error: verifyData.error || 'Invalid OTP' };
       }
 
       // Get existing users from localStorage
       const existingUsers = JSON.parse(localStorage.getItem('kibana_users') || '[]');
+      const normalizedPhone = phone.replace(/\s+/g, '');
       
       // Check if user already exists by email or phone
       if (existingUsers.some((u: any) => u.email === email)) {
         return { success: false, error: 'Email already registered' };
       }
       
-      if (existingUsers.some((u: any) => u.phone === phone)) {
+      if (existingUsers.some((u: any) => u.phone === normalizedPhone)) {
         return { success: false, error: 'Mobile number already registered' };
       }
 
@@ -224,7 +236,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: `USER-${Date.now()}`,
         email,
         name,
-        phone,
+        phone: normalizedPhone,
         createdAt: new Date().toISOString(),
       };
 
@@ -237,12 +249,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('kibana_user', JSON.stringify(newUser));
       setUser(newUser);
 
-      // Clear OTP
-      setOtpStorage(prev => {
-        const newStorage = { ...prev };
-        delete newStorage[phone];
-        return newStorage;
-      });
+      return { success: true };
+    } catch (error) {
+      console.error('OTP sign up error:', error);
+      return { success: false, error: 'Failed to create account' };
+    }
+  };
 
       return { success: true };
     } catch (error) {
