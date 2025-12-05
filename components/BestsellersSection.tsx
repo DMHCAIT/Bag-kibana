@@ -130,22 +130,21 @@ export default function BestsellersSection() {
     async function fetchBestsellers() {
       try {
         setLoading(true);
-        const response = await fetch('/api/products/sections/bestsellers');
+        // First, try to fetch products from placements
+        const response = await fetch('/api/placements?section=bestsellers');
         const data = await response.json();
 
         if (!isMounted) return;
 
-        if (response.ok && data.products) {
-          // If section has products, use them. Otherwise, show top 4 products as fallback
-          if (data.products.length > 0) {
-            setBestsellers(data.products.slice(0, 4));
-          } else {
-            // Fallback: Fetch top 4 products
-            const fallbackResponse = await fetch('/api/products?limit=4');
-            const fallbackData = await fallbackResponse.json();
-            if (isMounted && fallbackResponse.ok && fallbackData.products) {
-              setBestsellers(fallbackData.products);
-            }
+        if (response.ok && data.length > 0) {
+          // Use products from placements
+          setBestsellers(data.slice(0, 4));
+        } else {
+          // Fallback: Fetch top 4 products from regular products API
+          const fallbackResponse = await fetch('/api/products?limit=4');
+          const fallbackData = await fallbackResponse.json();
+          if (isMounted && fallbackResponse.ok && fallbackData.products) {
+            setBestsellers(fallbackData.products);
           }
         }
       } catch (error) {

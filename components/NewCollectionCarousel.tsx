@@ -122,14 +122,15 @@ export default function NewCollectionCarousel() {
     async function fetchNewArrivals() {
       try {
         setLoading(true);
-        // Try new arrivals first
-        const response = await fetch('/api/products/sections/new-arrivals');
+        // First, try to fetch products from placements
+        const response = await fetch('/api/placements?section=new-collection');
         const data = await response.json();
 
         if (!isMounted) return;
 
-        if (response.ok && data.products && data.products.length > 0) {
-          setNewProducts(data.products);
+        if (response.ok && data.length > 0) {
+          // Use products from placements
+          setNewProducts(data);
         } else {
           // Fallback: Fetch latest products from database
           const fallbackResponse = await fetch('/api/products?limit=8');
