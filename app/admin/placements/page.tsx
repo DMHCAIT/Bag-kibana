@@ -15,7 +15,8 @@ import { Trash2, Plus, MoveUp, MoveDown, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 
 interface Product {
-  id: number;
+  id: string | number;
+  dbId?: number;
   name: string;
   slug: string;
   color: string;
@@ -289,10 +290,10 @@ export default function PlacementsPage() {
                     {products
                       .filter(
                         (p) =>
-                          !placements.some((pl) => pl.product_id === p.id)
+                          !placements.some((pl) => pl.product_id === p.dbId)
                       )
                       .map((product) => (
-                        <SelectItem key={product.id} value={product.id.toString()}>
+                        <SelectItem key={product.id} value={(product.dbId || product.id).toString()}>
                           {product.name} - {product.color}
                         </SelectItem>
                       ))}
