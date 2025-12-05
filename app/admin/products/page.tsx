@@ -317,8 +317,8 @@ export default function AdminProductsPage() {
                       <TableCell>
                         <input
                           type="checkbox"
-                          checked={selectedProducts.includes(product.id)}
-                          onChange={() => toggleProductSelection(product.id)}
+                          checked={selectedProducts.includes(product.dbId?.toString() || product.id)}
+                          onChange={() => toggleProductSelection(product.dbId?.toString() || product.id)}
                           className="w-4 h-4"
                         />
                       </TableCell>
@@ -403,7 +403,7 @@ export default function AdminProductsPage() {
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                              onClick={() => handleDelete(product.id)}
+                              onClick={() => handleDelete(product.dbId?.toString() || product.id)}
                               className="text-red-600"
                         >
                               <Trash2 className="w-4 h-4 mr-2" />

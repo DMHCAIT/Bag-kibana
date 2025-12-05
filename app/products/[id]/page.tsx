@@ -436,11 +436,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <p className="text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
             </div>
 
-              {/* Available Colors - Moved to top */}
+              {/* Available Colors - Enhanced with Dropdown */}
             {product.colors && product.colors.length > 0 && (
                 <div>
-                  <h3 className="text-xs md:text-sm font-medium text-gray-700 mb-2">Available Colors</h3>
-                  <div className="flex flex-wrap gap-1.5 md:gap-2">
+                  <h3 className="text-xs md:text-sm font-medium text-gray-700 mb-3">Select Color</h3>
+                  
+                  {/* Color Swatches - Clickable */}
+                  <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3">
                     {product.colors.map((colorOption, index) => {
                       // Remove .jpg extension if present and handle hex colors
                       let colorValue = colorOption.value.replace(/\.jpg$/i, '');
@@ -462,6 +464,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                               ? 'border-black bg-gray-50' 
                               : 'border-gray-200 hover:border-gray-400'
                           } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
+                          title={colorOption.available ? `Switch to ${colorOption.name}` : `${colorOption.name} - Currently unavailable`}
                         >
                           <span
                             className="w-3.5 h-3.5 md:w-5 md:h-5 rounded-full border border-gray-300"
@@ -471,10 +474,40 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           {isCurrentColor && (
                             <Check className="w-3 h-3 md:w-4 md:h-4 text-black" />
                           )}
+                          {!colorOption.available && (
+                            <span className="text-[10px] text-red-500 ml-1">(Out of stock)</span>
+                          )}
                         </Link>
                       );
                     })}
                 </div>
+                
+                  {/* Color Dropdown - Alternative View */}
+                  <div className="relative">
+                    <label className="text-xs text-gray-500 mb-1 block">Or select from dropdown:</label>
+                    <select
+                      value={product.color}
+                      onChange={(e) => {
+                        const selectedColor = product.colors?.find(c => c.name === e.target.value);
+                        if (selectedColor && selectedColor.available) {
+                          const baseName = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                          const colorSlug = selectedColor.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                          router.push(`/products/${baseName}-${colorSlug}`);
+                        }
+                      }}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
+                    >
+                      {product.colors.map((colorOption, index) => (
+                        <option 
+                          key={index} 
+                          value={colorOption.name}
+                          disabled={!colorOption.available}
+                        >
+                          {colorOption.name} {!colorOption.available ? '(Out of stock)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
               </div>
             )}
 
