@@ -4,10 +4,10 @@ import { NextResponse } from "next/server";
 // PUT - Update a placement
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await request.json();
     const { display_order, is_active, section } = body;
 
@@ -66,10 +66,10 @@ export async function PUT(
 // DELETE - Remove a specific placement
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const supabase = supabaseAdmin;
 
     const { error } = await supabase
