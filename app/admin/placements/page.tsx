@@ -289,27 +289,51 @@ export default function PlacementsPage() {
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Select Product</label>
-                <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a product" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {(() => {
-                      const availableProducts = products.filter(
-                        (p) => !placements.some((pl) => pl.product_id === p.dbId)
-                      );
-                      console.log("Total products:", products.length);
-                      console.log("Placements:", placements.map(pl => pl.product_id));
-                      console.log("Available products for dropdown:", availableProducts.length);
-                      console.log("Products with dbId:", products.filter(p => p.dbId).length);
-                      return availableProducts.map((product) => (
-                        <SelectItem key={product.id} value={(product.dbId || product.id).toString()}>
-                          {product.name} - {product.color}
-                        </SelectItem>
-                      ));
-                    })()}
-                  </SelectContent>
-                </Select>
+                {products.length === 0 ? (
+                  <div className="border rounded-md p-3 text-sm text-gray-500">
+                    Loading products...
+                  </div>
+                ) : (
+                  <>
+                    <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a product" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-[300px]">
+                        {(() => {
+                          const availableProducts = products.filter(
+                            (p) => !placements.some((pl) => pl.product_id === p.dbId)
+                          );
+                          console.log("Total products:", products.length);
+                          console.log("Placements:", placements.map(pl => pl.product_id));
+                          console.log("Available products for dropdown:", availableProducts.length);
+                          console.log("Products with dbId:", products.filter(p => p.dbId).length);
+                          console.log("Sample product:", products[0]);
+                          
+                          if (availableProducts.length === 0) {
+                            return (
+                              <div className="p-4 text-sm text-gray-500 text-center">
+                                All products are already placed in this section
+                              </div>
+                            );
+                          }
+                          
+                          return availableProducts.map((product) => (
+                            <SelectItem 
+                              key={product.id} 
+                              value={(product.dbId || product.id).toString()}
+                            >
+                              {product.name} - {product.color}
+                            </SelectItem>
+                          ));
+                        })()}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {products.filter(p => !placements.some(pl => pl.product_id === p.dbId)).length} products available
+                    </p>
+                  </>
+                )}
               </div>
               
               <div className="w-48">
