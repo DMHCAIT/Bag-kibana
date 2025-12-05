@@ -60,8 +60,12 @@ export default function PlacementsPage() {
         `/api/admin/placements?section=${selectedSection}`
       );
       const data = await response.json();
+      console.log("Fetched placements:", data);
+      console.log("Placements count:", Array.isArray(data) ? data.length : 0);
+      
       // Ensure data is an array
-      setPlacements(Array.isArray(data) ? data : []);
+      const placementsArray = Array.isArray(data) ? data : [];
+      setPlacements(placementsArray);
     } catch (error) {
       console.error("Error fetching placements:", error);
       showMessage("Error loading placements", "error");
@@ -73,10 +77,14 @@ export default function PlacementsPage() {
     try {
       const response = await fetch("/api/products");
       const data = await response.json();
-      console.log("Fetched products:", data);
-      console.log("Products count:", data?.length);
-      // Ensure data is an array
-      setProducts(Array.isArray(data) ? data : []);
+      console.log("Fetched products data:", data);
+      
+      // The API returns { products: [...] } structure
+      const productsArray = data.products || [];
+      console.log("Products count:", productsArray.length);
+      console.log("Sample product:", productsArray[0]);
+      
+      setProducts(productsArray);
     } catch (error) {
       console.error("Error fetching products:", error);
       setProducts([]);
@@ -301,19 +309,33 @@ export default function PlacementsPage() {
                       </SelectTrigger>
                       <SelectContent className="max-h-[300px]">
                         {(() => {
-                          const availableProducts = products.filter(
-                            (p) => !placements.some((pl) => pl.product_id === p.dbId)
-                          );
-                          console.log("Total products:", products.length);
-                          console.log("Placements:", placements.map(pl => pl.product_id));
-                          console.log("Available products for dropdown:", availableProducts.length);
-                          console.log("Products with dbId:", products.filter(p => p.dbId).length);
-                          console.log("Sample product:", products[0]);
+                          // Get list of placed product IDs in current section
+                          const placedProductIds = placements.map(pl => pl.product_id);
+                          
+                          // Filter out already placed products
+                          const availableProducts = products.filter((p) => {
+                            const productId = p.dbId || p.id;
+                            const isPlaced = placedProductIds.includes(Number(productId));
+                            return !isPlaced;
+                          });
+                          
+                          console.log("=== PRODUCT SELECTOR DEBUG ===");
+                          console.log("Total products fetched:", products.length);
+                          console.log("Placed product IDs:", placedProductIds);
+                          console.log("Available products:", availableProducts.length);
+                          console.log("First 3 products:", products.slice(0, 3).map(p => ({
+                            id: p.id,
+                            dbId: p.dbId,
+                            name: p.name,
+                            color: p.color
+                          })));
                           
                           if (availableProducts.length === 0) {
                             return (
                               <div className="p-4 text-sm text-gray-500 text-center">
-                                All products are already placed in this section
+                                {products.length === 0 
+                                  ? "No products found in database" 
+                                  : "All products are already placed in this section"}
                               </div>
                             );
                           }
