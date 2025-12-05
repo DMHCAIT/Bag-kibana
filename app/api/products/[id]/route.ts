@@ -4,8 +4,9 @@ import { supabaseAdmin } from '@/lib/supabase';
 // Helper function to format database product for frontend
 function formatDbProduct(dbProduct: any) {
   return {
-    id: dbProduct.id?.toString() || `product-${dbProduct.id}`,
+    id: dbProduct.slug || dbProduct.id?.toString() || `product-${dbProduct.id}`,
     dbId: dbProduct.id,
+    slug: dbProduct.slug,
     name: dbProduct.name,
     category: dbProduct.category,
     color: dbProduct.color,
@@ -41,7 +42,7 @@ export async function GET(
       );
     }
 
-    // Try to find by id directly (could be numeric or string)
+    // Try to find by slug first, then by numeric id
     let query = supabaseAdmin
       .from('products')
       .select('*');
@@ -49,10 +50,11 @@ export async function GET(
     // Check if id is numeric
     const numericId = parseInt(id);
     if (!isNaN(numericId)) {
+      // Numeric ID lookup
       query = query.eq('id', numericId);
     } else {
-      // Try matching by string id or slug
-      query = query.or(`id.eq.${id},name.ilike.%${id}%`);
+      // Slug-based lookup (e.g., "wallet-mint-green")
+      query = query.eq('slug', id);
     }
 
     const { data: products, error } = await query.limit(1);

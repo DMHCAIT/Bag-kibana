@@ -51,7 +51,7 @@ export default function AdminDashboard() {
       // Fetch all products
       const response = await fetch('/api/admin/products?limit=100');
       const data = await response.json();
-
+      
       if (response.ok && data.products) {
         const products = data.products;
 
@@ -148,24 +148,24 @@ export default function AdminDashboard() {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {statCards.map((stat) => (
+        {statCards.map((stat) => (
               <Link key={stat.title} href={stat.href}>
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
                         <p className="text-3xl font-bold">{stat.value}</p>
-                      </div>
+                </div>
                       <div className={`${stat.color} text-white p-3 rounded-lg`}>
                         <stat.icon className="w-8 h-8" />
-                      </div>
-                    </div>
+              </div>
+            </div>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
-          </div>
+          </Link>
+        ))}
+      </div>
 
           {/* Quick Actions */}
           <Card>
@@ -193,8 +193,8 @@ export default function AdminDashboard() {
                   <Button variant="outline" className="w-full">
                     View Reports
                   </Button>
-                </Link>
-              </div>
+            </Link>
+          </div>
             </CardContent>
           </Card>
 
@@ -229,20 +229,20 @@ export default function AdminDashboard() {
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
                             No image
-                          </div>
-                        )}
-                      </div>
+            </div>
+          )}
+        </div>
                       <div className="flex-1">
                         <p className="font-medium">{product.name} - {product.color}</p>
                         <p className="text-sm text-gray-500">{product.category}</p>
-                      </div>
+      </div>
                       <div className="text-right">
                         <p className="font-medium">₹{product.price.toLocaleString()}</p>
                         <p className="text-xs text-gray-500">
                           Stock: {(product as any).stock || 100}
-                        </p>
+          </p>
                       </div>
-                    </Link>
+        </Link>
                   ))}
                 </div>
               )}
@@ -267,7 +267,7 @@ export default function AdminDashboard() {
                   <Button variant="outline" size="sm" className="mt-4">
                     View Products
                   </Button>
-                </Link>
+        </Link>
               </CardContent>
             </Card>
           )}

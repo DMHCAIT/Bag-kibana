@@ -35,8 +35,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Check if Twilio credentials are configured
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
+      const accountSid = process.env.TWILIO_ACCOUNT_SID;
+      const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
     if (accountSid && authToken && twilioPhone) {
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
         });
 
         console.log(`OTP sent to ${formattedPhone} via Twilio`);
-        
+
         return NextResponse.json({
           success: true,
           message: 'OTP sent successfully'
@@ -75,11 +75,11 @@ export async function POST(request: NextRequest) {
     } else {
       // No Twilio config - dev mode
       console.log(`Dev mode - OTP for ${formattedPhone}: ${otp}`);
-      return NextResponse.json({
-        success: true,
+    return NextResponse.json({
+      success: true,
         message: 'OTP generated (dev mode)',
         otp: otp
-      });
+    });
     }
   } catch (error) {
     console.error('Send OTP error:', error);

@@ -30,7 +30,7 @@ function ProductCard({ product }: { product: Product }) {
   return (
     <Card className="border-0 shadow-none group">
       <CardContent className="p-0 space-y-3">
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug || product.id}`}>
           <div className="relative aspect-[3/4] bg-gray-100 rounded-sm overflow-hidden cursor-pointer">
             <Image
               src={product.images[0]}
@@ -42,7 +42,7 @@ function ProductCard({ product }: { product: Product }) {
           </div>
         </Link>
         <div className="space-y-2">
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/products/${product.slug || product.id}`}>
             <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity">
               {product.name} - {product.color}
             </h3>
@@ -442,11 +442,16 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <h3 className="text-xs md:text-sm font-medium text-gray-700 mb-2">Available Colors</h3>
                   <div className="flex flex-wrap gap-1.5 md:gap-2">
                     {product.colors.map((colorOption, index) => {
-                      const colorValue = colorOption.value.replace('.jpg', '');
-                      const baseName = product.name.toLowerCase().replace(/\s+/g, '-');
-                      const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
+                      // Remove .jpg extension if present and handle hex colors
+                      let colorValue = colorOption.value.replace(/\.jpg$/i, '');
+                      // Ensure hex colors start with #
+                      if (colorValue.match(/^[0-9A-F]{6}$/i)) {
+                        colorValue = '#' + colorValue;
+                      }
+                      const baseName = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                      const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
                       const productLink = `/products/${baseName}-${colorSlug}`;
-                      const isCurrentColor = colorOption.name.toLowerCase() === product.color.toLowerCase();
+                      const isCurrentColor = colorOption.name.toLowerCase().trim() === product.color.toLowerCase().trim();
                       
                       return (
                         <Link

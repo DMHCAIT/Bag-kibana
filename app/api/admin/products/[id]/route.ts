@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { products as staticProducts } from '@/lib/products-data';
+
+// Helper function to generate slug from name and color
+function generateSlug(name: string, color: string): string {
+  const combined = `${name}-${color}`;
+  return combined
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .trim();
+}
 
 // Helper to extract database ID from product ID (e.g., "product-123" -> 123)
 function extractDbId(id: string): number | null {
@@ -15,22 +25,25 @@ function extractDbId(id: string): number | null {
 // Helper function to format database product
 function formatDbProduct(dbProduct: any) {
   return {
-    id: `product-${dbProduct.id}`,
+    id: dbProduct.slug || dbProduct.id?.toString() || `product-${dbProduct.id}`,
     dbId: dbProduct.id,
+    slug: dbProduct.slug,
     name: dbProduct.name,
     category: dbProduct.category,
     color: dbProduct.color,
     price: dbProduct.price,
     salePrice: dbProduct.sale_price,
     stock: dbProduct.stock || 50,
-    rating: dbProduct.rating,
-    reviews: dbProduct.reviews,
+    rating: dbProduct.rating || 4.5,
+    reviews: dbProduct.reviews || 0,
     images: dbProduct.images || [],
     description: dbProduct.description,
     specifications: dbProduct.specifications || {},
     features: dbProduct.features || [],
     careInstructions: dbProduct.care_instructions || [],
     care_instructions: dbProduct.care_instructions || [],
+    colors: dbProduct.colors || [],
+    sections: dbProduct.sections || [],
     is_bestseller: dbProduct.is_bestseller,
     is_new: dbProduct.is_new,
     isBestseller: dbProduct.is_bestseller,
@@ -40,66 +53,45 @@ function formatDbProduct(dbProduct: any) {
   };
 }
 
-// GET - Fetch single product by ID
+// GET - Fetch single product by ID from database
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-
-    // Try to get from database first
     const dbId = extractDbId(id);
     
-    if (dbId !== null) {
-      const { data: dbProduct, error } = await supabaseAdmin
-        .from('products')
-        .select('*')
-        .eq('id', dbId)
-        .single();
-
-      if (!error && dbProduct) {
-        return NextResponse.json(formatDbProduct(dbProduct), {
-          headers: {
-            'Cache-Control': 'private, no-cache',
-          }
-        });
-      }
+    if (dbId === null) {
+      return NextResponse.json(
+        { error: 'Invalid product ID', id },
+        { status: 400 }
+      );
     }
 
-    // Fallback to static products
-    const staticProduct = staticProducts.find((p: any) => p.id === id);
-    
-    if (!staticProduct) {
+    const { data: dbProduct, error } = await supabaseAdmin
+      .from('products')
+      .select('*')
+      .eq('id', dbId)
+      .single();
+
+    if (error || !dbProduct) {
+      console.error('Supabase error:', error);
       return NextResponse.json(
         { error: 'Product not found', id },
         { status: 404 }
       );
     }
 
-    // Return static product with admin fields
-    const adminProduct = {
-      ...staticProduct,
-      stock: (staticProduct as any).stock || 50,
-      is_bestseller: (staticProduct as any).sections?.includes('bestsellers') || false,
-      is_new: (staticProduct as any).sections?.includes('new-arrivals') || false,
-      care_instructions: (staticProduct as any).care_instructions || [
-        "Keep away from direct sunlight",
-        "Store in a dust bag when not in use",
-        "Clean with a soft, dry cloth",
-        "Avoid contact with water and oils"
-      ],
-    };
-
-    return NextResponse.json(adminProduct, {
+    return NextResponse.json(formatDbProduct(dbProduct), {
       headers: {
         'Cache-Control': 'private, no-cache',
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching product:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch product' },
+      { error: error.message || 'Failed to fetch product' },
       { status: 500 }
     );
   }
@@ -117,12 +109,18 @@ export async function PATCH(
     const dbId = extractDbId(id);
     
     if (dbId === null) {
-      // Static products can't be edited - prompt to add to database
       return NextResponse.json(
-        { error: 'Cannot edit static products. Please add product to database first.', id },
+        { error: 'Invalid product ID', id },
         { status: 400 }
       );
     }
+
+    // Fetch current product to get name/color for slug generation
+    const { data: currentProduct } = await supabaseAdmin
+      .from('products')
+      .select('name, color')
+      .eq('id', dbId)
+      .single();
 
     // Prepare update data for Supabase
     const updateData: any = {
@@ -132,17 +130,30 @@ export async function PATCH(
     if (data.name !== undefined) updateData.name = data.name;
     if (data.category !== undefined) updateData.category = data.category;
     if (data.color !== undefined) updateData.color = data.color;
+
+    // Regenerate slug if name or color changed
+    if (currentProduct && (data.name !== undefined || data.color !== undefined)) {
+      const newName = data.name !== undefined ? data.name : currentProduct.name;
+      const newColor = data.color !== undefined ? data.color : currentProduct.color;
+      updateData.slug = generateSlug(newName, newColor);
+    }
     if (data.price !== undefined) updateData.price = parseFloat(data.price);
+    if (data.sale_price !== undefined) updateData.sale_price = parseFloat(data.sale_price);
     if (data.description !== undefined) updateData.description = data.description;
     if (data.images !== undefined) updateData.images = data.images;
     if (data.stock !== undefined) updateData.stock = parseInt(data.stock);
     if (data.features !== undefined) updateData.features = data.features;
     if (data.care_instructions !== undefined) updateData.care_instructions = data.care_instructions;
+    if (data.careInstructions !== undefined) updateData.care_instructions = data.careInstructions;
     if (data.specifications !== undefined) updateData.specifications = data.specifications;
     if (data.rating !== undefined) updateData.rating = parseFloat(data.rating);
     if (data.reviews !== undefined) updateData.reviews = parseInt(data.reviews);
     if (data.is_bestseller !== undefined) updateData.is_bestseller = data.is_bestseller;
+    if (data.isBestseller !== undefined) updateData.is_bestseller = data.isBestseller;
     if (data.is_new !== undefined) updateData.is_new = data.is_new;
+    if (data.isNewArrival !== undefined) updateData.is_new = data.isNewArrival;
+    if (data.colors !== undefined) updateData.colors = data.colors;
+    if (data.sections !== undefined) updateData.sections = data.sections;
 
     console.log('Updating product:', dbId, updateData);
 
@@ -207,7 +218,7 @@ export async function PUT(
     
     if (dbId === null) {
       return NextResponse.json(
-        { error: 'Cannot edit static products. Please add product to database first.', id },
+        { error: 'Invalid product ID', id },
         { status: 400 }
       );
     }
@@ -218,16 +229,19 @@ export async function PUT(
       category: data.category,
       color: data.color || '',
       price: parseFloat(data.price),
+      sale_price: data.sale_price ? parseFloat(data.sale_price) : null,
       description: data.description || '',
       images: data.images || [],
       stock: parseInt(data.stock || '50'),
       features: data.features || [],
-      care_instructions: data.care_instructions || [],
+      care_instructions: data.care_instructions || data.careInstructions || [],
       specifications: data.specifications || {},
       rating: parseFloat(data.rating || '4.5'),
       reviews: parseInt(data.reviews || '0'),
-      is_bestseller: data.is_bestseller || false,
-      is_new: data.is_new || false,
+      is_bestseller: data.is_bestseller || data.isBestseller || false,
+      is_new: data.is_new || data.isNewArrival || false,
+      colors: data.colors || [],
+      sections: data.sections || [],
       updated_at: new Date().toISOString(),
     };
 
@@ -271,12 +285,11 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-
     const dbId = extractDbId(id);
     
     if (dbId === null) {
       return NextResponse.json(
-        { error: 'Cannot delete static products', id },
+        { error: 'Invalid product ID', id },
         { status: 400 }
       );
     }

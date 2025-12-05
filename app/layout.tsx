@@ -89,7 +89,7 @@ export default function RootLayout({
         <ErrorBoundary>
           <Providers>
             <AuthProvider>
-              <CartProvider>{children}</CartProvider>
+            <CartProvider>{children}</CartProvider>
             </AuthProvider>
           </Providers>
         </ErrorBoundary>

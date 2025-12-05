@@ -30,7 +30,7 @@ function ProductCard({ product }: { product: Product }) {
     <Card className="border-0 shadow-none group h-full flex flex-col">
       <CardContent className="p-0 space-y-3 flex flex-col h-full">
         {/* Product Image */}
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug || product.id}`}>
           <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
             <Image
               src={product.images[0]}
@@ -46,7 +46,7 @@ function ProductCard({ product }: { product: Product }) {
 
         {/* Product Info */}
         <div className="space-y-2 flex-1 flex flex-col">
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/products/${product.slug || product.id}`}>
             <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity cursor-pointer line-clamp-2">
               {product.name} - {product.color}
             </h3>
@@ -122,30 +122,28 @@ export default function NewCollectionCarousel() {
     async function fetchNewArrivals() {
       try {
         setLoading(true);
+        // Try new arrivals first
         const response = await fetch('/api/products/sections/new-arrivals');
         const data = await response.json();
 
         if (!isMounted) return;
 
-        if (response.ok && data.products) {
-          // If section has products, use them. Otherwise, show latest 4 products as fallback
-          if (data.products.length > 0) {
-            setNewProducts(data.products);
-          } else {
-            // Fallback: Fetch latest 4 products
-            const fallbackResponse = await fetch('/api/products?limit=4');
-            const fallbackData = await fallbackResponse.json();
-            if (isMounted && fallbackResponse.ok && fallbackData.products) {
-              setNewProducts(fallbackData.products);
-            }
+        if (response.ok && data.products && data.products.length > 0) {
+          setNewProducts(data.products);
+        } else {
+          // Fallback: Fetch latest products from database
+          const fallbackResponse = await fetch('/api/products?limit=8');
+          const fallbackData = await fallbackResponse.json();
+          if (isMounted && fallbackResponse.ok && fallbackData.products) {
+            setNewProducts(fallbackData.products);
           }
         }
       } catch (error) {
         if (!isMounted) return;
         console.error('Error fetching new arrivals:', error);
-        // Fallback on error
+        // Try to get any products
         try {
-          const fallbackResponse = await fetch('/api/products?limit=4');
+          const fallbackResponse = await fetch('/api/products?limit=8');
           const fallbackData = await fallbackResponse.json();
           if (isMounted && fallbackResponse.ok && fallbackData.products) {
             setNewProducts(fallbackData.products);

@@ -166,7 +166,7 @@ export default function AdminProductsPage() {
       setSelectedProducts([]);
     } else {
       setSelectedProducts(products.map(p => p.id));
-    }
+  }
   };
 
   return (
@@ -353,7 +353,7 @@ export default function AdminProductsPage() {
                           {(product as any).salePrice && (
                             <p className="text-sm text-green-600">
                               Sale: ₹{(product as any).salePrice.toLocaleString()}
-                            </p>
+                          </p>
                           )}
                         </div>
                       </TableCell>
@@ -390,13 +390,13 @@ export default function AdminProductsPage() {
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
-                              <Link href={`/products/${product.id}`} target="_blank">
+                              <Link href={`/products/${product.slug || product.id}`} target="_blank">
                                 <Eye className="w-4 h-4 mr-2" />
                                 View Product
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem asChild>
-                              <Link href={`/admin/products/${product.id}/edit`}>
+                              <Link href={`/admin/products/${product.dbId || product.id}/edit`}>
                                 <Edit className="w-4 h-4 mr-2" />
                                 Edit
                         </Link>
@@ -405,7 +405,7 @@ export default function AdminProductsPage() {
                             <DropdownMenuItem
                               onClick={() => handleDelete(product.id)}
                               className="text-red-600"
-                            >
+                        >
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
@@ -413,7 +413,7 @@ export default function AdminProductsPage() {
                         </DropdownMenu>
                       </TableCell>
                     </TableRow>
-                  ))}
+                ))}
                 </TableBody>
               </Table>
 
@@ -422,7 +422,7 @@ export default function AdminProductsPage() {
                 <div className="flex items-center justify-between border-t p-4">
                   <p className="text-sm text-gray-600">
                     Page {currentPage} of {totalPages} ({totalProducts} total products)
-                  </p>
+            </p>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"

@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
+// Helper function to generate slug from name and color
+function generateSlug(name: string, color: string): string {
+  const combined = `${name}-${color}`;
+  return combined
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .trim();
+}
+
 // GET - Fetch all products from Supabase database only
 export async function GET(request: NextRequest) {
   try {
@@ -91,18 +102,22 @@ export async function POST(request: NextRequest) {
     const requiredFields = ['name', 'category', 'color', 'price', 'description'];
     for (const field of requiredFields) {
       if (!data[field]) {
-        return NextResponse.json(
+      return NextResponse.json(
           { error: `Missing required field: ${field}` },
-          { status: 400 }
-        );
-      }
+        { status: 400 }
+      );
     }
+    }
+
+    // Generate slug from name and color
+    const slug = generateSlug(data.name, data.color);
 
     // Prepare product for database
     const newProduct = {
       name: data.name,
       category: data.category,
       color: data.color,
+      slug: slug,
       price: parseFloat(data.price),
       description: data.description,
       images: data.images || [],
@@ -203,8 +218,9 @@ export async function DELETE(request: NextRequest) {
 // Helper function to format database product to match frontend expectations
 function formatDbProduct(dbProduct: any) {
   return {
-    id: dbProduct.id?.toString() || `product-${dbProduct.id}`,
+    id: dbProduct.slug || dbProduct.id?.toString() || `product-${dbProduct.id}`,
     dbId: dbProduct.id,
+    slug: dbProduct.slug,
     name: dbProduct.name,
     category: dbProduct.category,
     color: dbProduct.color,

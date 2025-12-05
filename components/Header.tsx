@@ -111,8 +111,8 @@ export default function Header() {
                       className="hover:opacity-60 transition-opacity flex items-center gap-2"
                       aria-label="Account"
                     >
-                      <User className="w-5 h-5" />
-                    </button>
+                <User className="w-5 h-5" />
+              </button>
                     
                     {userMenuOpen && (
                       <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
@@ -207,7 +207,7 @@ export default function Header() {
                   >
                     <LogOut className="w-5 h-5" />
                     <span className="text-sm uppercase tracking-wider">Sign Out</span>
-                  </button>
+              </button>
                 </>
               ) : (
                 <Link
@@ -215,7 +215,7 @@ export default function Header() {
                   className="flex items-center gap-2 hover:opacity-60 transition-opacity"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <User className="w-5 h-5" />
+                <User className="w-5 h-5" />
                   <span className="text-sm uppercase tracking-wider">Sign In</span>
                 </Link>
               )}

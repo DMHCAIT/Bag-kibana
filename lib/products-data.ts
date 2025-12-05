@@ -1,5 +1,7 @@
 export interface Product {
   id: string;
+  dbId?: number;
+  slug?: string;
   name: string;
   category: string;
   color: string;

@@ -24,7 +24,7 @@ function ProductCard({ product }: { product: Product }) {
     <Card className="border-0 shadow-none group h-full flex flex-col">
       <CardContent className="p-0 space-y-3 flex flex-col h-full">
         {/* Product Image */}
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug || product.id}`}>
           <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
             <Image
               src={product.images[0]}
@@ -39,7 +39,7 @@ function ProductCard({ product }: { product: Product }) {
 
         {/* Product Info */}
         <div className="space-y-2 flex-1 flex flex-col">
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/products/${product.slug || product.id}`}>
             <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity cursor-pointer line-clamp-2">
               {product.name} - {product.color}
             </h3>
@@ -201,23 +201,23 @@ export default function BestsellersSection() {
             <p className="text-gray-500">No bestsellers available yet. Check back soon!</p>
           </div>
         ) : (
-          <Tabs defaultValue="women" className="w-full">
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
-              <TabsTrigger
-                value="women"
-                className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
-              >
-                Women
-              </TabsTrigger>
-              <TabsTrigger
-                value="men"
-                className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
-              >
-                Men
-              </TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="women" className="w-full">
+          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-12">
+            <TabsTrigger
+              value="women"
+              className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
+            >
+              Women
+            </TabsTrigger>
+            <TabsTrigger
+              value="men"
+              className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
+            >
+              Men
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="women">
+          <TabsContent value="women">
               {/* Mobile: 2-row horizontal scroll */}
               <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
                 <div className="grid grid-rows-2 grid-flow-col gap-4 auto-cols-[180px]">
@@ -232,9 +232,9 @@ export default function BestsellersSection() {
               {/* Desktop: 4-column grid */}
               <div className="hidden lg:grid lg:grid-cols-4 gap-8">
                 {bestsellers.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
               
               {/* View All Link */}
               <div className="flex justify-center mt-8">
@@ -245,52 +245,52 @@ export default function BestsellersSection() {
                   View All
                 </Link>
               </div>
-            </TabsContent>
+          </TabsContent>
 
-            <TabsContent value="men">
-              {/* Coming Soon Design */}
-              <div className="flex flex-col items-center justify-center py-20">
-                <div className="text-center max-w-md mx-auto">
-                  {/* Icon */}
-                  <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                    <span className="text-4xl">👜</span>
-                  </div>
-                  
-                  {/* Coming Soon Text */}
-                  <h3 className="text-3xl md:text-4xl font-semibold mb-4 text-gray-900" style={{fontFamily: 'var(--font-outfit)'}}>
-                    COMING SOON
-                  </h3>
-                  
-                  <p className="text-gray-600 text-lg mb-8 leading-relaxed" style={{fontFamily: 'var(--font-outfit)'}}>
-                    We're crafting an exclusive collection for men. 
-                    <br />
-                    Stay tuned for premium bags designed for the modern gentleman.
-                  </p>
-                  
-                  {/* Notify Button */}
-                  <Button 
-                    variant="outline" 
-                    className="px-8 py-3 rounded-full border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 text-gray-900 font-medium tracking-wider"
-                    style={{fontFamily: 'var(--font-outfit)'}}
-                  >
-                    NOTIFY ME
-                  </Button>
-                  
-                  {/* Decorative Elements */}
-                  <div className="flex justify-center gap-2 mt-12">
-                    {[0, 1, 2].map((idx) => (
-                      <div
-                        key={idx}
-                        className={`w-2 h-2 rounded-full ${
-                          idx === 1 ? "bg-gray-900" : "bg-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
+          <TabsContent value="men">
+            {/* Coming Soon Design */}
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="text-center max-w-md mx-auto">
+                {/* Icon */}
+                <div className="w-24 h-24 mx-auto mb-8 rounded-full bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                  <span className="text-4xl">👜</span>
+                </div>
+                
+                {/* Coming Soon Text */}
+                <h3 className="text-3xl md:text-4xl font-semibold mb-4 text-gray-900" style={{fontFamily: 'var(--font-outfit)'}}>
+                  COMING SOON
+                </h3>
+                
+                <p className="text-gray-600 text-lg mb-8 leading-relaxed" style={{fontFamily: 'var(--font-outfit)'}}>
+                  We're crafting an exclusive collection for men. 
+                  <br />
+                  Stay tuned for premium bags designed for the modern gentleman.
+                </p>
+                
+                {/* Notify Button */}
+                <Button 
+                  variant="outline" 
+                  className="px-8 py-3 rounded-full border-2 border-gray-900 hover:bg-gray-900 hover:text-white transition-all duration-300 text-gray-900 font-medium tracking-wider"
+                  style={{fontFamily: 'var(--font-outfit)'}}
+                >
+                  NOTIFY ME
+                </Button>
+                
+                {/* Decorative Elements */}
+                <div className="flex justify-center gap-2 mt-12">
+                  {[0, 1, 2].map((idx) => (
+                    <div
+                      key={idx}
+                      className={`w-2 h-2 rounded-full ${
+                        idx === 1 ? "bg-gray-900" : "bg-gray-300"
+                      }`}
+                    />
+                  ))}
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </TabsContent>
+        </Tabs>
         )}
       </div>
     </section>

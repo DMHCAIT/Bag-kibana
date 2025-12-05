@@ -31,7 +31,7 @@ function ProductCard({ product }: { product: Product }) {
     <Card className="border-0 shadow-sm hover:shadow-lg transition-shadow group">
       <CardContent className="p-0 space-y-4">
         {/* Product Image */}
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug || product.id}`}>
           <div className="relative aspect-3/4 bg-linear-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
             <div className="absolute inset-0 flex items-center justify-center text-gray-400">
               <div className="text-center">
@@ -45,7 +45,7 @@ function ProductCard({ product }: { product: Product }) {
 
         {/* Product Info */}
         <div className="p-4 space-y-3">
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/products/${product.slug || product.id}`}>
             <h3 className="text-sm md:text-base font-medium tracking-wide hover:opacity-60 transition-opacity cursor-pointer">
               {product.name} - {product.color}
             </h3>

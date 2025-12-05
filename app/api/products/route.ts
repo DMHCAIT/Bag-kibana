@@ -4,8 +4,9 @@ import { supabaseAdmin } from '@/lib/supabase';
 // Helper function to format database product for frontend
 function formatDbProduct(dbProduct: any) {
   return {
-    id: dbProduct.id?.toString() || `product-${dbProduct.id}`,
+    id: dbProduct.slug || dbProduct.id?.toString() || `product-${dbProduct.id}`,
     dbId: dbProduct.id,
+    slug: dbProduct.slug,
     name: dbProduct.name,
     category: dbProduct.category,
     color: dbProduct.color,

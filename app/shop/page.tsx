@@ -23,7 +23,7 @@ function ProductCard({ product }: { product: Product }) {
     <Card className="border-0 shadow-none group h-full flex flex-col">
       <CardContent className="p-0 space-y-3 flex flex-col h-full">
         {/* Product Image */}
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug || product.id}`}>
           <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
             <Image
               src={product.images[0]}
@@ -38,7 +38,7 @@ function ProductCard({ product }: { product: Product }) {
 
         {/* Product Info */}
         <div className="space-y-2 flex-1 flex flex-col">
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/products/${product.slug || product.id}`}>
             <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity line-clamp-2">
               {product.name}
             </h3>
@@ -182,11 +182,12 @@ export default function ShopPage() {
   const [openFilter, setOpenFilter] = useState<string | null>(null);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // Fetch products from API (uses static products)
+  // Fetch products from API (database only)
   useEffect(() => {
     async function fetchProducts() {
       try {
         setLoading(true);
+        setError(null);
         
         const response = await fetch('/api/products');
         const data = await response.json();
@@ -194,19 +195,13 @@ export default function ShopPage() {
         if (response.ok && data.products) {
           setProducts(data.products);
         } else {
-          // Fallback to static products
-          const { products: staticProducts } = await import('@/lib/products-data');
-          setProducts(staticProducts);
+          setError(data.error || 'Failed to load products');
+          setProducts([]);
         }
       } catch (err) {
         console.error('Error fetching products:', err);
-        // Fallback to static products
-        try {
-          const { products: staticProducts } = await import('@/lib/products-data');
-          setProducts(staticProducts);
-        } catch {
-          setError('Failed to load products');
-        }
+        setError('Failed to load products. Please try again.');
+        setProducts([]);
       } finally {
         setLoading(false);
       }
