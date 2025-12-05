@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { products as staticProducts } from '@/lib/products-data';
 
-// GET - Fetch all products from Supabase (with fallback to static)
+// GET - Fetch all products from Supabase database only
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -17,7 +16,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = (page - 1) * limit;
 
-    // Try to fetch from Supabase first
+    // Fetch from Supabase
     let query = supabaseAdmin
       .from('products')
       .select('*', { count: 'exact' })
@@ -35,67 +34,49 @@ export async function GET(request: NextRequest) {
 
     const { data: dbProducts, error, count } = await query;
 
-    // If database has products, use them
-    if (!error && dbProducts && dbProducts.length > 0) {
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { error: error.message, products: [] },
+        { status: 500 }
+      );
+    }
+
+    if (!dbProducts || dbProducts.length === 0) {
       return NextResponse.json({
-        products: dbProducts.map(formatDbProduct),
+        products: [],
         pagination: {
           page,
           limit,
-          total: count || dbProducts.length,
-          totalPages: Math.ceil((count || dbProducts.length) / limit),
-          hasMore: offset + limit < (count || 0)
+          total: 0,
+          totalPages: 0,
+          hasMore: false
         },
         source: 'database',
-        status: 'success'
-      }, {
-        headers: {
-          'Cache-Control': 'private, no-cache, no-store, must-revalidate',
-        }
+        message: 'No products found in database'
       });
     }
 
-    // Fallback to static products
-    let filteredProducts = [...staticProducts];
-
-    if (category && category !== 'all') {
-      filteredProducts = filteredProducts.filter((p: any) => 
-        p.category.toLowerCase() === category.toLowerCase()
-      );
-    }
-
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filteredProducts = filteredProducts.filter((p: any) =>
-        p.name.toLowerCase().includes(searchLower) ||
-        p.color.toLowerCase().includes(searchLower) ||
-        p.category.toLowerCase().includes(searchLower)
-      );
-    }
-
-    const total = filteredProducts.length;
-    const paginatedProducts = filteredProducts.slice(offset, offset + limit);
-
     return NextResponse.json({
-      products: paginatedProducts,
+      products: dbProducts.map(formatDbProduct),
       pagination: {
         page,
         limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-        hasMore: offset + limit < total
+        total: count || dbProducts.length,
+        totalPages: Math.ceil((count || dbProducts.length) / limit),
+        hasMore: offset + limit < (count || 0)
       },
-      source: 'static',
+      source: 'database',
       status: 'success'
     }, {
       headers: {
         'Cache-Control': 'private, no-cache, no-store, must-revalidate',
       }
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch products', products: staticProducts },
+      { error: error.message || 'Failed to fetch products', products: [] },
       { status: 500 }
     );
   }
@@ -127,12 +108,14 @@ export async function POST(request: NextRequest) {
       images: data.images || [],
       stock: parseInt(data.stock || '100'),
       features: data.features || [],
-      care_instructions: data.care_instructions || [],
+      care_instructions: data.care_instructions || data.careInstructions || [],
       rating: parseFloat(data.rating || '4.5'),
       reviews: parseInt(data.reviews || '0'),
       is_bestseller: data.is_bestseller || data.isBestseller || false,
       is_new: data.is_new || data.isNewArrival || false,
       specifications: data.specifications || {},
+      colors: data.colors || [],
+      sections: data.sections || [],
     };
 
     console.log('Creating product in database:', newProduct);
@@ -220,7 +203,7 @@ export async function DELETE(request: NextRequest) {
 // Helper function to format database product to match frontend expectations
 function formatDbProduct(dbProduct: any) {
   return {
-    id: `product-${dbProduct.id}`,
+    id: dbProduct.id?.toString() || `product-${dbProduct.id}`,
     dbId: dbProduct.id,
     name: dbProduct.name,
     category: dbProduct.category,
@@ -228,13 +211,15 @@ function formatDbProduct(dbProduct: any) {
     price: dbProduct.price,
     salePrice: dbProduct.sale_price,
     stock: dbProduct.stock,
-    rating: dbProduct.rating,
-    reviews: dbProduct.reviews,
+    rating: dbProduct.rating || 4.5,
+    reviews: dbProduct.reviews || 0,
     images: dbProduct.images || [],
     description: dbProduct.description,
     specifications: dbProduct.specifications || {},
     features: dbProduct.features || [],
     careInstructions: dbProduct.care_instructions || [],
+    colors: dbProduct.colors || [],
+    sections: dbProduct.sections || [],
     isBestseller: dbProduct.is_bestseller,
     isNewArrival: dbProduct.is_new,
     createdAt: dbProduct.created_at,

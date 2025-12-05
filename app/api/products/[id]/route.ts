@@ -1,5 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { products as staticProducts } from '@/lib/products-data';
+import { supabaseAdmin } from '@/lib/supabase';
+
+// Helper function to format database product for frontend
+function formatDbProduct(dbProduct: any) {
+  return {
+    id: dbProduct.id?.toString() || `product-${dbProduct.id}`,
+    dbId: dbProduct.id,
+    name: dbProduct.name,
+    category: dbProduct.category,
+    color: dbProduct.color,
+    price: dbProduct.price,
+    salePrice: dbProduct.sale_price,
+    stock: dbProduct.stock,
+    rating: dbProduct.rating || 4.5,
+    reviews: dbProduct.reviews || 0,
+    images: dbProduct.images || [],
+    description: dbProduct.description,
+    specifications: dbProduct.specifications || {},
+    features: dbProduct.features || [],
+    careInstructions: dbProduct.care_instructions || [],
+    colors: dbProduct.colors || [],
+    sections: dbProduct.sections || [
+      ...(dbProduct.is_bestseller ? ['bestsellers'] : []),
+      ...(dbProduct.is_new ? ['new-arrivals'] : []),
+    ],
+  };
+}
 
 export async function GET(
   request: NextRequest,
@@ -15,20 +41,43 @@ export async function GET(
       );
     }
 
-    // Find product in static data
-    const product = staticProducts.find((p: any) => p.id === id);
+    // Try to find by id directly (could be numeric or string)
+    let query = supabaseAdmin
+      .from('products')
+      .select('*');
 
-    if (!product) {
+    // Check if id is numeric
+    const numericId = parseInt(id);
+    if (!isNaN(numericId)) {
+      query = query.eq('id', numericId);
+    } else {
+      // Try matching by string id or slug
+      query = query.or(`id.eq.${id},name.ilike.%${id}%`);
+    }
+
+    const { data: products, error } = await query.limit(1);
+
+    if (error) {
+      console.error('Supabase error:', error);
+      return NextResponse.json(
+        { error: 'Database error', details: error.message },
+        { status: 500 }
+      );
+    }
+
+    if (!products || products.length === 0) {
       return NextResponse.json(
         { error: 'Product not found', id },
         { status: 404 }
       );
     }
 
+    const product = formatDbProduct(products[0]);
+
     return NextResponse.json(
       { 
         product,
-        source: 'static',
+        source: 'database',
         status: 'success'
       },
       {
