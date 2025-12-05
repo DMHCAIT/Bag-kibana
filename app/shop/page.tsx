@@ -386,7 +386,7 @@ export default function ShopPage() {
                   src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/men-icon.jpg"
                   alt="Men's Collection"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   sizes="64px"
                 />
               </div>
