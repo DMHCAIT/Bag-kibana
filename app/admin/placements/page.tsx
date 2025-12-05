@@ -73,6 +73,8 @@ export default function PlacementsPage() {
     try {
       const response = await fetch("/api/products");
       const data = await response.json();
+      console.log("Fetched products:", data);
+      console.log("Products count:", data?.length);
       // Ensure data is an array
       setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -287,16 +289,20 @@ export default function PlacementsPage() {
                     <SelectValue placeholder="Select a product" />
                   </SelectTrigger>
                   <SelectContent>
-                    {products
-                      .filter(
-                        (p) =>
-                          !placements.some((pl) => pl.product_id === p.dbId)
-                      )
-                      .map((product) => (
+                    {(() => {
+                      const availableProducts = products.filter(
+                        (p) => !placements.some((pl) => pl.product_id === p.dbId)
+                      );
+                      console.log("Total products:", products.length);
+                      console.log("Placements:", placements.map(pl => pl.product_id));
+                      console.log("Available products for dropdown:", availableProducts.length);
+                      console.log("Products with dbId:", products.filter(p => p.dbId).length);
+                      return availableProducts.map((product) => (
                         <SelectItem key={product.id} value={(product.dbId || product.id).toString()}>
                           {product.name} - {product.color}
                         </SelectItem>
-                      ))}
+                      ));
+                    })()}
                   </SelectContent>
                 </Select>
               </div>
