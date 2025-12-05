@@ -67,7 +67,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = supabaseAdmin;
 
     // Check if product exists
     const { data: product, error: productError } = await supabase
