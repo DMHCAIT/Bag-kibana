@@ -436,6 +436,35 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <p className="text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
             </div>
 
+              {/* Offer Banner */}
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-200 rounded-lg p-4 space-y-3">
+                <div className="flex items-start gap-2">
+                  <div className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">
+                    OFFER
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-gray-900">Special Discount Available!</p>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <p><strong>20% OFF</strong> - Use code <span className="bg-black text-white px-2 py-0.5 rounded font-mono text-xs">ORDERNOW</span> at checkout</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <p><strong>Extra 5% OFF</strong> on your first order!</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <p><strong>Free Shipping</strong> on all orders</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded px-3 py-2 text-xs text-gray-700 border border-green-300">
+                  💰 <strong>Your savings:</strong> ₹{Math.round(product.price * 0.20).toLocaleString()} with ORDERNOW code
+                </div>
+              </div>
+
               {/* Available Colors - Enhanced with Dropdown */}
             {product.colors && product.colors.length > 0 && (
                 <div>
