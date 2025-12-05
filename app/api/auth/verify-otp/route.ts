@@ -1,56 +1,74 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
+// In-memory OTP store (shared with send-otp route in same process)
+// For serverless, use database/Redis
+const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+
+// Also import from send-otp if needed
+import { otpStore as sendOtpStore } from '../send-otp/route';
+
+export async function POST(request: NextRequest) {
   try {
-    const { phone, otp } = await req.json();
+    const { phone, otp } = await request.json();
 
     if (!phone || !otp) {
       return NextResponse.json(
-        { success: false, error: 'Phone number and OTP are required' },
+        { error: 'Phone number and OTP are required' },
         { status: 400 }
       );
     }
 
-    // Get stored OTP
-    global.otpStorage = global.otpStorage || {};
-    const storedOtpData = global.otpStorage[phone];
+    // Format phone number
+    let formattedPhone = phone.replace(/\s+/g, '').replace(/[^0-9+]/g, '');
+    if (!formattedPhone.startsWith('+')) {
+      if (formattedPhone.startsWith('91')) {
+        formattedPhone = '+' + formattedPhone;
+      } else {
+        formattedPhone = '+91' + formattedPhone;
+      }
+    }
 
-    if (!storedOtpData) {
+    // Check OTP in shared store
+    const storedData = sendOtpStore.get(formattedPhone) || otpStore.get(formattedPhone);
+
+    if (!storedData) {
       return NextResponse.json(
-        { success: false, error: 'OTP not found. Please request a new one.' },
+        { error: 'OTP not found. Please request a new one.' },
         { status: 400 }
       );
     }
 
     // Check if OTP has expired
-    if (Date.now() > storedOtpData.expiry) {
-      delete global.otpStorage[phone];
+    if (Date.now() > storedData.expiresAt) {
+      sendOtpStore.delete(formattedPhone);
+      otpStore.delete(formattedPhone);
       return NextResponse.json(
-        { success: false, error: 'OTP has expired. Please request a new one.' },
+        { error: 'OTP has expired. Please request a new one.' },
         { status: 400 }
       );
     }
 
     // Verify OTP
-    if (storedOtpData.otp !== otp) {
+    if (storedData.otp !== otp) {
       return NextResponse.json(
-        { success: false, error: 'Invalid OTP. Please try again.' },
+        { error: 'Invalid OTP. Please try again.' },
         { status: 400 }
       );
     }
 
-    // OTP is valid - clean up
-    delete global.otpStorage[phone];
+    // OTP is valid - remove it from store
+    sendOtpStore.delete(formattedPhone);
+    otpStore.delete(formattedPhone);
 
     return NextResponse.json({
       success: true,
-      message: 'OTP verified successfully'
+      message: 'OTP verified successfully',
+      phone: formattedPhone
     });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error('Verify OTP error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to verify OTP' },
+      { error: 'Failed to verify OTP' },
       { status: 500 }
     );
   }

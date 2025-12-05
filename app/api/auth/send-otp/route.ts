@@ -1,102 +1,94 @@
 import { NextRequest, NextResponse } from 'next/server';
-// Import Twilio for SMS functionality
 import twilio from 'twilio';
 
-// For real OTP with Twilio SMS service
-export async function POST(req: NextRequest) {
+// Store OTPs temporarily (in production, use Redis or database)
+const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+
+export async function POST(request: NextRequest) {
   try {
-    const { phone } = await req.json();
+    const { phone } = await request.json();
 
     if (!phone) {
       return NextResponse.json(
-        { success: false, error: 'Phone number is required' },
+        { error: 'Phone number is required' },
         { status: 400 }
       );
     }
 
-    // Validate Indian mobile number
-    const phoneRegex = /^(\+91|91)?[6-9][0-9]{9}$/;
-    const cleanPhone = phone.replace(/\s+/g, '');
-    if (!phoneRegex.test(cleanPhone)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid Indian mobile number' },
-        { status: 400 }
-      );
+    // Format phone number - add +91 if not present
+    let formattedPhone = phone.replace(/\s+/g, '').replace(/[^0-9+]/g, '');
+    if (!formattedPhone.startsWith('+')) {
+      if (formattedPhone.startsWith('91')) {
+        formattedPhone = '+' + formattedPhone;
+      } else {
+        formattedPhone = '+91' + formattedPhone;
+      }
     }
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiry = Date.now() + 5 * 60 * 1000; // 5 minutes
+    
+    // Store OTP with 5-minute expiry
+    otpStore.set(formattedPhone, {
+      otp,
+      expiresAt: Date.now() + 5 * 60 * 1000
+    });
 
-    // Format phone number for Twilio (with +91)
-    const formattedPhone = cleanPhone.startsWith('+91') 
-      ? cleanPhone 
-      : `+91${cleanPhone.replace(/^91/, '')}`;
+    // Check if Twilio credentials are configured
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
-    // Send SMS using Twilio
-    try {
-      const accountSid = process.env.TWILIO_ACCOUNT_SID;
-      const authToken = process.env.TWILIO_AUTH_TOKEN;
-      const fromNumber = process.env.TWILIO_PHONE_NUMBER;
-
-      if (!accountSid || !authToken || !fromNumber) {
-        console.log('Twilio credentials not found, running in development mode');
-        console.log(`Development OTP for ${formattedPhone}: ${otp}`);
+    if (accountSid && authToken && twilioPhone) {
+      try {
+        const client = twilio(accountSid, authToken);
         
-        // Store OTP for verification
-        global.otpStorage = global.otpStorage || {};
-        global.otpStorage[cleanPhone] = { otp, expiry };
+        await client.messages.create({
+          body: `Your KIBANA verification code is: ${otp}. Valid for 5 minutes.`,
+          from: twilioPhone,
+          to: formattedPhone
+        });
 
+        console.log(`OTP sent to ${formattedPhone} via Twilio`);
+        
         return NextResponse.json({
           success: true,
-          message: 'OTP sent successfully',
-          // In development, return OTP for testing
-          ...(process.env.NODE_ENV === 'development' && { otp, dev_note: 'OTP shown for development' })
+          message: 'OTP sent successfully'
         });
+      } catch (twilioError: any) {
+        console.error('Twilio error:', twilioError);
+        
+        // If Twilio fails (e.g., trial account restrictions), return OTP for dev
+        if (process.env.NODE_ENV === 'development') {
+          return NextResponse.json({
+            success: true,
+            message: 'OTP sent (dev mode)',
+            otp: otp // Only in development
+          });
+        }
+        
+        return NextResponse.json(
+          { error: 'Failed to send OTP. Please try again.' },
+          { status: 500 }
+        );
       }
-
-      // Initialize Twilio client
-      const client = twilio(accountSid, authToken);
-
-      // Send SMS
-      await client.messages.create({
-        body: `Your KIBANA verification code is: ${otp}. Valid for 5 minutes. Do not share this code with anyone.`,
-        from: fromNumber,
-        to: formattedPhone
+    } else {
+      // No Twilio config - dev mode
+      console.log(`Dev mode - OTP for ${formattedPhone}: ${otp}`);
+      return NextResponse.json({
+        success: true,
+        message: 'OTP generated (dev mode)',
+        otp: otp
       });
-
-      console.log(`SMS sent successfully to ${formattedPhone}`);
-
-    } catch (twilioError: any) {
-      console.error('Twilio SMS error:', twilioError);
-      
-      // Fallback to development mode if Twilio fails
-      console.log(`Fallback - Development OTP for ${formattedPhone}: ${otp}`);
     }
-
-    // Store OTP in memory (use Redis in production)
-    global.otpStorage = global.otpStorage || {};
-    global.otpStorage[cleanPhone] = { otp, expiry };
-
-    // Clean up expired OTPs
-    Object.keys(global.otpStorage).forEach(key => {
-      if (Date.now() > global.otpStorage[key].expiry) {
-        delete global.otpStorage[key];
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: 'OTP sent successfully',
-      // In development, return OTP for testing
-      ...(process.env.NODE_ENV === 'development' && { otp, dev_note: 'Check your SMS or use this OTP for testing' })
-    });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error('Send OTP error:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to send OTP' },
+      { error: 'Failed to send OTP' },
       { status: 500 }
     );
   }
 }
+
+// Export OTP store for verification
+export { otpStore };
