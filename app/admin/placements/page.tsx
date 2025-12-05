@@ -173,6 +173,7 @@ export default function PlacementsPage() {
   };
 
   const toggleActive = async (id: number, currentStatus: boolean) => {
+    console.log("Toggling active for placement:", id, "Current status:", currentStatus, "New status:", !currentStatus);
     setLoading(true);
     try {
       const response = await fetch(`/api/admin/placements/${id}`, {
@@ -182,9 +183,13 @@ export default function PlacementsPage() {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        console.log("Toggle response:", data);
         showMessage("Status updated successfully", "success");
         fetchPlacements();
       } else {
+        const error = await response.json();
+        console.error("Toggle failed:", error);
         showMessage("Error updating status", "error");
       }
     } catch (error) {

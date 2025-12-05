@@ -11,12 +11,16 @@ export async function PUT(
     const body = await request.json();
     const { display_order, is_active, section } = body;
 
+    console.log("PUT /api/admin/placements/[id] - ID:", id, "Body:", body);
+
     const supabase = supabaseAdmin;
 
     const updateData: any = {};
     if (display_order !== undefined) updateData.display_order = display_order;
     if (is_active !== undefined) updateData.is_active = is_active;
     if (section !== undefined) updateData.section = section;
+
+    console.log("Update data:", updateData);
 
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
@@ -53,6 +57,7 @@ export async function PUT(
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    console.log("Update successful. New data:", data);
     return NextResponse.json(data);
   } catch (error) {
     console.error("Error in PUT /api/admin/placements/[id]:", error);
