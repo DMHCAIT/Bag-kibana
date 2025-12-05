@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
 // PUT - Update a placement
@@ -11,7 +11,7 @@ export async function PUT(
     const body = await request.json();
     const { display_order, is_active, section } = body;
 
-    const supabase = createClient();
+    const supabase = supabaseAdmin;
 
     const updateData: any = {};
     if (display_order !== undefined) updateData.display_order = display_order;
@@ -70,7 +70,7 @@ export async function DELETE(
 ) {
   try {
     const id = params.id;
-    const supabase = createClient();
+    const supabase = supabaseAdmin;
 
     const { error } = await supabase
       .from("product_placements")

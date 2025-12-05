@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
 // GET - Fetch products for a specific section (public endpoint)
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = supabaseAdmin;
 
     const { data, error } = await supabase
       .from("product_placements")

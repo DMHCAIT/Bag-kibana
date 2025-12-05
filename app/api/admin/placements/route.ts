@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
 // GET - Fetch all placements or placements for a specific section
@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const section = searchParams.get("section");
 
-    const supabase = createClient();
+    const supabase = supabaseAdmin;
 
     let query = supabase
       .from("product_placements")
@@ -154,7 +154,7 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const supabase = createClient();
+    const supabase = supabaseAdmin;
 
     const { error } = await supabase
       .from("product_placements")
