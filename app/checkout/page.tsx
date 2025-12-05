@@ -179,12 +179,24 @@ export default function CheckoutPage() {
           console.log("Order save response:", saveResponse.status, savedOrder);
           
           if (saveResponse.ok && savedOrder.success && savedOrder.order) {
+            // Store order data for Facebook Pixel tracking
+            localStorage.setItem('kibana-order-tracking', JSON.stringify({
+              value: cart.subtotal,
+              currency: 'INR',
+              orderId: savedOrder.order.id
+            }));
             setOrderPlaced(true); // Mark order as placed BEFORE clearing cart
             clearCart();
             router.push(`/order-success?orderId=${savedOrder.order.id}&method=cod`);
             return;
           } else {
             console.error("Order save failed:", savedOrder.error || "Unknown error");
+            // Store order data for Facebook Pixel tracking even if save failed
+            localStorage.setItem('kibana-order-tracking', JSON.stringify({
+              value: cart.subtotal,
+              currency: 'INR',
+              orderId: `COD-${Date.now()}`
+            }));
             setOrderPlaced(true);
             clearCart();
             router.push(`/order-success?orderId=COD-${Date.now()}&method=cod`);
@@ -192,9 +204,16 @@ export default function CheckoutPage() {
           }
         } catch (saveError) {
           console.error("Error saving COD order:", saveError);
+          // Store order data for Facebook Pixel tracking even if save failed
+          const orderId = `COD-${Date.now()}`;
+          localStorage.setItem('kibana-order-tracking', JSON.stringify({
+            value: cart.subtotal,
+            currency: 'INR',
+            orderId
+          }));
           setOrderPlaced(true);
           clearCart();
-          router.push(`/order-success?orderId=COD-${Date.now()}&method=cod`);
+          router.push(`/order-success?orderId=${orderId}&method=cod`);
           return;
         }
       } else {
@@ -277,6 +296,13 @@ export default function CheckoutPage() {
               } catch (saveError) {
                 console.error("Error saving order to admin:", saveError);
               }
+
+              // Store order data for Facebook Pixel tracking
+              localStorage.setItem('kibana-order-tracking', JSON.stringify({
+                value: cart.subtotal,
+                currency: 'INR',
+                orderId: response.razorpay_order_id
+              }));
 
               setOrderPlaced(true); // Mark order as placed BEFORE clearing cart
               clearCart();

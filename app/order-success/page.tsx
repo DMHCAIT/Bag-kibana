@@ -16,6 +16,7 @@ function OrderSuccessContent() {
     paymentId: "",
     method: "",
   });
+  const [trackingFired, setTrackingFired] = useState(false);
 
   useEffect(() => {
     setOrderDetails({
@@ -24,6 +25,33 @@ function OrderSuccessContent() {
       method: searchParams.get("method") || "razorpay",
     });
   }, [searchParams]);
+
+  // Facebook Pixel Purchase Tracking
+  useEffect(() => {
+    if (!trackingFired && orderDetails.orderId) {
+      try {
+        const orderData = localStorage.getItem('kibana-order-tracking');
+        if (orderData) {
+          const { value, currency } = JSON.parse(orderData);
+          
+          // Fire Facebook Pixel purchase event
+          if (typeof window !== 'undefined' && (window as any).fbq) {
+            (window as any).fbq('track', 'Purchase', {
+              value: value,
+              currency: currency
+            });
+            console.log('Facebook Pixel Purchase event fired:', { value, currency });
+          }
+
+          // Clear the tracking data after use
+          localStorage.removeItem('kibana-order-tracking');
+          setTrackingFired(true);
+        }
+      } catch (error) {
+        console.error('Error tracking purchase:', error);
+      }
+    }
+  }, [orderDetails.orderId, trackingFired]);
 
   const isCOD = orderDetails.method === "cod" || orderDetails.orderId.startsWith("COD");
 
