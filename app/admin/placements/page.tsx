@@ -59,10 +59,12 @@ export default function PlacementsPage() {
         `/api/admin/placements?section=${selectedSection}`
       );
       const data = await response.json();
-      setPlacements(data);
+      // Ensure data is an array
+      setPlacements(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching placements:", error);
       showMessage("Error loading placements", "error");
+      setPlacements([]);
     }
   };
 
@@ -70,9 +72,11 @@ export default function PlacementsPage() {
     try {
       const response = await fetch("/api/products");
       const data = await response.json();
-      setProducts(data);
+      // Ensure data is an array
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching products:", error);
+      setProducts([]);
     }
   };
 

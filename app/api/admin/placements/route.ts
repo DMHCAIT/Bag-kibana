@@ -44,7 +44,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data || []);
+    // Ensure data is an array and filter out any placements without products
+    const validPlacements = (data || []).filter((placement: any) => placement.products);
+    
+    return NextResponse.json(validPlacements);
   } catch (error) {
     console.error("Error in GET /api/admin/placements:", error);
     return NextResponse.json(
