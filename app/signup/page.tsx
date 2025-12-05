@@ -1,29 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
-import { ArrowLeft, Eye, EyeOff, User, Mail, Phone, Lock, CheckCircle } from "lucide-react";
+import Footer from "@/components/Footer";
+import { ArrowLeft, User, Mail, Phone, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signUpWithOTP, requestOTP } = useAuth();
   
+  const [step, setStep] = useState<'details' | 'otp'>('details');
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    password: "",
-    confirmPassword: "",
+    otp: "",
   });
   
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -61,20 +65,18 @@ export default function SignupPage() {
       return false;
     }
     
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long");
+    return true;
+  };
+
+  const validateOTP = () => {
+    if (!formData.otp || formData.otp.length !== 6) {
+      setError("Please enter a valid 6-digit OTP");
       return false;
     }
-    
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return false;
-    }
-    
     return true;
   };
   
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -85,11 +87,37 @@ export default function SignupPage() {
     setError(null);
     
     try {
-      const result = await signUp(
+      const result = await requestOTP(formData.phone.replace(/\s/g, ""));
+      
+      if (result.success) {
+        setStep('otp');
+        setCountdown(30);
+      } else {
+        setError(result.error || "Failed to send OTP");
+      }
+    } catch (error) {
+      setError("An error occurred while sending OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateOTP()) {
+      return;
+    }
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await signUpWithOTP(
         formData.name,
         formData.email,
-        formData.phone,
-        formData.password
+        formData.phone.replace(/\s/g, ""),
+        formData.otp
       );
       
       if (result.success) {
@@ -98,223 +126,230 @@ export default function SignupPage() {
           router.push("/account");
         }, 2000);
       } else {
-        setError(result.error || "Failed to create account");
+        setError(result.error || "Failed to verify OTP");
       }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+    } catch (error) {
+      setError("An error occurred during verification");
     } finally {
       setLoading(false);
     }
   };
 
-  if (success) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Header />
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-md mx-auto text-center">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-8">
-              <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-serif text-gray-900 mb-2">Welcome to KIBANA!</h2>
-              <p className="text-gray-600 mb-4">Your account has been created successfully.</p>
-              <p className="text-sm text-gray-500">Redirecting to your account...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const handleResendOTP = async () => {
+    if (countdown > 0) return;
+
+    setLoading(true);
+    const result = await requestOTP(formData.phone.replace(/\s/g, ""));
+    setLoading(false);
+
+    if (result.success) {
+      setCountdown(30);
+      setError(null);
+    } else {
+      setError(result.error || 'Failed to resend OTP');
+    }
+  };
+
+  // Countdown timer
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
       <Header />
-      
-      <div className="container mx-auto px-4 py-12">
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
         <div className="max-w-md mx-auto">
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-black mb-8"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
-
-          <div className="bg-white border border-gray-200 rounded-lg p-8">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-serif text-gray-900 mb-2">Create Account</h1>
-              <p className="text-gray-600">Join KIBANA for exclusive offers and easy checkout</p>
-            </div>
-            
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6">
-                {error}
-              </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Full Name */}
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Enter your full name"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                    required
-                  />
-                </div>
-              </div>
-              
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter your email"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                    required
-                  />
-                </div>
-              </div>
-              
-              {/* Phone */}
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Mobile Number <span className="text-xs text-gray-500">(Used for Sign In)</span>
-                </label>
-                <div className="relative">
-                  <Phone className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 text-gray-500 bg-gray-100 border border-r-0 border-gray-300 rounded-l-lg text-sm">
-                      +91
-                    </span>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="Enter your mobile number"
-                      className="w-full pr-4 py-3 border border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                      maxLength={10}
-                      required
-                    />
+          <Card>
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle className="text-2xl font-bold tracking-wide">
+                {step === 'details' ? 'Create Account' : 'Verify OTP'}
+              </CardTitle>
+              <CardDescription>
+                {step === 'details' 
+                  ? 'Join KIBANA and start shopping' 
+                  : `Enter the 6-digit OTP sent to +91 ${formData.phone}`
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {success ? (
+                <div className="text-center space-y-4">
+                  <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-8 h-8 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-green-600 mb-2">Account Created Successfully!</h3>
+                    <p className="text-gray-600">Redirecting to your account...</p>
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">You will use this number to sign in</p>
-              </div>
-              
-              {/* Password */}
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Create a password"
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                    minLength={6}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              ) : step === 'details' ? (
+                <form onSubmit={handleSendOTP} className="space-y-4">
+                  {error && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                      <p className="text-sm text-red-600">{error}</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="name"
+                        name="name"
+                        type="text"
+                        placeholder="Enter your full name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="pl-10"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="Enter your email address"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="pl-10"
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Mobile Number</Label>
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        +91
+                      </span>
+                      <Input
+                        id="phone"
+                        name="phone"
+                        type="tel"
+                        placeholder="Enter your mobile number"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        maxLength={10}
+                        className="rounded-l-none"
+                        disabled={loading}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500">You'll use this number to sign in with OTP</p>
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full uppercase tracking-wider bg-black text-white hover:bg-gray-800"
+                    disabled={loading}
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-                <p className="text-xs text-gray-500 mt-1">Minimum 6 characters</p>
-              </div>
-              
-              {/* Confirm Password */}
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  Confirm Password
-                </label>
-                <div className="relative">
-                  <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="Confirm your password"
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending OTP...
+                      </>
+                    ) : (
+                      'Send OTP'
+                    )}
+                  </Button>
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOTP} className="space-y-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setStep('details')}
+                      className="p-0 h-auto"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-1" />
+                      Back
+                    </Button>
+                  </div>
+
+                  {error && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                      <p className="text-sm text-red-600">{error}</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="otp">Enter OTP</Label>
+                    <Input
+                      id="otp"
+                      name="otp"
+                      type="text"
+                      placeholder="Enter 6-digit OTP"
+                      value={formData.otp}
+                      onChange={handleChange}
+                      maxLength={6}
+                      className="text-center text-lg tracking-widest"
+                      disabled={loading}
+                    />
+                  </div>
+
+                  <Button 
+                    type="submit" 
+                    className="w-full uppercase tracking-wider bg-black text-white hover:bg-gray-800"
+                    disabled={loading}
                   >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      'Create Account'
+                    )}
+                  </Button>
+
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-gray-600">
+                      Didn't receive the OTP?
+                    </p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={handleResendOTP}
+                      disabled={countdown > 0 || loading}
+                      className="text-black hover:bg-gray-100"
+                    >
+                      {countdown > 0 ? `Resend OTP in ${countdown}s` : 'Resend OTP'}
+                    </Button>
+                  </div>
+                </form>
+              )}
+
+              {!success && (
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-gray-600">
+                    Already have an account?{' '}
+                    <Link 
+                      href="/signin" 
+                      className="text-black hover:underline font-medium"
+                    >
+                      Sign in
+                    </Link>
+                  </p>
                 </div>
-              </div>
-              
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Creating Account...
-                  </span>
-                ) : (
-                  "Create Account"
-                )}
-              </button>
-            </form>
-            
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{" "}
-                <Link href="/signin" className="text-black font-medium hover:underline">
-                  Sign In
-                </Link>
-              </p>
-            </div>
-            
-            <div className="mt-6 pt-6 border-t text-center">
-              <p className="text-xs text-gray-500">
-                By creating an account, you agree to our{" "}
-                <Link href="/terms" className="underline hover:text-black">Terms & Conditions</Link>
-                {" "}and{" "}
-                <Link href="/privacy" className="underline hover:text-black">Privacy Policy</Link>
-              </p>
-            </div>
-          </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 }

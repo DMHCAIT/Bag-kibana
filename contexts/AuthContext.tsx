@@ -16,6 +16,9 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{success: boolean; error?: string}>;
   signInWithPhone: (phone: string, password: string) => Promise<{success: boolean; error?: string}>;
   signUp: (name: string, email: string, phone: string, password: string) => Promise<{success: boolean; error?: string}>;
+  requestOTP: (phone: string) => Promise<{success: boolean; error?: string}>;
+  signInWithOTP: (phone: string, otp: string) => Promise<{success: boolean; error?: string}>;
+  signUpWithOTP: (name: string, email: string, phone: string, otp: string) => Promise<{success: boolean; error?: string}>;
   signOut: () => void;
   isAuthenticated: boolean;
 }
@@ -25,6 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [otpStorage, setOtpStorage] = useState<{[phone: string]: {otp: string, expiry: number, userData?: any}}>({});
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -136,6 +140,117 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const requestOTP = async (phone: string) => {
+    try {
+      // Simulate OTP generation (in production, use SMS service)
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiry = Date.now() + 5 * 60 * 1000; // 5 minutes
+      
+      // Store OTP temporarily
+      setOtpStorage(prev => ({
+        ...prev,
+        [phone]: { otp, expiry }
+      }));
+      
+      // In production, send OTP via SMS service
+      console.log(`OTP for ${phone}: ${otp}`);
+      
+      return { success: true };
+    } catch (error) {
+      console.error('OTP request error:', error);
+      return { success: false, error: 'Failed to send OTP' };
+    }
+  };
+
+  const signInWithOTP = async (phone: string, otp: string) => {
+    try {
+      // Verify OTP
+      const otpData = otpStorage[phone];
+      if (!otpData || otpData.otp !== otp || Date.now() > otpData.expiry) {
+        return { success: false, error: 'Invalid or expired OTP' };
+      }
+
+      // Check if user exists
+      const existingUsers = JSON.parse(localStorage.getItem('kibana_users') || '[]');
+      const user = existingUsers.find((u: any) => u.phone === phone);
+      
+      if (!user) {
+        return { success: false, error: 'User not found. Please sign up first.' };
+      }
+
+      // Remove password before storing in session
+      const { password: _, ...userWithoutPassword } = user;
+      
+      // Save current user session
+      localStorage.setItem('kibana_user', JSON.stringify(userWithoutPassword));
+      setUser(userWithoutPassword as User);
+
+      // Clear OTP
+      setOtpStorage(prev => {
+        const newStorage = { ...prev };
+        delete newStorage[phone];
+        return newStorage;
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('OTP sign in error:', error);
+      return { success: false, error: 'Failed to sign in' };
+    }
+  };
+
+  const signUpWithOTP = async (name: string, email: string, phone: string, otp: string) => {
+    try {
+      // Verify OTP
+      const otpData = otpStorage[phone];
+      if (!otpData || otpData.otp !== otp || Date.now() > otpData.expiry) {
+        return { success: false, error: 'Invalid or expired OTP' };
+      }
+
+      // Get existing users from localStorage
+      const existingUsers = JSON.parse(localStorage.getItem('kibana_users') || '[]');
+      
+      // Check if user already exists by email or phone
+      if (existingUsers.some((u: any) => u.email === email)) {
+        return { success: false, error: 'Email already registered' };
+      }
+      
+      if (existingUsers.some((u: any) => u.phone === phone)) {
+        return { success: false, error: 'Mobile number already registered' };
+      }
+
+      // Create new user
+      const newUser: User = {
+        id: `USER-${Date.now()}`,
+        email,
+        name,
+        phone,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Save user (no password needed for OTP signup)
+      const userWithoutPassword = { ...newUser, password: `otp_user_${Date.now()}` };
+      existingUsers.push(userWithoutPassword);
+      localStorage.setItem('kibana_users', JSON.stringify(existingUsers));
+
+      // Save current user session
+      localStorage.setItem('kibana_user', JSON.stringify(newUser));
+      setUser(newUser);
+
+      // Clear OTP
+      setOtpStorage(prev => {
+        const newStorage = { ...prev };
+        delete newStorage[phone];
+        return newStorage;
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.error('OTP sign up error:', error);
+      return { success: false, error: 'Failed to create account' };
+    }
+  };
+
   const signOut = () => {
     localStorage.removeItem('kibana_user');
     setUser(null);
@@ -148,6 +263,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signInWithPhone,
       signUp,
+      requestOTP,
+      signInWithOTP,
+      signUpWithOTP,
       signOut,
       isAuthenticated: !!user,
     }}>
