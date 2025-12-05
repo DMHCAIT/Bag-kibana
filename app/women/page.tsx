@@ -67,7 +67,7 @@ function ProductCard({ product }: { product: Product }) {
 
           {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-1.5 md:gap-2">
               {product.colors.map((colorOption, idx) => {
                 // Fix color values that have .jpg extension
                 let colorValue = colorOption.value;
@@ -91,7 +91,7 @@ function ProductCard({ product }: { product: Product }) {
                   <Link
                     key={idx}
                     href={`/products/${colorVariantId}`}
-                    className={`w-7 h-7 rounded-full border-2 transition-all ring-1 ${
+                    className={`w-6 h-6 md:w-7 md:h-7 rounded-full border-2 transition-all ring-1 flex-shrink-0 ${
                       isCurrentColor 
                         ? 'border-black ring-black ring-2' 
                         : 'border-gray-300 hover:border-black ring-gray-200'
