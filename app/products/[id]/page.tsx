@@ -172,14 +172,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
         let productData = data.product;
         
         // Client-side fallback: If colors array is empty, generate from variants
+        console.log(`📦 Product: ${productData.name} - Colors array:`, productData.colors);
+        
         if (!productData.colors || productData.colors.length === 0) {
+          console.log('⚠️ Colors array is empty, fetching variants...');
           try {
             const variantsResponse = await fetch(`/api/products?category=all&limit=100`);
             if (variantsResponse.ok) {
               const variantsData = await variantsResponse.json();
+              console.log(`📦 Fetched ${variantsData.products?.length || 0} total products`);
+              
               const sameNameProducts = variantsData.products?.filter(
                 (p: Product) => p.name === productData.name
               ) || [];
+              
+              console.log(`🎨 Found ${sameNameProducts.length} variants for ${productData.name}:`, 
+                sameNameProducts.map((p: Product) => p.color).join(', '));
               
               if (sameNameProducts.length > 0) {
                 productData.colors = sameNameProducts.map((variant: Product) => ({
@@ -189,11 +197,31 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   image: variant.images?.[0] || null
                 }));
                 console.log(`✅ Client-side: Generated ${productData.colors.length} colors for ${productData.name}`);
+                console.log('🖼️ Colors with images:', productData.colors);
+              } else {
+                console.warn('❌ No variants found! Creating single color from current product');
+                productData.colors = [{
+                  name: productData.color,
+                  value: '#000000',
+                  available: true,
+                  image: productData.images?.[0] || null
+                }];
               }
+            } else {
+              console.error('❌ Failed to fetch variants:', variantsResponse.status);
             }
           } catch (err) {
-            console.error('Error generating colors from variants:', err);
+            console.error('❌ Error generating colors from variants:', err);
+            // Ultimate fallback: at least show current color
+            productData.colors = [{
+              name: productData.color,
+              value: '#000000',
+              available: true,
+              image: productData.images?.[0] || null
+            }];
           }
+        } else {
+          console.log(`✅ Product already has ${productData.colors.length} colors`);
         }
         
         setProduct(productData);
@@ -481,7 +509,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Available Colors */}
-            {product.colors && product.colors.length > 0 && (
+            {product.colors && product.colors.length > 0 ? (
                 <div>
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Color: {product.color}</h3>
                   
@@ -537,6 +565,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     })}
                 </div>
                 </div>
+            ) : (
+              <div>
+                <p className="text-sm text-gray-500">Loading colors...</p>
+              </div>
             )}
 
               {/* Actions */}
