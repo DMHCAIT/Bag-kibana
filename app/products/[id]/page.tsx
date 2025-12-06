@@ -9,9 +9,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/lib/products-data";
-import { notFound } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
-import { useRouter } from "next/navigation";
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();

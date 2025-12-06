@@ -62,7 +62,7 @@ export default function OfferBanner() {
         <X className="w-4 h-4" />
       </button>
 
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{__html: `
         @keyframes scroll {
           0% {
             transform: translateX(0);
@@ -77,7 +77,7 @@ export default function OfferBanner() {
         .animate-scroll:hover {
           animation-play-state: paused;
         }
-      `}</style>
+      `}} />
     </div>
   );
 }
