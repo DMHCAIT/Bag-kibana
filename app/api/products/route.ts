@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     // Enrich products with color images
     // Group products by name to get all variants
     const productsByName: { [name: string]: any[] } = {};
-    dbProducts.forEach(product => {
+    dbProducts.forEach((product: any) => {
       if (!productsByName[product.name]) {
         productsByName[product.name] = [];
       }
