@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef } from "react";
 
 export default function HeroSection() {
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
-  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
-    // Force video playback on mount with error handling
+    // Force video playback on mount
     const playVideos = async () => {
       try {
         if (desktopVideoRef.current) {
@@ -20,7 +18,6 @@ export default function HeroSection() {
         }
       } catch (err) {
         console.error('Video play failed:', err);
-        setVideoError(true);
       }
     };
 
@@ -45,68 +42,40 @@ export default function HeroSection() {
   }, []);
 
   const videoUrl = "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/homepage%20hero%20section.mp4";
-  const fallbackImage = "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Teal%20Blue/01.png";
-
-  // Handle video load success
-  const handleVideoLoad = () => {
-    console.log('Video loaded successfully');
-  };
 
   return (
     <section className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-      {videoError ? (
-        // Fallback image if video fails
-        <div className="absolute inset-0">
-          <Image
-            src={fallbackImage}
-            alt="KIBANA Collection"
-            fill
-            className="object-cover opacity-60"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-      ) : (
-        <>
-          {/* Desktop Video - Hidden on mobile */}
-          <video
-            ref={desktopVideoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="hidden md:block absolute inset-0 w-full h-full object-cover"
-            preload="auto"
-            onLoadedData={handleVideoLoad}
-            onError={(e) => {
-              console.error('Desktop video error:', e);
-              setVideoError(true);
-            }}
-          >
-            <source src={videoUrl} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
+      {/* Desktop Video - Hidden on mobile */}
+      <video
+        ref={desktopVideoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="hidden md:block absolute inset-0 w-full h-full object-cover"
+        preload="auto"
+        onLoadedData={() => console.log('Desktop video loaded successfully')}
+        onError={(e) => console.error('Desktop video error:', e)}
+      >
+        <source src={videoUrl} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
 
-          {/* Mobile Video - Hidden on desktop */}
-          <video
-            ref={mobileVideoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="md:hidden absolute inset-0 w-full h-full object-cover"
-            preload="auto"
-            onLoadedData={handleVideoLoad}
-            onError={(e) => {
-              console.error('Mobile video error:', e);
-              setVideoError(true);
-            }}
-          >
-            <source src={videoUrl} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </>
-      )}
+      {/* Mobile Video - Hidden on desktop */}
+      <video
+        ref={mobileVideoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="md:hidden absolute inset-0 w-full h-full object-cover"
+        preload="auto"
+        onLoadedData={() => console.log('Mobile video loaded successfully')}
+        onError={(e) => console.error('Mobile video error:', e)}
+      >
+        <source src={videoUrl} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
     </section>
   );
 }
