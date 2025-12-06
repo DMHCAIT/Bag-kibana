@@ -113,7 +113,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const unwrappedParams = use(params);
   const productId = unwrappedParams.id;
   const { addToCart } = useCart();
-  const router = useRouter();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
