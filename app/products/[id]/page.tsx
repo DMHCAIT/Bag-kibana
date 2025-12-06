@@ -443,15 +443,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {/* Offer Banner - Single Line */}
               <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <div className="bg-green-500 text-white rounded-full p-1.5 shrink-0">
-                    <span className="text-sm">🎁</span>
-                  </div>
                   <div className="flex items-center flex-wrap gap-1.5 text-xs">
                     <span className="font-semibold text-gray-900">Special Offers</span>
                     <span className="text-gray-400">|</span>
                     <span><strong className="text-green-700">25% OFF</strong> - Already applied!</span>
-                    <span className="text-gray-400">|</span>
-                    <span><strong>Extra 5% OFF</strong> on your first order</span>
                     <span className="text-gray-400">|</span>
                     <span><strong>Free Shipping</strong> across India</span>
                   </div>
