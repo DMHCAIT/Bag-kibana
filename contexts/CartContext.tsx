@@ -22,9 +22,11 @@ const getStoredCart = (): CartItem[] => {
 const saveCart = (items: CartItem[]) => {
   if (typeof window === 'undefined') return;
   try {
-    const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-    localStorage.setItem("kibana-cart", JSON.stringify({ items, totalItems, subtotal }));
+    // Filter out any invalid items before saving
+    const validItems = items.filter(item => item?.product && typeof item.product.price === 'number');
+    const totalItems = validItems.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = validItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+    localStorage.setItem("kibana-cart", JSON.stringify({ items: validItems, totalItems, subtotal }));
   } catch (error) {
     console.error('Failed to save cart:', error);
   }
@@ -49,10 +51,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Memoized cart state
   const cart = useMemo(() => {
-    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const subtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    // Filter out any invalid items first
+    const validItems = cartItems.filter(item => item?.product && typeof item.product.price === 'number');
+    const totalItems = validItems.reduce((sum, item) => sum + item.quantity, 0);
+    const subtotal = validItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
     return {
-      items: cartItems,
+      items: validItems,
       totalItems,
       subtotal,
       isEmpty: totalItems === 0
