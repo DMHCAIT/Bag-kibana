@@ -10,6 +10,7 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
+import { useRouter } from "next/navigation";
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -113,6 +114,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const unwrappedParams = use(params);
   const productId = unwrappedParams.id;
   const { addToCart } = useCart();
+  const router = useRouter();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -152,8 +154,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
         if (!response.ok) {
           if (response.status === 404) {
-            notFound();
-          return;
+            setError("Product not found");
+            setLoading(false);
+            return;
           }
           throw new Error(`Failed to fetch product: ${response.status}`);
         }
