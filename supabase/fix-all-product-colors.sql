@@ -8,7 +8,7 @@ UPDATE products
 SET colors = '[
   { "name": "Teal Blue", "value": "#006D77", "available": true },
   { "name": "Mint Green", "value": "#98D8C8", "available": true },
-  { "name": "Mocha Tan", "value": "#9B6B4F", "available": true },
+  { "name": "Mocha", "value": "#9B6B4F", "available": true },
   { "name": "Milky Blue", "value": "#B8D4E8", "available": true }
 ]'::jsonb
 WHERE name = 'SANDESH LAPTOP BAG';
@@ -20,7 +20,7 @@ UPDATE products
 SET colors = '[
   { "name": "Teal Blue", "value": "#006D77", "available": true },
   { "name": "Mint Green", "value": "#98D8C8", "available": true },
-  { "name": "Mocha Tan", "value": "#9B6B4F", "available": true },
+  { "name": "Mocha", "value": "#9B6B4F", "available": true },
   { "name": "Milky Blue", "value": "#B8D4E8", "available": true }
 ]'::jsonb
 WHERE name = 'LEKHA WALLET';
@@ -52,8 +52,8 @@ WHERE name = 'VISTARA TOTE';
 -- ============================================
 UPDATE products 
 SET colors = '[
+  { "name": "Green", "value": "#006D77", "available": true },
   { "name": "Teal Blue", "value": "#006D77", "available": true },
-  { "name": "Mint Green", "value": "#98D8C8", "available": true },
   { "name": "Mocha", "value": "#9B6B4F", "available": true },
   { "name": "Milky Blue", "value": "#B8D4E8", "available": true }
 ]'::jsonb
