@@ -6,6 +6,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -93,6 +94,7 @@ export default function RootLayout({
             </AuthProvider>
           </Providers>
         </ErrorBoundary>
+        <SpeedInsights />
       </body>
     </html>
   );
