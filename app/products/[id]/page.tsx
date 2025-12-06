@@ -448,63 +448,29 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                 </div>
                 
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-start gap-3 bg-white rounded-lg p-3 border border-amber-100 shadow-sm">
-                    <div className="bg-green-100 rounded-full p-1 mt-0.5 shrink-0">
-                      <Check className="w-3 h-3 text-green-700" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm mb-2"><strong className="text-green-700">20% OFF</strong> with code</p>
-                      <div className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg font-mono text-sm font-semibold shadow">
-                        ORDERNOW
-                      </div>
-                    </div>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <p><strong>20% OFF</strong> - Use code <span className="bg-black text-white px-2 py-0.5 rounded font-mono text-xs">ORDERNOW</span></p>
                   </div>
-                  
-                  <div className="flex items-center gap-2 text-sm text-amber-900 px-2">
-                    <Check className="w-4 h-4 text-green-600 shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                     <p><strong>Extra 5% OFF</strong> on your first order</p>
                   </div>
-                  
-                  <div className="flex items-center gap-2 text-sm text-amber-900 px-2">
-                    <Check className="w-4 h-4 text-green-600 shrink-0" />
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                     <p><strong>Free Shipping</strong> across India</p>
                   </div>
                 </div>
-                
-                <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg px-4 py-3 text-center shadow-md">
-                  <p className="text-sm font-medium">💰 You Save: <span className="text-2xl font-bold">₹{Math.round(product.price * 0.20).toLocaleString()}</span></p>
-                  <p className="text-xs mt-1 opacity-90">Use code ORDERNOW at checkout</p>
-                </div>
               </div>
 
-              {/* Below is the existing space-y-2 div that continues */}
-              <div className="hidden space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                    <p><strong>20% OFF</strong> - Use code <span className="bg-black text-white px-2 py-0.5 rounded font-mono text-xs">ORDERNOW</span> at checkout</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                    <p><strong>Extra 5% OFF</strong> on your first order!</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                    <p><strong>Free Shipping</strong> on all orders</p>
-                  </div>
-                </div>
-                <div className="bg-white rounded px-3 py-2 text-xs text-gray-700 border border-green-300">
-                  💰 <strong>Your savings:</strong> ₹{Math.round(product.price * 0.20).toLocaleString()} with ORDERNOW code
-                </div>
-              </div>
-
-              {/* Available Colors - Enhanced with Images */}
+              {/* Available Colors */}
             {product.colors && product.colors.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-4">Available Colors</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Available Colors</h3>
                   
-                  {/* Color Swatches with Images - Clickable */}
-                  <div className="flex flex-wrap gap-3 mb-4">
+                  {/* Color Swatches */}
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {product.colors.map((colorOption, index) => {
                       const baseName = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
                       const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -515,39 +481,36 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         <Link
                           key={index}
                           href={productLink}
-                          className={`group relative flex flex-col items-center gap-2 p-3 border-2 rounded-xl transition-all hover:shadow-md ${
+                          className={`group relative p-2 border rounded-lg transition-all ${
                             isCurrentColor 
-                              ? 'border-black bg-gray-50 shadow-sm' 
-                              : 'border-gray-200 hover:border-gray-400'
+                              ? 'border-black' 
+                              : 'border-gray-300 hover:border-gray-400'
                           } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
                           title={colorOption.available ? `Switch to ${colorOption.name}` : `${colorOption.name} - Currently unavailable`}
                         >
-                          {/* Color Image or Fallback Circle */}
-                          {colorOption.image ? (
-                            <div className="relative w-14 h-14 rounded-full overflow-hidden bg-white shadow-sm">
-                              <Image
-                                src={colorOption.image}
-                                alt={colorOption.name}
-                                fill
-                                className="object-cover"
-                                sizes="56px"
-                              />
-                            </div>
-                          ) : (
-                            <div
-                              className="w-14 h-14 rounded-full border-2 border-gray-300 shadow-sm"
-                              style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
-                            />
-                          )}
-                          
-                          {/* Color Name */}
-                          <div className="text-center">
-                            <span className="text-xs font-medium text-gray-900 block">{colorOption.name}</span>
-                            {isCurrentColor && (
-                              <div className="flex items-center justify-center gap-1 mt-1">
-                                <Check className="w-3 h-3 text-green-600" />
-                                <span className="text-[10px] text-green-600 font-medium">Selected</span>
+                          <div className="flex items-center gap-2">
+                            {/* Color Image or Fallback Circle */}
+                            {colorOption.image ? (
+                              <div className="relative w-6 h-6 rounded-full overflow-hidden">
+                                <Image
+                                  src={colorOption.image}
+                                  alt={colorOption.name}
+                                  fill
+                                  className="object-cover"
+                                  sizes="24px"
+                                />
                               </div>
+                            ) : (
+                              <div
+                                className="w-6 h-6 rounded-full border border-gray-300"
+                                style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
+                              />
+                            )}
+                            
+                            {/* Color Name */}
+                            <span className="text-xs text-gray-900">{colorOption.name}</span>
+                            {isCurrentColor && (
+                              <Check className="w-3 h-3 text-green-600 ml-1" />
                             )}
                             {!colorOption.available && (
                               <span className="text-[10px] text-red-500 font-medium">Out of Stock</span>
