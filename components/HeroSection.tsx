@@ -47,6 +47,11 @@ export default function HeroSection() {
   const videoUrl = "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/homepage%20hero%20section.mp4";
   const fallbackImage = "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Teal%20Blue/01.png";
 
+  // Handle video load success
+  const handleVideoLoad = () => {
+    console.log('Video loaded successfully');
+  };
+
   return (
     <section className="relative w-full h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
       {videoError ? (
@@ -72,9 +77,14 @@ export default function HeroSection() {
             playsInline
             className="hidden md:block absolute inset-0 w-full h-full object-cover"
             preload="auto"
-            onError={() => setVideoError(true)}
+            onLoadedData={handleVideoLoad}
+            onError={(e) => {
+              console.error('Desktop video error:', e);
+              setVideoError(true);
+            }}
           >
             <source src={videoUrl} type="video/mp4" />
+            Your browser does not support the video tag.
           </video>
 
           {/* Mobile Video - Hidden on desktop */}
@@ -86,9 +96,14 @@ export default function HeroSection() {
             playsInline
             className="md:hidden absolute inset-0 w-full h-full object-cover"
             preload="auto"
-            onError={() => setVideoError(true)}
+            onLoadedData={handleVideoLoad}
+            onError={(e) => {
+              console.error('Mobile video error:', e);
+              setVideoError(true);
+            }}
           >
             <source src={videoUrl} type="video/mp4" />
+            Your browser does not support the video tag.
           </video>
         </>
       )}
