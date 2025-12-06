@@ -48,6 +48,7 @@ function formatDbProduct(dbProduct: any) {
     is_new: dbProduct.is_new,
     isBestseller: dbProduct.is_bestseller,
     isNewArrival: dbProduct.is_new,
+    colorImage: dbProduct.color_image,
     createdAt: dbProduct.created_at,
     updatedAt: dbProduct.updated_at,
   };
@@ -154,6 +155,7 @@ export async function PATCH(
     if (data.isNewArrival !== undefined) updateData.is_new = data.isNewArrival;
     if (data.colors !== undefined) updateData.colors = data.colors;
     if (data.sections !== undefined) updateData.sections = data.sections;
+    if (data.colorImage !== undefined) updateData.color_image = data.colorImage;
 
     console.log('Updating product:', dbId, updateData);
 

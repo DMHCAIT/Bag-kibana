@@ -127,7 +127,7 @@ export default function ColorManagementPage() {
 
       // Update product with color image
       const updateResponse = await fetch(`/api/admin/products/${productId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           colorImage: url,
@@ -154,7 +154,7 @@ export default function ColorManagementPage() {
     setSaving(true);
     try {
       const response = await fetch(`/api/admin/products/${productId}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           colorImage: null,
