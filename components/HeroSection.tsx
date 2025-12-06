@@ -44,7 +44,6 @@ export default function HeroSection() {
         playsInline
         className="hidden md:block absolute inset-0 w-full h-full object-cover"
         preload="auto"
-        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Crect fill='%23000000' width='1920' height='1080'/%3E%3C/svg%3E"
       >
         <source
           src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/homepage%20hero%20section.mp4"
@@ -61,7 +60,6 @@ export default function HeroSection() {
         playsInline
         className="md:hidden absolute inset-0 w-full h-full object-cover object-center"
         preload="auto"
-        poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1920' height='1080'%3E%3Crect fill='%23000000' width='1920' height='1080'/%3E%3C/svg%3E"
       >
         <source
           src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/homepage%20hero%20section.mp4"
