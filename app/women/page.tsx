@@ -67,20 +67,8 @@ function ProductCard({ product }: { product: Product }) {
 
           {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-1 items-center">
+            <div className="flex gap-1.5 items-center">
               {product.colors.map((colorOption, idx) => {
-                // Fix color values that have .jpg extension
-                let colorValue = colorOption.value;
-                if (colorValue.includes('.jpg')) {
-                  const colorMap: {[key: string]: string} = {
-                    '#006D77.jpg': '#006D77',
-                    '#98D8C8.jpg': '#98D8C8', 
-                    '#B8D4E8.jpg': '#B8D4E8',
-                    '#9B6B4F': '#9B6B4F'
-                  };
-                  colorValue = colorMap[colorValue] || '#9B6B4F';
-                }
-                
                 // Generate product ID for this color variant
                 const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
                 const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
@@ -91,19 +79,52 @@ function ProductCard({ product }: { product: Product }) {
                   <Link
                     key={idx}
                     href={`/products/${colorVariantId}`}
-                    style={{ 
-                      backgroundColor: colorValue,
-                      width: '10px',
-                      height: '10px',
-                      minWidth: '10px',
-                      minHeight: '10px',
-                      borderRadius: '50%',
-                      display: 'inline-block',
-                      border: isCurrentColor ? '1px solid black' : '1px solid #d1d5db',
-                    }}
-                    aria-label={`View ${colorOption.name} variant`}
-                    title={colorOption.name}
-                  />
+                    className="group relative"
+                  >
+                    {colorOption.image ? (
+                      // Display color image
+                      <div
+                        className={`relative rounded-full overflow-hidden transition-all ${
+                          isCurrentColor
+                            ? 'ring-2 ring-black ring-offset-1'
+                            : 'ring-1 ring-gray-300 hover:ring-2 hover:ring-gray-400'
+                        }`}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          minWidth: '24px',
+                          minHeight: '24px',
+                        }}
+                      >
+                        <Image
+                          src={colorOption.image}
+                          alt={colorOption.name}
+                          fill
+                          className="object-cover"
+                          sizes="24px"
+                        />
+                      </div>
+                    ) : (
+                      // Fallback to color circle
+                      <div
+                        style={{ 
+                          backgroundColor: colorOption.value.replace('.jpg', ''),
+                          width: '16px',
+                          height: '16px',
+                          minWidth: '16px',
+                          minHeight: '16px',
+                          borderRadius: '50%',
+                        }}
+                        className={`${
+                          isCurrentColor
+                            ? 'ring-2 ring-black ring-offset-1'
+                            : 'ring-1 ring-gray-300 hover:ring-2 hover:ring-gray-400'
+                        } transition-all`}
+                        aria-label={`View ${colorOption.name} variant`}
+                        title={colorOption.name}
+                      />
+                    )}
+                  </Link>
                 );
               })}
             </div>

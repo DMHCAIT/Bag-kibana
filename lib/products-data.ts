@@ -5,6 +5,7 @@ export interface Product {
   name: string;
   category: string;
   color: string;
+  colorImage?: string; // URL to circular color swatch image
   price: number;
   rating: number;
   reviews: number;
@@ -24,7 +25,8 @@ export interface Product {
   features?: string[];
   colors?: Array<{
     name: string;
-    value: string;
+    value: string; // hex color (fallback)
+    image?: string; // URL to circular color swatch image
     available: boolean;
   }>;
   sections?: string[]; // Array of section IDs where this product should appear
