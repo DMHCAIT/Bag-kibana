@@ -15,7 +15,7 @@ export async function GET() {
     }
 
     // Format response to show what we have
-    const analysis = products?.map(p => ({
+    const analysis = products?.map((p: any) => ({
       name: p.name,
       color: p.color,
       hasColors: !!p.colors,
