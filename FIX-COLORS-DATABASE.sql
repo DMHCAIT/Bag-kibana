@@ -21,13 +21,13 @@ SET colors = '[
 WHERE name = 'VISTARA TOTE';
 
 -- Step 3: Update VISTAPACK colors array  
--- VISTAPACK has: Teal Blue, Mint Green, Mocha Tan (NOT Mocha), Milky Blue
+-- VISTAPACK has: Teal Blue, Mint Green, Mocha Tan, Green (NOT Milky Blue!)
 UPDATE products 
 SET colors = '[
   {"name": "Teal Blue", "value": "#006D77", "available": true},
   {"name": "Mint Green", "value": "#98D8C8", "available": true},
   {"name": "Mocha Tan", "value": "#9B6B4F", "available": true},
-  {"name": "Milky Blue", "value": "#B8D4E8", "available": true}
+  {"name": "Green", "value": "#228B22", "available": true}
 ]'::jsonb
 WHERE name = 'VISTAPACK';
 
