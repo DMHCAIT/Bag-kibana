@@ -77,7 +77,7 @@ export async function GET(
     const product = formatDbProduct(products[0]);
 
     // Fetch all variants of the same product to populate color images
-    if (product.name && product.colors && product.colors.length > 0) {
+    if (product.name) {
       const { data: variants } = await supabaseAdmin
         .from('products')
         .select('color, color_image, images')
@@ -105,17 +105,28 @@ export async function GET(
           }
         });
 
-        // Enrich colors array with images
-        product.colors = product.colors.map((colorOption: any) => {
-          const normalizedOptionName = normalizeColor(colorOption.name);
-          const exactKey = colorOption.name.toLowerCase().trim();
-          // Try exact match first, then normalized match
-          const mappedImage = colorImageMap[exactKey] || colorImageMap[normalizedOptionName];
-          return {
-            ...colorOption,
-            image: mappedImage || colorOption.image || null
-          };
-        });
+        // If colors array is empty or null, auto-generate from variants
+        if (!product.colors || product.colors.length === 0) {
+          product.colors = variants.map((variant: any) => ({
+            name: variant.color,
+            value: '#000000', // Default color value
+            available: true,
+            image: variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : null)
+          }));
+          console.log(`✅ Auto-generated ${product.colors.length} colors for ${product.name} from variants`);
+        } else {
+          // Enrich existing colors array with images
+          product.colors = product.colors.map((colorOption: any) => {
+            const normalizedOptionName = normalizeColor(colorOption.name);
+            const exactKey = colorOption.name.toLowerCase().trim();
+            // Try exact match first, then normalized match
+            const mappedImage = colorImageMap[exactKey] || colorImageMap[normalizedOptionName];
+            return {
+              ...colorOption,
+              image: mappedImage || colorOption.image || null
+            };
+          });
+        }
       }
     }
 

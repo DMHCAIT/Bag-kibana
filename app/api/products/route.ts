@@ -99,29 +99,39 @@ export async function GET(request: NextRequest) {
 
     // Enrich each product's colors array with images from variants
     formattedProducts.forEach((product: any) => {
-      if (product.colors && product.colors.length > 0) {
-        const variants = productsByName[product.name] || [];
-        const colorImageMap: { [key: string]: string } = {};
-        
-        // Helper function to normalize color names for matching
-        const normalizeColor = (color: string) => {
-          return color.toLowerCase().trim()
-            .replace(/\s+/g, ' ')  // normalize spaces
-            .replace(/[^a-z0-9\s]/g, '');  // remove special chars
-        };
-        
-        variants.forEach((variant: any) => {
-          const normalizedColor = normalizeColor(variant.color);
-          // Priority: color_image field > first product image
-          const imageToUse = variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : '');
-          if (imageToUse) {
-            colorImageMap[normalizedColor] = imageToUse;
-            // Also store with original lowercase for exact matches
-            colorImageMap[variant.color.toLowerCase().trim()] = imageToUse;
-          }
-        });
-
-        // Debug logging for first few products
+      const variants = productsByName[product.name] || [];
+      
+      // Helper function to normalize color names for matching
+      const normalizeColor = (color: string) => {
+        return color.toLowerCase().trim()
+          .replace(/\s+/g, ' ')  // normalize spaces
+          .replace(/[^a-z0-9\s]/g, '');  // remove special chars
+      };
+      
+      // Build color image map from variants
+      const colorImageMap: { [key: string]: string } = {};
+      variants.forEach((variant: any) => {
+        const normalizedColor = normalizeColor(variant.color);
+        // Priority: color_image field > first product image
+        const imageToUse = variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : '');
+        if (imageToUse) {
+          colorImageMap[normalizedColor] = imageToUse;
+          // Also store with original lowercase for exact matches
+          colorImageMap[variant.color.toLowerCase().trim()] = imageToUse;
+        }
+      });
+      
+      // If colors array is empty or null, auto-generate from variants
+      if (!product.colors || product.colors.length === 0) {
+        product.colors = variants.map((variant: any) => ({
+          name: variant.color,
+          value: '#000000', // Default color value
+          available: true,
+          image: variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : null)
+        }));
+        console.log(`✅ Auto-generated colors for ${product.name} from ${variants.length} variants`);
+      } else {
+        // Enrich existing colors array with images
         const shouldLog = ['VISTARA TOTE', 'VISTAPACK', 'PRIZMA SLING'].includes(product.name);
         if (shouldLog && product.color === variants[0]?.color) {
           console.log(`\n🎨 Color Mapping for ${product.name}:`);
@@ -145,11 +155,6 @@ export async function GET(request: NextRequest) {
             image: mappedImage || colorOption.image || null
           };
         });
-      } else {
-        // Log products with no colors array
-        if (!product.colors || product.colors.length === 0) {
-          console.warn(`⚠️ Product ${product.name} (${product.color}) has no colors array!`);
-        }
       }
     });
 
