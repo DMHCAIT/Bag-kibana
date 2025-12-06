@@ -520,34 +520,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       );
                     })}
                 </div>
-                
-                  {/* Color Dropdown - Alternative View */}
-                  <div className="relative">
-                    <label className="text-xs text-gray-500 mb-1 block">Or select from dropdown:</label>
-                    <select
-                      value={product.color}
-                      onChange={(e) => {
-                        const selectedColor = product.colors?.find(c => c.name === e.target.value);
-                        if (selectedColor && selectedColor.available) {
-                          const baseName = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                          const colorSlug = selectedColor.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                          router.push(`/products/${baseName}-${colorSlug}`);
-                        }
-                      }}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black text-sm"
-                    >
-                      {product.colors.map((colorOption, index) => (
-                        <option 
-                          key={index} 
-                          value={colorOption.name}
-                          disabled={!colorOption.available}
-                        >
-                          {colorOption.name} {!colorOption.available ? '(Out of stock)' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-              </div>
+                </div>
             )}
 
               {/* Actions */}
