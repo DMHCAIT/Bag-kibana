@@ -86,19 +86,31 @@ export async function GET(
       if (variants && variants.length > 0) {
         // Create a map of color -> image
         const colorImageMap: { [key: string]: string } = {};
+        
+        // Helper function to normalize color names for matching
+        const normalizeColor = (color: string) => {
+          return color.toLowerCase().trim()
+            .replace(/\s+/g, ' ')  // normalize spaces
+            .replace(/[^a-z0-9\s]/g, '');  // remove special chars
+        };
+        
         variants.forEach((variant: any) => {
-          const colorKey = variant.color.toLowerCase().trim();
+          const normalizedColor = normalizeColor(variant.color);
           // Priority: color_image field > first product image
           const imageToUse = variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : '');
           if (imageToUse) {
-            colorImageMap[colorKey] = imageToUse;
+            colorImageMap[normalizedColor] = imageToUse;
+            // Also store with original lowercase for exact matches
+            colorImageMap[variant.color.toLowerCase().trim()] = imageToUse;
           }
         });
 
         // Enrich colors array with images
         product.colors = product.colors.map((colorOption: any) => {
-          const colorKey = colorOption.name.toLowerCase().trim();
-          const mappedImage = colorImageMap[colorKey];
+          const normalizedOptionName = normalizeColor(colorOption.name);
+          const exactKey = colorOption.name.toLowerCase().trim();
+          // Try exact match first, then normalized match
+          const mappedImage = colorImageMap[exactKey] || colorImageMap[normalizedOptionName];
           return {
             ...colorOption,
             image: mappedImage || colorOption.image || null
