@@ -67,7 +67,7 @@ function ProductCard({ product }: { product: Product }) {
             <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
           </div>
 
-          {/* Color Swatches */
+          {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
             <div className="flex gap-1.5 items-center">
               {product.colors.map((colorOption, idx) => {
