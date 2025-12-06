@@ -130,19 +130,29 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-serif tracking-wide">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome to Kibana Admin Panel</p>
+      <div className="bg-gradient-to-r from-gray-900 to-gray-800 -m-6 mb-8 p-8 rounded-lg shadow-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
+            <p className="text-gray-300 text-lg">Welcome back! Here's what's happening with your store.</p>
+          </div>
+          <div className="hidden md:flex items-center space-x-4">
+            <div className="text-right">
+              <p className="text-gray-400 text-sm">Last updated</p>
+              <p className="text-white font-medium">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mx-auto mb-4"></div>
-            <p>Loading dashboard...</p>
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Loading dashboard...</p>
           </div>
         </div>
       ) : (
@@ -150,17 +160,22 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((stat) => (
               <Link key={stat.title} href={stat.href}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-                        <p className="text-3xl font-bold">{stat.value}</p>
-                </div>
-                      <div className={`${stat.color} text-white p-3 rounded-lg`}>
-                        <stat.icon className="w-8 h-8" />
-              </div>
-            </div>
+                <Card className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-0 shadow-lg overflow-hidden group">
+                  <CardContent className="p-0">
+                    <div className="relative">
+                      <div className={`${stat.color} absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity`} />
+                      <div className="p-6">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-gray-500 mb-2">{stat.title}</p>
+                            <p className="text-4xl font-bold text-gray-900">{stat.value}</p>
+                          </div>
+                          <div className={`${stat.color} text-white p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform`}>
+                            <stat.icon className="w-8 h-8" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
           </Link>
@@ -168,30 +183,37 @@ export default function AdminDashboard() {
       </div>
 
           {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <span className="text-2xl">⚡</span>
+                Quick Actions
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <Link href="/admin/products/new">
-                  <Button className="w-full bg-black text-white hover:bg-gray-800">
+                  <Button className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all">
+                    <Package className="w-4 h-4 mr-2" />
                     Add Product
                   </Button>
                 </Link>
                 <Link href="/admin/products">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full h-12 border-2 hover:bg-gray-50 hover:border-gray-400 transition-all">
+                    <Eye className="w-4 h-4 mr-2" />
                     View Products
                   </Button>
                 </Link>
                 <Link href="/admin/orders">
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full h-12 border-2 hover:bg-gray-50 hover:border-gray-400 transition-all">
+                    <ShoppingCart className="w-4 h-4 mr-2" />
                     View Orders
                   </Button>
                 </Link>
-                <Link href="/admin/reports">
-                  <Button variant="outline" className="w-full">
-                    View Reports
+                <Link href="/admin/placements">
+                  <Button variant="outline" className="w-full h-12 border-2 hover:bg-gray-50 hover:border-gray-400 transition-all">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Placements
                   </Button>
             </Link>
           </div>
@@ -199,47 +221,61 @@ export default function AdminDashboard() {
           </Card>
 
           {/* Recent Products */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Recently Updated Products</CardTitle>
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+              <CardTitle className="text-xl flex items-center gap-2">
+                <span className="text-2xl">📦</span>
+                Recently Updated Products
+              </CardTitle>
               <Link href="/admin/products">
-                <Button variant="ghost" size="sm">View All</Button>
+                <Button variant="ghost" size="sm" className="hover:bg-white">View All →</Button>
               </Link>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {recentProducts.length === 0 ? (
-                <p className="text-center text-gray-500 py-8">No products yet</p>
+                <div className="text-center py-12">
+                  <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500 font-medium">No products yet</p>
+                  <Link href="/admin/products/new">
+                    <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
+                      <Package className="w-4 h-4 mr-2" />
+                      Add Your First Product
+                    </Button>
+                  </Link>
+                </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {recentProducts.map((product) => (
                     <Link
                       key={product.id}
                       href={`/admin/products/${product.id}/edit`}
-                      className="flex items-center gap-4 p-3 hover:bg-gray-50 rounded-lg transition"
+                      className="flex items-center gap-4 p-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 rounded-xl transition-all border border-transparent hover:border-gray-200 group"
                     >
-                      <div className="relative w-16 h-16 bg-gray-100 rounded shrink-0">
+                      <div className="relative w-20 h-20 bg-gray-100 rounded-lg shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
                         {product.images && product.images[0] ? (
                           <Image
                             src={product.images[0]}
                             alt={product.name}
                             fill
-                            className="object-cover rounded"
-                            sizes="64px"
+                            className="object-cover"
+                            sizes="80px"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
-                            No image
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <Package className="w-8 h-8" />
             </div>
           )}
         </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{product.name} - {product.color}</p>
-                        <p className="text-sm text-gray-500">{product.category}</p>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 truncate">{product.name} - {product.color}</p>
+                        <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
+                          <span className="px-2 py-0.5 bg-gray-100 rounded text-xs">{product.category}</span>
+                        </p>
       </div>
                       <div className="text-right">
-                        <p className="font-medium">₹{product.price.toLocaleString()}</p>
-                        <p className="text-xs text-gray-500">
-                          Stock: {(product as any).stock || 100}
+                        <p className="font-bold text-lg text-gray-900">₹{product.price.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Stock: <span className="font-medium">{(product as any).stock || 100}</span>
           </p>
                       </div>
         </Link>
@@ -251,21 +287,28 @@ export default function AdminDashboard() {
 
           {/* Alerts */}
           {stats.lowStockProducts > 0 && (
-            <Card className="border-l-4 border-red-500">
+            <Card className="border-0 border-l-4 border-red-500 shadow-lg bg-gradient-to-r from-red-50 to-orange-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-red-600">
-                  <AlertCircle className="w-5 h-5" />
-                  Low Stock Alert
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <AlertCircle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <span className="text-xl">Low Stock Alert</span>
+                    <p className="text-sm font-normal text-gray-600 mt-1">Immediate attention required</p>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700">
-                  You have {stats.lowStockProducts} product(s) with low stock levels (≤10 units).
-                  Consider restocking soon.
+                <p className="text-gray-700 text-lg mb-4">
+                  <span className="font-bold text-red-600 text-2xl">{stats.lowStockProducts}</span> product(s) with low stock levels (≤10 units).
+                  <br />
+                  <span className="text-sm">Consider restocking soon to avoid running out.</span>
                 </p>
                 <Link href="/admin/products">
-                  <Button variant="outline" size="sm" className="mt-4">
-                    View Products
+                  <Button className="bg-red-600 hover:bg-red-700 text-white shadow-lg">
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    View Low Stock Products
                   </Button>
         </Link>
               </CardContent>
