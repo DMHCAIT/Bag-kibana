@@ -47,10 +47,6 @@ export default function CheckoutPage() {
     paymentMethod: "razorpay",
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [discountCode, setDiscountCode] = useState("");
-  const [appliedDiscount, setAppliedDiscount] = useState<{code: string, percentage: number} | null>(null);
-  const [discountError, setDiscountError] = useState("");
-  const [isFirstOrder, setIsFirstOrder] = useState(false);
 
   // Redirect if not authenticated or cart is empty (but not after order is placed)
   useEffect(() => {
@@ -76,49 +72,15 @@ export default function CheckoutPage() {
         phone: user.phone,
       }));
       
-      // Check if this is user's first order
-      checkFirstOrder();
     }
   }, [user]);
 
-  const checkFirstOrder = async () => {
-    try {
-      const response = await fetch('/api/orders/check-first-order');
-      const data = await response.json();
-      setIsFirstOrder(data.isFirstOrder);
-    } catch (error) {
-      console.error('Error checking first order:', error);
-    }
-  };
-
-  const applyDiscountCode = () => {
-    setDiscountError("");
-    
-    if (!discountCode.trim()) {
-      setDiscountError("Please enter a discount code");
-      return;
-    }
-
-    if (discountCode.toUpperCase() === "ORDERNOW") {
-      setAppliedDiscount({ code: "ORDERNOW", percentage: 20 });
-      setDiscountError("");
-    } else {
-      setDiscountError("Invalid discount code");
-      setAppliedDiscount(null);
-    }
-  };
-
-  const removeDiscount = () => {
-    setAppliedDiscount(null);
-    setDiscountCode("");
-    setDiscountError("");
-  };
-
-  // Calculate discounts
-  const baseDiscount = appliedDiscount ? (cart.subtotal * appliedDiscount.percentage) / 100 : 0;
-  const firstOrderBonus = isFirstOrder && appliedDiscount ? (cart.subtotal * 5) / 100 : 0;
-  const totalDiscount = baseDiscount + firstOrderBonus;
-  const finalTotal = cart.subtotal - totalDiscount;
+  // Calculate automatic 25% discount
+  const discountPercentage = 25;
+  const originalSubtotal = cart.subtotal;
+  const discountedSubtotal = Math.round(cart.subtotal * 0.75);
+  const discountAmount = originalSubtotal - discountedSubtotal;
+  const finalTotal = discountedSubtotal;
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -200,13 +162,13 @@ export default function CheckoutPage() {
             name: `${item.product.name} - ${item.product.color}`,
             color: item.product.color,
             quantity: item.quantity,
-            price: item.product.price,
+            price: Math.round(item.product.price * 0.75),
             image: item.product.images?.[0] || "",
           })),
-          subtotal: cart.subtotal,
-          discount: totalDiscount,
-          discount_code: appliedDiscount?.code,
-          is_first_order: isFirstOrder,
+          subtotal: discountedSubtotal,
+          discount: discountAmount,
+          discount_code: "AUTO25",
+          is_first_order: false,
           shipping_fee: 0,
           total: finalTotal,
           payment_method: "cod",
@@ -230,7 +192,7 @@ export default function CheckoutPage() {
           if (saveResponse.ok && savedOrder.success && savedOrder.order) {
             // Store order data for Facebook Pixel tracking
             localStorage.setItem('kibana-order-tracking', JSON.stringify({
-              value: cart.subtotal,
+              value: discountedSubtotal,
               currency: 'INR',
               orderId: savedOrder.order.id
             }));
@@ -242,7 +204,7 @@ export default function CheckoutPage() {
             console.error("Order save failed:", savedOrder.error || "Unknown error");
             // Store order data for Facebook Pixel tracking even if save failed
             localStorage.setItem('kibana-order-tracking', JSON.stringify({
-              value: cart.subtotal,
+              value: discountedSubtotal,
               currency: 'INR',
               orderId: `COD-${Date.now()}`
             }));
@@ -322,13 +284,13 @@ export default function CheckoutPage() {
                   name: `${item.product.name} - ${item.product.color}`,
                   color: item.product.color,
                   quantity: item.quantity,
-                  price: item.product.price,
+                  price: Math.round(item.product.price * 0.75),
                   image: item.product.images?.[0] || "",
                 })),
-                subtotal: cart.subtotal,
-                discount: totalDiscount,
-                discount_code: appliedDiscount?.code,
-                is_first_order: isFirstOrder,
+                subtotal: discountedSubtotal,
+                discount: discountAmount,
+                discount_code: "AUTO25",
+                is_first_order: false,
                 shipping_fee: 0,
                 total: finalTotal,
                 payment_method: "razorpay",
@@ -351,7 +313,7 @@ export default function CheckoutPage() {
 
               // Store order data for Facebook Pixel tracking
               localStorage.setItem('kibana-order-tracking', JSON.stringify({
-                value: cart.subtotal,
+                value: discountedSubtotal,
                 currency: 'INR',
                 orderId: response.razorpay_order_id
               }));
@@ -643,83 +605,48 @@ export default function CheckoutPage() {
                         </p>
                         <p className="text-gray-600">Qty: {item.quantity}</p>
                       </div>
-                      <p className="font-medium">
-                        ₹{(item.product.price * item.quantity).toLocaleString()}
-                      </p>
+                      <div className="text-right">
+                        <p className="font-medium text-green-600">
+                          ₹{Math.round(item.product.price * 0.75 * item.quantity).toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-400 line-through">
+                          ₹{(item.product.price * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Discount Code */}
+                {/* Automatic Discount Banner */}
                 <div className="pt-4 border-t">
-                  {!appliedDiscount ? (
-                    <div className="space-y-2">
-                      <Label htmlFor="discount">Discount Code</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          id="discount"
-                          placeholder="Enter code (e.g., ORDERNOW)"
-                          value={discountCode}
-                          onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          onClick={applyDiscountCode}
-                          variant="outline"
-                          className="px-4"
-                        >
-                          Apply
-                        </Button>
+                  <div className="bg-green-50 p-3 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🎉</span>
+                      <div>
+                        <p className="text-sm font-medium text-green-800">
+                          25% OFF Applied Automatically!
+                        </p>
+                        <p className="text-xs text-green-700">
+                          You're saving ₹{discountAmount.toLocaleString()} on this order
+                        </p>
                       </div>
-                      {discountError && (
-                        <p className="text-sm text-red-600">{discountError}</p>
-                      )}
-                      <p className="text-xs text-gray-500">
-                        Use code <strong>ORDERNOW</strong> for 20% off
-                        {isFirstOrder && " + 5% first order bonus!"}
-                      </p>
                     </div>
-                  ) : (
-                    <div className="bg-green-50 p-3 rounded-lg space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium text-green-800">
-                          {appliedDiscount.code} Applied
-                        </span>
-                        <button
-                          onClick={removeDiscount}
-                          className="text-xs text-red-600 hover:underline"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                      <p className="text-xs text-green-700">
-                        {appliedDiscount.percentage}% discount
-                        {isFirstOrder && " + 5% first order bonus"}
-                      </p>
-                    </div>
-                  )}
+                  </div>
                 </div>
 
                 <div className="space-y-3 pt-4 border-t">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal ({cart.totalItems} items)</span>
-                    <span>₹{cart.subtotal.toLocaleString()}</span>
+                    <span className="text-gray-600">Original Price ({cart.totalItems} items)</span>
+                    <span className="line-through text-gray-400">₹{originalSubtotal.toLocaleString()}</span>
                   </div>
-                  {appliedDiscount && (
-                    <>
-                      <div className="flex justify-between text-sm text-green-600">
-                        <span>Discount ({appliedDiscount.percentage}%)</span>
-                        <span>-₹{baseDiscount.toLocaleString()}</span>
-                      </div>
-                      {isFirstOrder && firstOrderBonus > 0 && (
-                        <div className="flex justify-between text-sm text-green-600">
-                          <span>First Order Bonus (5%)</span>
-                          <span>-₹{firstOrderBonus.toLocaleString()}</span>
-                        </div>
-                      )}
-                    </>
-                  )}
+                  <div className="flex justify-between text-sm text-green-600 font-medium">
+                    <span>Discount (25% OFF)</span>
+                    <span>-₹{discountAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Subtotal</span>
+                    <span className="font-medium">₹{discountedSubtotal.toLocaleString()}</span>
+                  </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Shipping</span>
                     <span className="text-green-600 font-medium">FREE</span>
@@ -728,12 +655,7 @@ export default function CheckoutPage() {
 
                 <div className="flex justify-between font-semibold text-lg pt-4 border-t">
                   <span>Total</span>
-                  <span>
-                    {appliedDiscount && (
-                      <span className="text-sm text-gray-400 line-through mr-2">
-                        ₹{cart.subtotal.toLocaleString()}
-                      </span>
-                    )}
+                  <span className="text-green-600">
                     ₹{finalTotal.toLocaleString()}
                   </span>
                 </div>
