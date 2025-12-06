@@ -34,15 +34,24 @@ interface Placement {
 }
 
 const SECTIONS = [
-  { value: "bestsellers", label: "Bestsellers Section" },
-  { value: "new-collection", label: "New Collection Carousel" },
-  { value: "featured", label: "Featured Products" },
-  { value: "hero-products", label: "Hero Products" },
+  { value: "bestsellers", label: "Homepage - Bestsellers Section" },
+  { value: "new-collection", label: "Homepage - New Collection Carousel" },
+  { value: "featured", label: "Homepage - Featured Products" },
+  { value: "hero-products", label: "Homepage - Hero Products" },
+  { value: "women-featured", label: "Women's Page - Featured Products" },
+  { value: "women-trending", label: "Women's Page - Trending" },
+  { value: "men-featured", label: "Men's Page - Featured Products" },
+  { value: "men-trending", label: "Men's Page - Trending" },
+  { value: "shop-featured", label: "Shop Page - Featured" },
+  { value: "shop-new-arrivals", label: "Shop Page - New Arrivals" },
+  { value: "collections-featured", label: "Collections Page - Featured" },
+  { value: "all-products-top", label: "All Products - Top Picks" },
 ];
 
 export default function PlacementsPage() {
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [allPlacementsCounts, setAllPlacementsCounts] = useState<Record<string, number>>({});
   const [selectedSection, setSelectedSection] = useState("bestsellers");
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [selectedPosition, setSelectedPosition] = useState<string>("end");
@@ -52,7 +61,22 @@ export default function PlacementsPage() {
   useEffect(() => {
     fetchPlacements();
     fetchProducts();
+    fetchAllPlacementsCounts();
   }, [selectedSection]);
+
+  const fetchAllPlacementsCounts = async () => {
+    try {
+      const counts: Record<string, number> = {};
+      for (const section of SECTIONS) {
+        const response = await fetch(`/api/admin/placements?section=${section.value}`);
+        const data = await response.json();
+        counts[section.value] = Array.isArray(data) ? data.length : 0;
+      }
+      setAllPlacementsCounts(counts);
+    } catch (error) {
+      console.error("Error fetching placement counts:", error);
+    }
+  };
 
   const fetchPlacements = async () => {
     try {
@@ -251,8 +275,13 @@ export default function PlacementsPage() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <h1 className="text-3xl font-bold mb-6">Product Placements Manager</h1>
+    <div className="container mx-auto p-6 max-w-7xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Product Placements Manager</h1>
+        <p className="text-gray-600">
+          Control which products appear on different pages and sections of your website
+        </p>
+      </div>
 
       {message && (
         <div
@@ -266,24 +295,183 @@ export default function PlacementsPage() {
         </div>
       )}
 
-      {/* Section Selector */}
+      {/* Overview Section */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Select Section</CardTitle>
+          <CardTitle>Placements Overview</CardTitle>
+          <p className="text-sm text-gray-600">Quick view of product placements across all pages</p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Homepage */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <span>🏠</span> Homepage
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Bestsellers:</span>
+                  <span className="font-medium">{allPlacementsCounts["bestsellers"] || 0} products</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">New Collection:</span>
+                  <span className="font-medium">{allPlacementsCounts["new-collection"] || 0} products</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Featured:</span>
+                  <span className="font-medium">{allPlacementsCounts["featured"] || 0} products</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Hero:</span>
+                  <span className="font-medium">{allPlacementsCounts["hero-products"] || 0} products</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Women's Page */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <span>👜</span> Women&apos;s Page
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Featured:</span>
+                  <span className="font-medium">{allPlacementsCounts["women-featured"] || 0} products</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Trending:</span>
+                  <span className="font-medium">{allPlacementsCounts["women-trending"] || 0} products</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Men's Page */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <span>💼</span> Men&apos;s Page
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Featured:</span>
+                  <span className="font-medium">{allPlacementsCounts["men-featured"] || 0} products</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Trending:</span>
+                  <span className="font-medium">{allPlacementsCounts["men-trending"] || 0} products</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Shop Page */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <span>🛍️</span> Shop Page
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Featured:</span>
+                  <span className="font-medium">{allPlacementsCounts["shop-featured"] || 0} products</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">New Arrivals:</span>
+                  <span className="font-medium">{allPlacementsCounts["shop-new-arrivals"] || 0} products</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Collections Page */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <span>📚</span> Collections
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Featured:</span>
+                  <span className="font-medium">{allPlacementsCounts["collections-featured"] || 0} products</span>
+                </div>
+              </div>
+            </div>
+
+            {/* All Products Page */}
+            <div className="border rounded-lg p-4">
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <span>📦</span> All Products
+              </h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Top Picks:</span>
+                  <span className="font-medium">{allPlacementsCounts["all-products-top"] || 0} products</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Section Selector with Page Grouping */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Select Page & Section</CardTitle>
+          <p className="text-sm text-gray-600 mt-2">
+            Choose which page and section you want to manage product placements for
+          </p>
         </CardHeader>
         <CardContent>
           <Select value={selectedSection} onValueChange={setSelectedSection}>
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              {SECTIONS.map((section) => (
-                <SelectItem key={section.value} value={section.value}>
-                  {section.label}
-                </SelectItem>
-              ))}
+            <SelectContent className="max-h-[400px]">
+              {/* Homepage Sections */}
+              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100">
+                🏠 HOMEPAGE
+              </div>
+              <SelectItem value="bestsellers">Bestsellers Section</SelectItem>
+              <SelectItem value="new-collection">New Collection Carousel</SelectItem>
+              <SelectItem value="featured">Featured Products</SelectItem>
+              <SelectItem value="hero-products">Hero Products</SelectItem>
+              
+              {/* Women's Page */}
+              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
+                👜 WOMEN&apos;S PAGE
+              </div>
+              <SelectItem value="women-featured">Featured Products</SelectItem>
+              <SelectItem value="women-trending">Trending Now</SelectItem>
+              
+              {/* Men's Page */}
+              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
+                💼 MEN&apos;S PAGE
+              </div>
+              <SelectItem value="men-featured">Featured Products</SelectItem>
+              <SelectItem value="men-trending">Trending Now</SelectItem>
+              
+              {/* Shop Page */}
+              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
+                🛍️ SHOP PAGE
+              </div>
+              <SelectItem value="shop-featured">Featured</SelectItem>
+              <SelectItem value="shop-new-arrivals">New Arrivals</SelectItem>
+              
+              {/* Collections Page */}
+              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
+                📚 COLLECTIONS PAGE
+              </div>
+              <SelectItem value="collections-featured">Featured Collections</SelectItem>
+              
+              {/* All Products Page */}
+              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
+                📦 ALL PRODUCTS PAGE
+              </div>
+              <SelectItem value="all-products-top">Top Picks</SelectItem>
             </SelectContent>
           </Select>
+          
+          {/* Current selection info */}
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Currently managing:</strong> {SECTIONS.find(s => s.value === selectedSection)?.label}
+            </p>
+          </div>
         </CardContent>
       </Card>
 

@@ -52,10 +52,29 @@ CREATE TRIGGER update_product_placements_timestamp
 -- ============================================
 -- AVAILABLE SECTIONS
 -- ============================================
+-- Homepage sections:
 -- 'bestsellers' - Bestsellers Section
 -- 'new-collection' - New Collection Carousel
--- 'featured' - Featured products anywhere
+-- 'featured' - Featured products
 -- 'hero-products' - Products highlighted in hero areas
+
+-- Women's page sections:
+-- 'women-featured' - Featured products on women's page
+-- 'women-trending' - Trending products on women's page
+
+-- Men's page sections:
+-- 'men-featured' - Featured products on men's page
+-- 'men-trending' - Trending products on men's page
+
+-- Shop page sections:
+-- 'shop-featured' - Featured products on shop page
+-- 'shop-new-arrivals' - New arrivals on shop page
+
+-- Collections page sections:
+-- 'collections-featured' - Featured on collections page
+
+-- All products page sections:
+-- 'all-products-top' - Top picks on all products page
 -- ============================================
 
 -- Insert some sample placements (you can remove these after testing)
