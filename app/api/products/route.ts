@@ -123,12 +123,19 @@ export async function GET(request: NextRequest) {
       
       // If colors array is empty or null, auto-generate from variants
       if (!product.colors || product.colors.length === 0) {
-        product.colors = variants.map((variant: any) => ({
-          name: variant.color,
-          value: '#000000', // Default color value
-          available: true,
-          image: variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : null)
-        }));
+        product.colors = variants.map((variant: any) => {
+          // For each variant, try to get its specific image, or fallback to current product's image
+          const variantImage = variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : null);
+          const fallbackImage = product.images && product.images.length > 0 ? product.images[0] : null;
+          
+          return {
+            name: variant.color,
+            value: '#000000', // Default color value
+            available: true,
+            // Use variant's image if available, otherwise use current product's first image
+            image: variantImage || fallbackImage
+          };
+        });
         console.log(`✅ Auto-generated colors for ${product.name} from ${variants.length} variants`);
       } else {
         // Enrich existing colors array with images
@@ -146,13 +153,17 @@ export async function GET(request: NextRequest) {
           // Try exact match first, then normalized match
           const mappedImage = colorImageMap[exactKey] || colorImageMap[normalizedOptionName];
           
+          // Fallback to current product's first image if no specific color image found
+          const fallbackImage = product.images && product.images.length > 0 ? product.images[0] : null;
+          
           if (shouldLog && product.color === variants[0]?.color) {
             console.log(`  - ${colorOption.name}: ${mappedImage ? '✅ Found' : '❌ Missing'}`);
           }
           
           return {
             ...colorOption,
-            image: mappedImage || colorOption.image || null
+            // Priority: mapped variant image > existing color image > current product's first image
+            image: mappedImage || colorOption.image || fallbackImage
           };
         });
       }
