@@ -432,20 +432,24 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
             {/* Price */}
               <div className="py-4 border-y">
-                <p className="text-3xl font-medium">₹{product.price.toLocaleString()}</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-3xl font-medium text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+                  <p className="text-xl text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+                  <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-semibold">25% OFF</span>
+                </div>
                 <p className="text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
             </div>
 
               {/* Offer Banner - Single Line */}
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-3">
                 <div className="flex items-center gap-2">
-                  <div className="bg-orange-500 text-white rounded-full p-1.5 shrink-0">
+                  <div className="bg-green-500 text-white rounded-full p-1.5 shrink-0">
                     <span className="text-sm">🎁</span>
                   </div>
                   <div className="flex items-center flex-wrap gap-1.5 text-xs">
                     <span className="font-semibold text-gray-900">Special Offers</span>
                     <span className="text-gray-400">|</span>
-                    <span><strong>20% OFF</strong> - Use code <span className="bg-black text-white px-1.5 py-0.5 rounded text-[10px]">ORDERNOW</span></span>
+                    <span><strong className="text-green-700">25% OFF</strong> - Already applied!</span>
                     <span className="text-gray-400">|</span>
                     <span><strong>Extra 5% OFF</strong> on your first order</span>
                     <span className="text-gray-400">|</span>

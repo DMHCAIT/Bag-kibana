@@ -35,7 +35,7 @@ export default function OfferBanner() {
         <div className="animate-scroll flex whitespace-nowrap">
           <div className="flex items-center space-x-8 px-8">
             <span className="text-sm font-medium">
-              🎉 <strong>20% OFF</strong> with code <strong className="bg-white text-black px-2 py-1 rounded">ORDERNOW</strong>
+              🎉 <strong>25% OFF</strong> on All Products - <strong className="text-green-400">Automatically Applied!</strong>
             </span>
             <span className="text-sm">✨ First order? Get <strong>EXTRA 5% OFF!</strong></span>
             <span className="text-sm">🚚 Free Shipping on All Orders</span>
@@ -44,7 +44,7 @@ export default function OfferBanner() {
           {/* Duplicate for seamless loop */}
           <div className="flex items-center space-x-8 px-8">
             <span className="text-sm font-medium">
-              🎉 <strong>20% OFF</strong> with code <strong className="bg-white text-black px-2 py-1 rounded">ORDERNOW</strong>
+              🎉 <strong>25% OFF</strong> on All Products - <strong className="text-green-400">Automatically Applied!</strong>
             </span>
             <span className="text-sm">✨ First order? Get <strong>EXTRA 5% OFF!</strong></span>
             <span className="text-sm">🚚 Free Shipping on All Orders</span>
