@@ -87,6 +87,37 @@ export async function GET(request: NextRequest) {
 
     const formattedProducts = dbProducts.map(formatDbProduct);
 
+    // Enrich products with color images
+    // Group products by name to get all variants
+    const productsByName: { [name: string]: any[] } = {};
+    dbProducts.forEach(product => {
+      if (!productsByName[product.name]) {
+        productsByName[product.name] = [];
+      }
+      productsByName[product.name].push(product);
+    });
+
+    // Enrich each product's colors array with images from variants
+    formattedProducts.forEach((product: any) => {
+      if (product.colors && product.colors.length > 0) {
+        const variants = productsByName[product.name] || [];
+        const colorImageMap: { [key: string]: string } = {};
+        
+        variants.forEach((variant: any) => {
+          const colorKey = variant.color.toLowerCase().trim();
+          colorImageMap[colorKey] = variant.color_image || (variant.images && variant.images[0]) || '';
+        });
+
+        product.colors = product.colors.map((colorOption: any) => {
+          const colorKey = colorOption.name.toLowerCase().trim();
+          return {
+            ...colorOption,
+            image: colorImageMap[colorKey] || colorOption.image || null
+          };
+        });
+      }
+    });
+
     return NextResponse.json(
       { 
         products: formattedProducts,

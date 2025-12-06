@@ -76,6 +76,33 @@ export async function GET(
 
     const product = formatDbProduct(products[0]);
 
+    // Fetch all variants of the same product to populate color images
+    if (product.name && product.colors && product.colors.length > 0) {
+      const { data: variants } = await supabaseAdmin
+        .from('products')
+        .select('color, color_image, images')
+        .eq('name', product.name);
+
+      if (variants && variants.length > 0) {
+        // Create a map of color -> image
+        const colorImageMap: { [key: string]: string } = {};
+        variants.forEach((variant: any) => {
+          const colorKey = variant.color.toLowerCase().trim();
+          // Prefer color_image, fallback to first product image
+          colorImageMap[colorKey] = variant.color_image || (variant.images && variant.images[0]) || '';
+        });
+
+        // Enrich colors array with images
+        product.colors = product.colors.map((colorOption: any) => {
+          const colorKey = colorOption.name.toLowerCase().trim();
+          return {
+            ...colorOption,
+            image: colorImageMap[colorKey] || colorOption.image || null
+          };
+        });
+      }
+    }
+
     return NextResponse.json(
       { 
         product,
