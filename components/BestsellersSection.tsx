@@ -26,14 +26,24 @@ function ProductCard({ product }: { product: Product }) {
         {/* Product Image */}
         <Link href={`/products/${product.slug || product.id}`}>
           <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
+            {/* First Image - always visible */}
             <Image
               src={product.images[0]}
               alt={`${product.name} - ${product.color}`}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-opacity duration-300 group-hover:opacity-0"
               sizes="(max-width: 768px) 50vw, 25vw"
             />
-            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+            {/* Second Image - visible on hover */}
+            {product.images[1] && (
+              <Image
+                src={product.images[1]}
+                alt={`${product.name} - ${product.color} hover`}
+                fill
+                className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                sizes="(max-width: 768px) 50vw, 25vw"
+              />
+            )}
           </div>
         </Link>
 
