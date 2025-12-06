@@ -65,19 +65,8 @@ function ProductCard({ product }: { product: Product }) {
 
           {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-1 items-center">
+            <div className="flex gap-1.5 items-center">
               {product.colors.map((colorOption, idx) => {
-                let colorValue = colorOption.value;
-                if (colorValue.includes('.jpg')) {
-                  const colorMap: {[key: string]: string} = {
-                    '#006D77.jpg': '#006D77',
-                    '#98D8C8.jpg': '#98D8C8', 
-                    '#B8D4E8.jpg': '#B8D4E8',
-                    '#9B6B4F': '#9B6B4F'
-                  };
-                  colorValue = colorMap[colorValue] || '#9B6B4F';
-                }
-                
                 const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
                 const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
                 const colorVariantId = `${productNameSlug}-${colorSlug}`;
@@ -87,19 +76,33 @@ function ProductCard({ product }: { product: Product }) {
                   <Link
                     key={idx}
                     href={`/products/${colorVariantId}`}
-                    style={{ 
-                      backgroundColor: colorValue,
-                      width: '10px',
-                      height: '10px',
-                      minWidth: '10px',
-                      minHeight: '10px',
-                      borderRadius: '50%',
-                      display: 'inline-block',
-                      border: isCurrentColor ? '1px solid black' : '1px solid #d1d5db',
+                    className={`relative rounded-full overflow-hidden ${
+                      isCurrentColor ? 'ring-2 ring-black' : 'ring-1 ring-gray-300'
+                    }`}
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                      minWidth: '24px',
+                      minHeight: '24px',
                     }}
                     aria-label={`View ${colorOption.name} variant`}
                     title={colorOption.name}
-                  />
+                  >
+                    {colorOption.image ? (
+                      <Image
+                        src={colorOption.image}
+                        alt={colorOption.name}
+                        fill
+                        className="object-cover"
+                        sizes="24px"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full"
+                        style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
+                      />
+                    )}
+                  </Link>
                 );
               })}
             </div>
