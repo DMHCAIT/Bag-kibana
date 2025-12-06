@@ -437,28 +437,28 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
               {/* Offer Banner - Redesigned */}
-              <div className="bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border border-amber-200 rounded-xl p-5 shadow-sm">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-full p-2.5 shrink-0 shadow-md">
-                    <span className="text-xl">🎁</span>
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                <div className="flex items-start gap-2 mb-2">
+                  <div className="bg-orange-500 text-white rounded-full p-1.5 shrink-0">
+                    <span className="text-sm">🎁</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-amber-900 text-lg mb-1">Special Offers</h3>
-                    <p className="text-amber-700 text-sm">Save big on your purchase today!</p>
+                    <h3 className="font-semibold text-gray-900 text-sm mb-0.5">Special Offers</h3>
+                    <p className="text-orange-600 text-xs">Save big on your purchase today!</p>
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                    <p><strong>20% OFF</strong> - Use code <span className="bg-black text-white px-2 py-0.5 rounded font-mono text-xs">ORDERNOW</span></p>
+                <div className="space-y-1 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
+                    <p><strong>20% OFF</strong> - Use code <span className="bg-black text-white px-1.5 py-0.5 rounded text-[10px]">ORDERNOW</span></p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <div className="flex items-center gap-1.5">
+                    <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
                     <p><strong>Extra 5% OFF</strong> on your first order</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <div className="flex items-center gap-1.5">
+                    <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
                     <p><strong>Free Shipping</strong> across India</p>
                   </div>
                 </div>
@@ -467,10 +467,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {/* Available Colors */}
             {product.colors && product.colors.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Available Colors</h3>
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">Color: {product.color}</h3>
                   
                   {/* Color Swatches */}
-                  <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex flex-wrap gap-3">
                     {product.colors.map((colorOption, index) => {
                       const baseName = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
                       const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -481,41 +481,30 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         <Link
                           key={index}
                           href={productLink}
-                          className={`group relative p-2 border rounded-lg transition-all ${
+                          className={`group relative border-2 rounded-lg overflow-hidden transition-all ${
                             isCurrentColor 
                               ? 'border-black' 
                               : 'border-gray-300 hover:border-gray-400'
                           } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
-                          title={colorOption.available ? `Switch to ${colorOption.name}` : `${colorOption.name} - Currently unavailable`}
+                          title={colorOption.available ? colorOption.name : `${colorOption.name} - Currently unavailable`}
                         >
-                          <div className="flex items-center gap-2">
-                            {/* Color Image or Fallback Circle */}
-                            {colorOption.image ? (
-                              <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                                <Image
-                                  src={colorOption.image}
-                                  alt={colorOption.name}
-                                  fill
-                                  className="object-cover"
-                                  sizes="24px"
-                                />
-                              </div>
-                            ) : (
-                              <div
-                                className="w-6 h-6 rounded-full border border-gray-300"
-                                style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
+                          {/* Color Image or Fallback */}
+                          {colorOption.image ? (
+                            <div className="relative w-16 h-16">
+                              <Image
+                                src={colorOption.image}
+                                alt={colorOption.name}
+                                fill
+                                className="object-cover"
+                                sizes="64px"
                               />
-                            )}
-                            
-                            {/* Color Name */}
-                            <span className="text-xs text-gray-900">{colorOption.name}</span>
-                            {isCurrentColor && (
-                              <Check className="w-3 h-3 text-green-600 ml-1" />
-                            )}
-                            {!colorOption.available && (
-                              <span className="text-[10px] text-red-500 font-medium">Out of Stock</span>
-                            )}
-                          </div>
+                            </div>
+                          ) : (
+                            <div
+                              className="w-16 h-16"
+                              style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
+                            />
+                          )}
                         </Link>
                       );
                     })}
