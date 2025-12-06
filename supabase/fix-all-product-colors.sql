@@ -26,14 +26,12 @@ SET colors = '[
 WHERE name = 'LEKHA WALLET';
 
 -- ============================================
--- WALLET - 4 colors  
+-- WALLET - 2 colors  
 -- ============================================
 UPDATE products 
 SET colors = '[
   { "name": "Mint Green", "value": "#98D8C8", "available": true },
-  { "name": "Black", "value": "#000000", "available": true },
-  { "name": "Tan", "value": "#D2B48C", "available": true },
-  { "name": "Brown", "value": "#8B4513", "available": true }
+  { "name": "Teal Blue", "value": "#006D77", "available": true }
 ]'::jsonb
 WHERE name = 'Wallet';
 
@@ -62,13 +60,14 @@ SET colors = '[
 WHERE name = 'VISTAPACK';
 
 -- ============================================
--- PRIZMA SLING - 3 colors
+-- PRIZMA SLING - 4 colors
 -- ============================================
 UPDATE products 
 SET colors = '[
-  { "name": "Black", "value": "#000000", "available": true },
-  { "name": "Tan", "value": "#D2B48C", "available": true },
-  { "name": "Brown", "value": "#8B4513", "available": true }
+  { "name": "Teal Blue", "value": "#006D77", "available": true },
+  { "name": "Mint Green", "value": "#98D8C8", "available": true },
+  { "name": "Mocha", "value": "#9B6B4F", "available": true },
+  { "name": "Milky Blue", "value": "#B8D4E8", "available": true }
 ]'::jsonb
 WHERE name = 'PRIZMA SLING';
 
