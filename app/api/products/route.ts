@@ -121,16 +121,35 @@ export async function GET(request: NextRequest) {
           }
         });
 
+        // Debug logging for first few products
+        const shouldLog = ['VISTARA TOTE', 'VISTAPACK', 'PRIZMA SLING'].includes(product.name);
+        if (shouldLog && product.color === variants[0]?.color) {
+          console.log(`\n🎨 Color Mapping for ${product.name}:`);
+          console.log('Available variants:', variants.map((v: any) => v.color).join(', '));
+          console.log('Colors array:', product.colors.map((c: any) => c.name).join(', '));
+          console.log('Color image map keys:', Object.keys(colorImageMap));
+        }
+
         product.colors = product.colors.map((colorOption: any) => {
           const normalizedOptionName = normalizeColor(colorOption.name);
           const exactKey = colorOption.name.toLowerCase().trim();
           // Try exact match first, then normalized match
           const mappedImage = colorImageMap[exactKey] || colorImageMap[normalizedOptionName];
+          
+          if (shouldLog && product.color === variants[0]?.color) {
+            console.log(`  - ${colorOption.name}: ${mappedImage ? '✅ Found' : '❌ Missing'}`);
+          }
+          
           return {
             ...colorOption,
             image: mappedImage || colorOption.image || null
           };
         });
+      } else {
+        // Log products with no colors array
+        if (!product.colors || product.colors.length === 0) {
+          console.warn(`⚠️ Product ${product.name} (${product.color}) has no colors array!`);
+        }
       }
     });
 
