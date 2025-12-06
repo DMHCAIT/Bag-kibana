@@ -10,7 +10,7 @@ export async function GET() {
       .limit(5);
 
     return NextResponse.json({
-      products: products?.map(p => ({
+      products: products?.map((p: any) => ({
         id: p.id,
         name: p.name,
         color: p.color,
