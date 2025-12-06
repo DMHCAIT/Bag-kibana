@@ -61,9 +61,9 @@ export default function CategoryProductsPage() {
         setProducts(data.products);
         
         // Extract unique categories
-        const uniqueCategories = [
-          ...new Set(data.products.map((p: Product) => p.category)),
-        ].sort();
+        const uniqueCategories = Array.from(
+          new Set(data.products.map((p: Product) => p.category))
+        ).sort() as string[];
         setCategories(uniqueCategories);
       }
     } catch (error) {
