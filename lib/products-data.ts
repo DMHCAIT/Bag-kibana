@@ -76,10 +76,10 @@ export const products: Product[] = [
     ],
     sections: ["new-arrivals"],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha ", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // VISTARA TOTE - Mint Green
@@ -126,10 +126,10 @@ export const products: Product[] = [
     ],
     sections: ["bestsellers"],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha ", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // VISTARA TOTE - Mocha 
@@ -176,10 +176,10 @@ export const products: Product[] = [
       "Detachable adjustable strap"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // VISTARA TOTE - Milky Blue
@@ -225,10 +225,10 @@ export const products: Product[] = [
       "Detachable adjustable strap"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // PRIZMA SLING - Teal Blue
@@ -274,10 +274,10 @@ export const products: Product[] = [
     ],
     sections: ["new-arrivals"],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // PRIZMA SLING - Mint Green
@@ -323,10 +323,10 @@ export const products: Product[] = [
     ],
     sections: ["bestsellers"],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // PRIZMA SLING - Mocha
@@ -372,10 +372,10 @@ export const products: Product[] = [
       "Gold-tone hardware accents"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // PRIZMA SLING - Milky Blue
@@ -420,10 +420,10 @@ export const products: Product[] = [
       "Gold-tone hardware accents"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // VISTAPACK - Teal Blue
@@ -469,10 +469,10 @@ export const products: Product[] = [
       "Front envelope-style pocket"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // VISTAPACK - Mint Green
@@ -519,10 +519,10 @@ export const products: Product[] = [
     ],
     sections: ["bestsellers"],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // VISTAPACK - Mocha Tan
@@ -568,10 +568,10 @@ export const products: Product[] = [
       "Front envelope-style pocket"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // VISTAPACK - Green
@@ -617,8 +617,8 @@ export const products: Product[] = [
       "Front envelope-style pocket"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
       { name: "Green", value: "#228B22", available: true }
     ]
@@ -666,10 +666,10 @@ export const products: Product[] = [
       "Detachable adjustable strap"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // SANDESH LAPTOP BAG - Mint Green
@@ -715,10 +715,10 @@ export const products: Product[] = [
       "Detachable adjustable strap"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // SANDESH LAPTOP BAG - Mocha Tan
@@ -764,10 +764,10 @@ export const products: Product[] = [
       "Detachable adjustable strap"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // SANDESH LAPTOP BAG - Milky Blue
@@ -814,10 +814,10 @@ export const products: Product[] = [
     ],
     sections: ["new-arrivals"],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // LEKHA WALLET (Clutch) - Teal Blue
@@ -863,10 +863,10 @@ export const products: Product[] = [
       "Compact yet spacious interior"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // LEKHA WALLET (Clutch) - Mint Green
@@ -913,10 +913,10 @@ export const products: Product[] = [
     ],
     sections: ["bestsellers"],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // LEKHA WALLET (Clutch) - Mocha Tan
@@ -963,10 +963,10 @@ export const products: Product[] = [
       "Compact yet spacious interior"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // LEKHA WALLET (Clutch) - Milky Blue
@@ -1013,10 +1013,10 @@ export const products: Product[] = [
     ],
     sections: ["new-arrivals"],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
-      { name: "Milky Blue", value: "#B8D4E8.jpg", available: true }
+      { name: "Milky Blue", value: "#B8D4E8", available: true }
     ]
   },
   // VISTAPACK - Green
@@ -1062,8 +1062,8 @@ export const products: Product[] = [
       "Front envelope-style pocket"
     ],
     colors: [
-      { name: "Teal Blue", value: "#006D77.jpg", available: true },
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true },
+      { name: "Mint Green", value: "#98D8C8", available: true },
       { name: "Mocha Tan", value: "#9B6B4F", available: true },
       { name: "Green", value: "#228B22", available: true }
     ]
@@ -1110,8 +1110,8 @@ export const products: Product[] = [
       "Lightweight and durable"
     ],
     colors: [
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
-      { name: "Teal Blue", value: "#006D77.jpg", available: true }
+      { name: "Mint Green", value: "#98D8C8", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true }
     ]
   },
   // Wallet - Teal Blue
@@ -1156,8 +1156,8 @@ export const products: Product[] = [
       "Lightweight and durable"
     ],
     colors: [
-      { name: "Mint Green", value: "#98D8C8.jpg", available: true },
-      { name: "Teal Blue", value: "#006D77.jpg", available: true }
+      { name: "Mint Green", value: "#98D8C8", available: true },
+      { name: "Teal Blue", value: "#006D77", available: true }
     ]
   }
 ];
