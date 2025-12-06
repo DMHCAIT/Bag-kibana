@@ -4,7 +4,10 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const files = formData.getAll('files') as File[];
+    // Support both 'file' (single) and 'files' (multiple)
+    const singleFile = formData.get('file') as File | null;
+    const multipleFiles = formData.getAll('files') as File[];
+    const files = singleFile ? [singleFile] : multipleFiles;
 
     if (!files || files.length === 0) {
       return NextResponse.json(
@@ -72,7 +75,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       message: `${uploadedUrls.length} file(s) uploaded successfully`,
-      urls: uploadedUrls,
+      url: uploadedUrls[0], // For single file upload
+      urls: uploadedUrls, // For multiple files
       status: 'success'
     }, {
       status: 201,
