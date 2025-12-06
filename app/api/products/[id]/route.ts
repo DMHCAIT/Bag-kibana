@@ -88,16 +88,20 @@ export async function GET(
         const colorImageMap: { [key: string]: string } = {};
         variants.forEach((variant: any) => {
           const colorKey = variant.color.toLowerCase().trim();
-          // Prefer color_image, fallback to first product image
-          colorImageMap[colorKey] = variant.color_image || (variant.images && variant.images[0]) || '';
+          // Priority: color_image field > first product image
+          const imageToUse = variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : '');
+          if (imageToUse) {
+            colorImageMap[colorKey] = imageToUse;
+          }
         });
 
         // Enrich colors array with images
         product.colors = product.colors.map((colorOption: any) => {
           const colorKey = colorOption.name.toLowerCase().trim();
+          const mappedImage = colorImageMap[colorKey];
           return {
             ...colorOption,
-            image: colorImageMap[colorKey] || colorOption.image || null
+            image: mappedImage || colorOption.image || null
           };
         });
       }
