@@ -169,7 +169,34 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           throw new Error('Invalid product data received');
         }
 
-        setProduct(data.product);
+        let productData = data.product;
+        
+        // Client-side fallback: If colors array is empty, generate from variants
+        if (!productData.colors || productData.colors.length === 0) {
+          try {
+            const variantsResponse = await fetch(`/api/products?category=all&limit=100`);
+            if (variantsResponse.ok) {
+              const variantsData = await variantsResponse.json();
+              const sameNameProducts = variantsData.products?.filter(
+                (p: Product) => p.name === productData.name
+              ) || [];
+              
+              if (sameNameProducts.length > 0) {
+                productData.colors = sameNameProducts.map((variant: Product) => ({
+                  name: variant.color,
+                  value: '#000000',
+                  available: true,
+                  image: variant.images?.[0] || null
+                }));
+                console.log(`✅ Client-side: Generated ${productData.colors.length} colors for ${productData.name}`);
+              }
+            }
+          } catch (err) {
+            console.error('Error generating colors from variants:', err);
+          }
+        }
+        
+        setProduct(productData);
         
         try {
           const relatedController = new AbortController();
@@ -466,6 +493,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       const productLink = `/products/${baseName}-${colorSlug}`;
                       const isCurrentColor = colorOption.name.toLowerCase().trim() === product.color.toLowerCase().trim();
                       
+                      // Use color image, or fallback to current product's first image if it's the current color
+                      const imageToShow = colorOption.image || (isCurrentColor && product.images?.[0]) || null;
+                      
                       return (
                         <Link
                           key={index}
@@ -478,10 +508,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           title={colorOption.available ? colorOption.name : `${colorOption.name} - Currently unavailable`}
                         >
                           {/* Color Image or Fallback */}
-                          {colorOption.image ? (
+                          {imageToShow ? (
                             <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16">
                               <Image
-                                src={colorOption.image}
+                                src={imageToShow}
                                 alt={colorOption.name}
                                 fill
                                 className="object-cover"
