@@ -436,30 +436,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <p className="text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
             </div>
 
-              {/* Offer Banner - Redesigned */}
+              {/* Offer Banner - Single Line */}
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                <div className="flex items-start gap-2 mb-2">
+                <div className="flex items-center gap-2">
                   <div className="bg-orange-500 text-white rounded-full p-1.5 shrink-0">
                     <span className="text-sm">🎁</span>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 text-sm mb-0.5">Special Offers</h3>
-                    <p className="text-orange-600 text-xs">Save big on your purchase today!</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-1 text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
-                    <p><strong>20% OFF</strong> - Use code <span className="bg-black text-white px-1.5 py-0.5 rounded text-[10px]">ORDERNOW</span></p>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
-                    <p><strong>Extra 5% OFF</strong> on your first order</p>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Check className="w-3 h-3 text-green-600 flex-shrink-0" />
-                    <p><strong>Free Shipping</strong> across India</p>
+                  <div className="flex items-center flex-wrap gap-1.5 text-xs">
+                    <span className="font-semibold text-gray-900">Special Offers</span>
+                    <span className="text-gray-400">|</span>
+                    <span><strong>20% OFF</strong> - Use code <span className="bg-black text-white px-1.5 py-0.5 rounded text-[10px]">ORDERNOW</span></span>
+                    <span className="text-gray-400">|</span>
+                    <span><strong>Extra 5% OFF</strong> on your first order</span>
+                    <span className="text-gray-400">|</span>
+                    <span><strong>Free Shipping</strong> across India</span>
                   </div>
                 </div>
               </div>
