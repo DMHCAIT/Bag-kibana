@@ -459,8 +459,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <div>
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Color: {product.color}</h3>
                   
-                  {/* Color Swatches */}
-                  <div className="flex flex-wrap gap-3">
+                  {/* Color Swatches - Responsive Grid */}
+                  <div className="grid grid-cols-4 sm:grid-cols-5 md:flex md:flex-wrap gap-2 md:gap-3">
                     {product.colors.map((colorOption, index) => {
                       const baseName = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
                       const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -473,27 +473,35 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           href={productLink}
                           className={`group relative border-2 rounded-lg overflow-hidden transition-all ${
                             isCurrentColor 
-                              ? 'border-black' 
-                              : 'border-gray-300 hover:border-gray-400'
+                              ? 'border-black ring-2 ring-black ring-offset-1' 
+                              : 'border-gray-300 hover:border-gray-500'
                           } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
                           title={colorOption.available ? colorOption.name : `${colorOption.name} - Currently unavailable`}
                         >
                           {/* Color Image or Fallback */}
                           {colorOption.image ? (
-                            <div className="relative w-16 h-16">
+                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16">
                               <Image
                                 src={colorOption.image}
                                 alt={colorOption.name}
                                 fill
                                 className="object-cover"
-                                sizes="64px"
+                                sizes="(max-width: 640px) 56px, 64px"
                               />
+                              {/* Color name tooltip on hover */}
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all" />
                             </div>
                           ) : (
                             <div
-                              className="w-16 h-16"
+                              className="w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16"
                               style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
                             />
+                          )}
+                          {/* Checkmark for current color */}
+                          {isCurrentColor && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <Check className="w-5 h-5 text-white drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))' }} />
+                            </div>
                           )}
                         </Link>
                       );
