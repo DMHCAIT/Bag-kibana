@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, ChevronDown, ShoppingCart, X, Filter } from "lucide-react";
 import { Product } from "@/lib/products-data";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { useCart } from "@/contexts/CartContext";
 
 function ProductCard({ product }: { product: Product }) {
@@ -341,6 +343,7 @@ export default function ShopPage() {
 
   return (
     <div className="min-h-screen bg-white">
+      <Header />
       {loading ? (
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
           <div className="flex items-center justify-center h-96">
@@ -531,6 +534,7 @@ export default function ShopPage() {
       </div>
       </>
       )}
+      <Footer />
     </div>
   );
 }
