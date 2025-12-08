@@ -61,7 +61,11 @@ function ProductCard({ product }: { product: Product }) {
             </div>
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
-          <p className="text-sm font-medium">₹{product.price.toLocaleString()}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+            <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+            <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
+          </div>
           <Button
             onClick={handleAddToCart}
             disabled={isAdding}
