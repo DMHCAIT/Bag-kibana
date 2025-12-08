@@ -90,11 +90,18 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <Providers>
-            <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+            {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
+             !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID') ? (
+              <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
+                <AuthProvider>
+                  <CartProvider>{children}</CartProvider>
+                </AuthProvider>
+              </GoogleOAuthProvider>
+            ) : (
               <AuthProvider>
                 <CartProvider>{children}</CartProvider>
               </AuthProvider>
-            </GoogleOAuthProvider>
+            )}
           </Providers>
         </ErrorBoundary>
         <SpeedInsights />

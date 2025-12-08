@@ -19,6 +19,11 @@ function GoogleSignInButton() {
   const [loading, setLoading] = useState(false);
   const redirectTo = searchParams.get('redirect') || '/account';
 
+  // Check if Google OAuth is configured
+  const isGoogleConfigured = typeof window !== 'undefined' && 
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
+    !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID');
+
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setLoading(true);
@@ -57,6 +62,11 @@ function GoogleSignInButton() {
       setLoading(false);
     },
   });
+
+  // Don't render if Google OAuth is not configured
+  if (!isGoogleConfigured) {
+    return null;
+  }
 
   return (
     <Button
@@ -293,18 +303,23 @@ function SignInForm() {
                     )}
                   </Button>
 
-                  {/* Divider */}
-                  <div className="relative my-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-white px-2 text-gray-500">Or continue with</span>
-                    </div>
-                  </div>
+                  {/* Divider - Only show if Google OAuth is configured */}
+                  {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
+                   !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID') && (
+                    <>
+                      <div className="relative my-6">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                        </div>
+                      </div>
 
-                  {/* Google Sign In */}
-                  <GoogleSignInButton />
+                      {/* Google Sign In */}
+                      <GoogleSignInButton />
+                    </>
+                  )}
 
                   {/* Info text */}
                   <p className="text-xs text-center text-gray-500 mt-4">
