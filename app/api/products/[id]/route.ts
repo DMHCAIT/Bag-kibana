@@ -105,26 +105,28 @@ export async function GET(
           }
         });
 
-        // Check if colors array is empty OR if it exists but has no images
-        const hasNoImages = product.colors && product.colors.length > 0 && 
-          product.colors.every((c: any) => !c.image);
+        // ALWAYS regenerate colors from actual variants to ensure data accuracy
+        // This fixes issues where database colors array doesn't match actual variants
+        console.log(`🔧 Regenerating colors for ${product.name} from ${variants.length} database variants`);
         
-        if (!product.colors || product.colors.length === 0 || hasNoImages) {
-          product.colors = variants.map((variant: any) => {
-            // For each variant, try to get its specific image, or fallback to current product's image
-            const variantImage = variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : null);
-            const fallbackImage = product.images && product.images.length > 0 ? product.images[0] : null;
-            
-            return {
-              name: variant.color,
-              value: '#000000', // Default color value
-              available: true,
-              // Use variant's image if available, otherwise use current product's first image
-              image: variantImage || fallbackImage
-            };
-          });
-          console.log(`✅ Auto-generated ${product.colors.length} colors for ${product.name} from variants (had ${hasNoImages ? 'no images' : 'empty array'})`);
-        } else {
+        product.colors = variants.map((variant: any) => {
+          // For each variant, try to get its specific image, or fallback to current product's image
+          const variantImage = variant.color_image || (variant.images && variant.images.length > 0 ? variant.images[0] : null);
+          const fallbackImage = product.images && product.images.length > 0 ? product.images[0] : null;
+          
+          return {
+            name: variant.color,
+            value: '#000000', // Default color value
+            available: true,
+            // Use variant's image if available, otherwise use current product's first image
+            image: variantImage || fallbackImage
+          };
+        });
+        
+        console.log(`✅ Generated ${product.colors.length} colors:`, product.colors.map((c: any) => `${c.name}=${c.image ? 'HAS_IMAGE' : 'NO_IMAGE'}`).join(', '));
+        
+        // OLD CODE KEPT FOR REFERENCE BUT NOT USED
+        if (false) {
           // Enrich existing colors array with images
           product.colors = product.colors.map((colorOption: any) => {
             const normalizedOptionName = normalizeColor(colorOption.name);
