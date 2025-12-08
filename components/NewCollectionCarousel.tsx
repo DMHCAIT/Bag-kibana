@@ -92,13 +92,14 @@ function ProductCard({ product }: { product: Product }) {
                     aria-label={`View ${colorOption.name} variant`}
                     title={colorOption.name}
                   >
-                    {colorOption.image ? (
+                    {colorOption.image || product.images?.[0] ? (
                       <Image
-                        src={colorOption.image}
+                        src={colorOption.image || product.images[0]}
                         alt={colorOption.name}
                         fill
                         className="object-cover"
                         sizes="24px"
+                        unoptimized
                       />
                     ) : (
                       <div

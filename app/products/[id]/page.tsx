@@ -548,16 +548,24 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         >
                           {/* Color Image or Fallback */}
                           {imageToShow ? (
-                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16">
+                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 bg-gray-100">
                               <Image
                                 src={imageToShow}
                                 alt={colorOption.name}
                                 fill
                                 className="object-cover"
                                 sizes="(max-width: 640px) 56px, 64px"
+                                unoptimized
+                                onError={(e) => {
+                                  console.error(`❌ Failed to load image for ${colorOption.name}:`, imageToShow);
+                                  e.currentTarget.style.display = 'none';
+                                }}
+                                onLoad={() => {
+                                  console.log(`✅ Successfully loaded image for ${colorOption.name}`);
+                                }}
                               />
                               {/* Color name tooltip on hover */}
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all" />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all pointer-events-none" />
                             </div>
                           ) : (
                             <div
