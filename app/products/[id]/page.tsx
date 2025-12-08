@@ -350,9 +350,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <span className="text-black">{product.name}</span>
           </nav>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
             {/* Product Images */}
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               {/* Main Image - Swipeable */}
               <div className="relative">
                 <div 
@@ -459,12 +459,12 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </div>
 
             {/* Product Info */}
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
             <div>
-                <h1 className="text-3xl md:text-4xl tracking-[0.1em] mb-2" style={{fontFamily: 'var(--font-abhaya)'}}>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-[0.1em] mb-2" style={{fontFamily: 'var(--font-abhaya)'}}>
                   {product.name}
               </h1>
-                <p className="text-lg text-gray-600">Color: {product.color}</p>
+                <p className="text-base md:text-lg text-gray-600">Color: {product.color}</p>
               </div>
 
               {/* Rating */}
@@ -487,19 +487,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Price */}
-              <div className="py-4 border-y">
-                <div className="flex items-center gap-3">
-                  <p className="text-3xl font-medium text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
-                  <p className="text-xl text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-                  <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-semibold">25% OFF</span>
+              <div className="py-3 md:py-4 border-y">
+                <div className="flex items-center flex-wrap gap-2 md:gap-3">
+                  <p className="text-2xl md:text-3xl font-medium text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+                  <p className="text-lg md:text-xl text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+                  <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs md:text-sm font-semibold">25% OFF</span>
                 </div>
-                <p className="text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
+                <p className="text-xs md:text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
             </div>
 
               {/* Offer Banner - Single Line */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-3">
+              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-2.5 md:p-3">
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center flex-wrap gap-1.5 text-xs">
+                  <div className="flex items-center flex-wrap gap-1 md:gap-1.5 text-[10px] md:text-xs">
                     <span className="font-semibold text-gray-900">Special Offers</span>
                     <span className="text-gray-400">|</span>
                     <span><strong className="text-green-700">25% OFF</strong> - Already applied!</span>
@@ -515,7 +515,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <h3 className="text-sm font-medium text-gray-900 mb-3">Color: {product.color}</h3>
                   
                   {/* Color Swatches - Responsive Grid */}
-                  <div className="grid grid-cols-4 sm:grid-cols-5 md:flex md:flex-wrap gap-2 md:gap-3">
+                  <div className="flex flex-wrap gap-2 md:gap-3">
                     {product.colors.map((colorOption, index) => {
                       const baseName = product.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
                       const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -539,7 +539,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         <Link
                           key={index}
                           href={productLink}
-                          className={`group relative border-2 rounded-lg overflow-hidden transition-all ${
+                          className={`group relative border-2 rounded-lg overflow-hidden transition-all flex-shrink-0 ${
                             isCurrentColor 
                               ? 'border-black ring-2 ring-black ring-offset-1' 
                               : 'border-gray-300 hover:border-gray-500'
@@ -547,7 +547,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           title={colorOption.available ? colorOption.name : `${colorOption.name} - Currently unavailable`}
                         >
                           {/* Color Image - ALWAYS show image if available */}
-                          <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 overflow-hidden bg-gray-100">
+                          <div className="relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 overflow-hidden bg-gray-100">
                             {imageToShow ? (
                               <img
                                 src={imageToShow}
