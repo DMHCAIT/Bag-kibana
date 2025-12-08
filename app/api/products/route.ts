@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(
-      { 
+      {
         products: formattedProducts,
         total: formattedProducts.length,
         source: 'database',
@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          'Cache-Control': 'public, max-age=60, stale-while-revalidate=30',
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
         },
       }
     );
