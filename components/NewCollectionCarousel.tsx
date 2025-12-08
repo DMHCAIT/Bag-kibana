@@ -76,6 +76,17 @@ function ProductCard({ product }: { product: Product }) {
                 const colorVariantId = `${productNameSlug}-${colorSlug}`;
                 const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
                 
+                // DEBUG: Log color data
+                if (idx === 0) {
+                  console.log(`🎨 [NewCollection] ${product.name} - Color options:`, 
+                    product.colors.map((c: any) => ({
+                      name: c.name, 
+                      hasImage: !!c.image,
+                      image: c.image
+                    }))
+                  );
+                }
+                
                 return (
                   <Link
                     key={idx}
