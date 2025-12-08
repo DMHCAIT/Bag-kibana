@@ -363,11 +363,6 @@ export default function ShopPage() {
       ) : (
       <>
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
-        {/* Page Title */}
-        <Link href="/">
-          <h1 className="text-3xl md:text-4xl font-abhaya text-center mb-8 tracking-[0.3em] cursor-pointer hover:opacity-60 transition-opacity">KIBANA</h1>
-        </Link>
-
         {/* Category Links */}
         <div className="flex justify-center gap-6 mb-12">
           <Link href="/women">
