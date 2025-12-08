@@ -194,7 +194,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   name: variant.color,
                   value: '#000000',
                   available: true,
-                  image: variant.images?.[0] || null
+                  // Use variant's image if it exists, otherwise use current product's first image
+                  image: variant.images?.[0] || productData.images?.[0] || null
                 }));
                 console.log(`✅ Client-side: Generated ${productData.colors.length} colors for ${productData.name}`);
                 console.log('🖼️ Colors with images:', productData.colors);
@@ -521,8 +522,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       const productLink = `/products/${baseName}-${colorSlug}`;
                       const isCurrentColor = colorOption.name.toLowerCase().trim() === product.color.toLowerCase().trim();
                       
-                      // Use color image, or fallback to current product's first image if it's the current color
-                      const imageToShow = colorOption.image || (isCurrentColor && product.images?.[0]) || null;
+                      // CRITICAL FIX: Always fallback to current product's first image
+                      const imageToShow = colorOption.image || product.images?.[0] || null;
+                      
+                      // Debug log for first color only
+                      if (index === 0) {
+                        console.log(`🎨 First color "${colorOption.name}": image=${colorOption.image ? '✅ HAS' : '❌ NULL'}, fallback=${product.images?.[0] ? '✅ HAS' : '❌ NULL'}, final=${imageToShow ? '✅ SHOWING' : '❌ BLACK'}`);
+                      }
                       
                       return (
                         <Link
