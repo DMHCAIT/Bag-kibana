@@ -522,21 +522,18 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       const productLink = `/products/${baseName}-${colorSlug}`;
                       const isCurrentColor = colorOption.name.toLowerCase().trim() === product.color.toLowerCase().trim();
                       
+                      // DEBUG: Log FULL colorOption object to see its structure
+                      if (index === 0) {
+                        console.log(`🔍 [ProductDetail] ${product.name} - FULL COLOR OBJECT:`, colorOption);
+                        console.log(`🔍 All color keys:`, Object.keys(colorOption));
+                        console.log(`🔍 colorOption.image value:`, colorOption.image);
+                        console.log(`🔍 colorOption.image type:`, typeof colorOption.image);
+                      }
+                      
                       // Use color's image if available, otherwise fallback to product's first image
                       const imageToShow = colorOption.image || product.images?.[0] || null;
                       
-                      // Debug log to see what's being rendered
-                      if (index === 0 || !colorOption.image) {
-                        console.log(`🎨 [ProductDetail] ${product.name} - Color "${colorOption.name}":`, {
-                          hasColorImage: !!colorOption.image,
-                          colorImage: colorOption.image,
-                          colorValue: colorOption.value,
-                          hasFallback: !!product.images?.[0],
-                          fallbackImage: product.images?.[0],
-                          finalImageToShow: imageToShow,
-                          willRenderImage: !!imageToShow
-                        });
-                      }
+                      console.log(`🎨 [ProductDetail] Color "${colorOption.name}": imageToShow = ${imageToShow}`);
                       
                       return (
                         <Link
