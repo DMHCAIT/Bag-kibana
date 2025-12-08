@@ -184,13 +184,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Check if user exists
       const existingUsers = JSON.parse(localStorage.getItem('kibana_users') || '[]');
-      const user = existingUsers.find((u: any) => u.phone === phone.replace(/\s+/g, ''));
+      let user = existingUsers.find((u: any) => u.phone === phone.replace(/\s+/g, ''));
       
+      // If user doesn't exist, create a new account automatically
       if (!user) {
-        return { success: false, error: 'User not found. Please sign up first.' };
+        const newUser: User = {
+          id: `USER-${Date.now()}`,
+          email: '',
+          name: '',
+          phone: phone.replace(/\s+/g, ''),
+          createdAt: new Date().toISOString(),
+        };
+        
+        existingUsers.push(newUser);
+        localStorage.setItem('kibana_users', JSON.stringify(existingUsers));
+        user = newUser;
       }
 
-      // Remove password before storing in session
+      // Remove password before storing in session (if it exists)
       const { password: _, ...userWithoutPassword } = user;
       
       // Save current user session

@@ -229,11 +229,11 @@ function SignInForm() {
         <Card>
             <CardHeader className="space-y-1 text-center">
               <CardTitle className="text-2xl font-bold tracking-wide">
-                {step === 'phone' ? 'Welcome Back' : 'Verify OTP'}
+                {step === 'phone' ? 'Welcome to KIBANA' : 'Verify OTP'}
               </CardTitle>
               <CardDescription>
                 {step === 'phone' 
-                  ? 'Sign in to your KIBANA account with mobile number' 
+                  ? 'Sign in or create account with your mobile number' 
                   : `Enter the 6-digit OTP sent to +91 ${formData.phone}`
                 }
               </CardDescription>
@@ -306,17 +306,10 @@ function SignInForm() {
                   {/* Google Sign In */}
                   <GoogleSignInButton />
 
-                  {/* Sign Up Call to Action */}
-                  <div className="mt-6 p-4 bg-gray-50 rounded-md border border-gray-200 text-center">
-                    <p className="text-sm text-gray-600 mb-2">
-                      Don't have an account?
-                    </p>
-                    <Link href="/signup">
-                      <Button variant="outline" className="w-full">
-                        Create New Account
-                      </Button>
-                    </Link>
-                  </div>
+                  {/* Info text */}
+                  <p className="text-xs text-center text-gray-500 mt-4">
+                    New user? No problem! An account will be created automatically with your first login.
+                  </p>
                 </form>
               ) : (
                 <form onSubmit={handleVerifyOTP} className="space-y-4">
