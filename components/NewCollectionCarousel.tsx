@@ -93,13 +93,10 @@ function ProductCard({ product }: { product: Product }) {
                     title={colorOption.name}
                   >
                     {colorOption.image ? (
-                      <Image
+                      <img
                         src={colorOption.image}
                         alt={colorOption.name}
-                        fill
-                        className="object-cover"
-                        sizes="24px"
-                        unoptimized
+                        className="w-full h-full object-cover"
                       />
                     ) : (
                       <div
