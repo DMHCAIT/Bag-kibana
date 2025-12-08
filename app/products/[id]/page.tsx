@@ -548,14 +548,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         >
                           {/* Color Image or Fallback */}
                           {imageToShow ? (
-                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 bg-gray-100">
-                              <Image
+                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 overflow-hidden bg-gray-100">
+                              <img
                                 src={imageToShow}
                                 alt={colorOption.name}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 640px) 56px, 64px"
-                                unoptimized
+                                className="w-full h-full object-cover"
                                 onError={(e) => {
                                   console.error(`❌ Failed to load image for ${colorOption.name}:`, imageToShow);
                                   e.currentTarget.style.display = 'none';
