@@ -15,6 +15,7 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{success: boolean; error?: string}>;
   signInWithPhone: (phone: string, password: string) => Promise<{success: boolean; error?: string}>;
+  signInWithGoogle: () => Promise<{success: boolean; error?: string}>;
   signUp: (name: string, email: string, phone: string, password: string) => Promise<{success: boolean; error?: string}>;
   requestOTP: (phone: string) => Promise<{success: boolean; error?: string}>;
   signInWithOTP: (phone: string, otp: string) => Promise<{success: boolean; error?: string}>;
@@ -256,6 +257,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      // Simulate Google Sign-In (in production, use actual Google OAuth)
+      // For demo purposes, create a guest user
+      const googleUser: User = {
+        id: `GOOGLE-${Date.now()}`,
+        email: 'user@gmail.com',
+        name: 'Google User',
+        phone: '',
+        createdAt: new Date().toISOString(),
+      };
+
+      localStorage.setItem('kibana_user', JSON.stringify(googleUser));
+      setUser(googleUser);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      return { success: false, error: 'Failed to sign in with Google' };
+    }
+  };
+
   const signOut = () => {
     localStorage.removeItem('kibana_user');
     setUser(null);
@@ -267,6 +290,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       signIn,
       signInWithPhone,
+      signInWithGoogle,
       signUp,
       requestOTP,
       signInWithOTP,
