@@ -522,18 +522,21 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       const productLink = `/products/${baseName}-${colorSlug}`;
                       const isCurrentColor = colorOption.name.toLowerCase().trim() === product.color.toLowerCase().trim();
                       
-                      // CRITICAL FIX: Always fallback to current product's first image
+                      // Use color's image if available, otherwise fallback to product's first image
                       const imageToShow = colorOption.image || product.images?.[0] || null;
                       
-                      // Debug log for ALL colors to see actual URLs
-                      console.log(`🎨 Color ${index} "${colorOption.name}":`, {
-                        hasColorImage: !!colorOption.image,
-                        colorImage: colorOption.image,
-                        hasFallback: !!product.images?.[0],
-                        fallbackImage: product.images?.[0],
-                        finalImageToShow: imageToShow,
-                        willRenderImage: !!imageToShow
-                      });
+                      // Debug log to see what's being rendered
+                      if (index === 0 || !colorOption.image) {
+                        console.log(`🎨 [ProductDetail] ${product.name} - Color "${colorOption.name}":`, {
+                          hasColorImage: !!colorOption.image,
+                          colorImage: colorOption.image,
+                          colorValue: colorOption.value,
+                          hasFallback: !!product.images?.[0],
+                          fallbackImage: product.images?.[0],
+                          finalImageToShow: imageToShow,
+                          willRenderImage: !!imageToShow
+                        });
+                      }
                       
                       return (
                         <Link
@@ -546,30 +549,33 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
                           title={colorOption.available ? colorOption.name : `${colorOption.name} - Currently unavailable`}
                         >
-                          {/* Color Image or Fallback */}
-                          {imageToShow ? (
-                            <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 overflow-hidden bg-gray-100">
-                              <img
-                                src={imageToShow}
-                                alt={colorOption.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  console.error(`❌ Failed to load image for ${colorOption.name}:`, imageToShow);
-                                  e.currentTarget.style.display = 'none';
-                                }}
-                                onLoad={() => {
-                                  console.log(`✅ Successfully loaded image for ${colorOption.name}`);
-                                }}
-                              />
-                              {/* Color name tooltip on hover */}
-                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all pointer-events-none" />
-                            </div>
-                          ) : (
-                            <div
-                              className="w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16"
-                              style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
-                            />
-                          )}
+                          {/* Color Image - ALWAYS show image if available */}
+                          <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-16 md:h-16 overflow-hidden bg-gray-100">
+                            {imageToShow ? (
+                              <>
+                                <img
+                                  src={imageToShow}
+                                  alt={colorOption.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    console.error(`❌ Failed to load image for ${colorOption.name}:`, imageToShow);
+                                  }}
+                                  onLoad={() => {
+                                    console.log(`✅ Successfully loaded image for ${colorOption.name}`);
+                                  }}
+                                />
+                                {/* Color name tooltip on hover */}
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all pointer-events-none" />
+                              </>
+                            ) : (
+                              <div
+                                className="w-full h-full flex items-center justify-center text-xs text-gray-500"
+                                style={{ backgroundColor: colorOption.value !== '#000000' ? colorOption.value : '#f3f4f6' }}
+                              >
+                                {colorOption.name.substring(0, 2)}
+                              </div>
+                            )}
+                          </div>
                           {/* Checkmark for current color */}
                           {isCurrentColor && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
