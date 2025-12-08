@@ -80,18 +80,6 @@ function ProductCard({ product }: { product: Product }) {
           {product.colors && product.colors.length > 0 && (
             <div className="flex gap-2">
               {product.colors.map((colorOption, idx) => {
-                // Fix color values that have .jpg extension
-                let colorValue = colorOption.value;
-                if (colorValue.includes('.jpg')) {
-                  const colorMap: {[key: string]: string} = {
-                    '#006D77.jpg': '#006D77',
-                    '#98D8C8.jpg': '#98D8C8', 
-                    '#B8D4E8.jpg': '#B8D4E8',
-                    '#9B6B4F': '#9B6B4F'
-                  };
-                  colorValue = colorMap[colorValue] || '#9B6B4F';
-                }
-                
                 // Generate product ID for this color variant
                 const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
                 const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
@@ -102,15 +90,29 @@ function ProductCard({ product }: { product: Product }) {
                   <Link
                     key={idx}
                     href={`/products/${colorVariantId}`}
-                    className={`w-7 h-7 rounded-full border-2 transition-all ring-1 ${
+                    className={`relative w-7 h-7 rounded-full overflow-hidden transition-all ${
                       isCurrentColor 
-                        ? 'border-black ring-black ring-2' 
-                        : 'border-gray-300 hover:border-black ring-gray-200'
+                        ? 'ring-2 ring-black ring-offset-2' 
+                        : 'ring-1 ring-gray-300 hover:ring-black hover:ring-2'
                     }`}
-                    style={{ backgroundColor: colorValue }}
                     aria-label={`View ${colorOption.name} variant`}
                     title={colorOption.name}
-                  />
+                  >
+                    {colorOption.image ? (
+                      <Image
+                        src={colorOption.image}
+                        alt={colorOption.name}
+                        fill
+                        className="object-cover"
+                        sizes="28px"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full"
+                        style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
+                      />
+                    )}
+                  </Link>
                 );
               })}
             </div>

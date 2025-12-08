@@ -77,14 +77,41 @@ function ProductCard({ product }: { product: Product }) {
           {/* Color Options */}
           {product.colors && product.colors.length > 0 && (
             <div className="flex gap-2">
-              {product.colors.map((colorOption, idx) => (
-                <button
-                  key={idx}
-                  className="w-6 h-6 rounded-full border-2 border-gray-300 hover:border-black transition-colors"
-                  style={{ backgroundColor: colorOption.value }}
-                  aria-label={colorOption.name}
-                />
-              ))}
+              {product.colors.map((colorOption, idx) => {
+                const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
+                const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
+                const colorVariantId = `${productNameSlug}-${colorSlug}`;
+                const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
+                
+                return (
+                  <Link
+                    key={idx}
+                    href={`/products/${colorVariantId}`}
+                    className={`relative w-7 h-7 rounded-full overflow-hidden transition-all ${
+                      isCurrentColor 
+                        ? 'ring-2 ring-black ring-offset-2' 
+                        : 'ring-1 ring-gray-300 hover:ring-black hover:ring-2'
+                    }`}
+                    aria-label={`View ${colorOption.name} variant`}
+                    title={colorOption.name}
+                  >
+                    {colorOption.image ? (
+                      <Image
+                        src={colorOption.image}
+                        alt={colorOption.name}
+                        fill
+                        className="object-cover"
+                        sizes="28px"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full"
+                        style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
             </div>
           )}
 
