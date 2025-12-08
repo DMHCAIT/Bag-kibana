@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { products, Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
 
