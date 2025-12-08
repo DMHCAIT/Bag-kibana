@@ -525,10 +525,15 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       // CRITICAL FIX: Always fallback to current product's first image
                       const imageToShow = colorOption.image || product.images?.[0] || null;
                       
-                      // Debug log for first color only
-                      if (index === 0) {
-                        console.log(`🎨 First color "${colorOption.name}": image=${colorOption.image ? '✅ HAS' : '❌ NULL'}, fallback=${product.images?.[0] ? '✅ HAS' : '❌ NULL'}, final=${imageToShow ? '✅ SHOWING' : '❌ BLACK'}`);
-                      }
+                      // Debug log for ALL colors to see actual URLs
+                      console.log(`🎨 Color ${index} "${colorOption.name}":`, {
+                        hasColorImage: !!colorOption.image,
+                        colorImage: colorOption.image,
+                        hasFallback: !!product.images?.[0],
+                        fallbackImage: product.images?.[0],
+                        finalImageToShow: imageToShow,
+                        willRenderImage: !!imageToShow
+                      });
                       
                       return (
                         <Link
