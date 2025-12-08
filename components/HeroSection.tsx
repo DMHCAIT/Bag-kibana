@@ -52,10 +52,13 @@ export default function HeroSection() {
         loop
         muted
         playsInline
-        className="hidden md:block absolute inset-0 w-full h-full object-cover"
+        className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-80"
         preload="auto"
-        onLoadedData={() => console.log('Desktop video loaded successfully')}
-        onError={(e) => console.error('Desktop video error:', e)}
+        onLoadedData={() => console.log('✅ Desktop video loaded successfully')}
+        onError={(e) => {
+          console.error('❌ Desktop video error:', videoUrl);
+          console.error('Error details:', e);
+        }}
       >
         <source src={videoUrl} type="video/mp4" />
         Your browser does not support the video tag.
@@ -68,14 +71,20 @@ export default function HeroSection() {
         loop
         muted
         playsInline
-        className="md:hidden absolute inset-0 w-full h-full object-cover"
+        className="md:hidden absolute inset-0 w-full h-full object-cover opacity-80"
         preload="auto"
-        onLoadedData={() => console.log('Mobile video loaded successfully')}
-        onError={(e) => console.error('Mobile video error:', e)}
+        onLoadedData={() => console.log('✅ Mobile video loaded successfully')}
+        onError={(e) => {
+          console.error('❌ Mobile video error:', videoUrl);
+          console.error('Error details:', e);
+        }}
       >
         <source src={videoUrl} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
+      
+      {/* Fallback gradient overlay if video fails */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black -z-10" />
     </section>
   );
 }
