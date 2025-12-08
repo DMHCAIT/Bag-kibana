@@ -79,11 +79,11 @@ function ProductCard({ product }: { product: Product }) {
                 // DEBUG: Log color data
                 if (idx === 0) {
                   console.log(`🎨 [NewCollection] ${product.name} - Color options:`, 
-                    product.colors.map((c: any) => ({
+                    product.colors?.map((c: any) => ({
                       name: c.name, 
                       hasImage: !!c.image,
                       image: c.image
-                    }))
+                    })) || []
                   );
                 }
                 
