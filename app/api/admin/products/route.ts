@@ -15,6 +15,17 @@ function generateSlug(name: string, color: string): string {
 // GET - Fetch all products from Supabase database only
 export async function GET(request: NextRequest) {
   try {
+    console.log('[Products API] GET request received');
+    
+    // Check Supabase connection
+    if (!supabaseAdmin) {
+      console.error('[Products API] Supabase client not initialized');
+      return NextResponse.json(
+        { error: 'Database connection not available', products: [] },
+        { status: 500 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     
     // Filters
@@ -26,6 +37,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
     const offset = (page - 1) * limit;
+
+    console.log('[Products API] Fetching products with filters:', { category, status, search, page, limit });
 
     // Fetch from Supabase
     let query = supabaseAdmin
@@ -46,14 +59,22 @@ export async function GET(request: NextRequest) {
     const { data: dbProducts, error, count } = await query;
 
     if (error) {
-      console.error('Supabase error:', error);
+      console.error('[Products API] Supabase error:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return NextResponse.json(
-        { error: error.message, products: [] },
+        { error: `Failed to fetch products: ${error.message}`, products: [] },
         { status: 500 }
       );
     }
 
+    console.log(`[Products API] Successfully fetched ${dbProducts?.length || 0} products (total: ${count})`);
+
     if (!dbProducts || dbProducts.length === 0) {
+      console.log('[Products API] No products found in database');
       return NextResponse.json({
         products: [],
         pagination: {

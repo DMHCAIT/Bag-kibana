@@ -4,12 +4,27 @@ import { supabaseAdmin } from '@/lib/supabase';
 // GET - Fetch all orders from Supabase
 export async function GET(req: NextRequest) {
   try {
+    console.log('[Orders API] GET request received');
+    
+    // Check Supabase connection
+    if (!supabaseAdmin) {
+      console.error('[Orders API] Supabase client not initialized');
+      return NextResponse.json({
+        orders: [],
+        totalOrders: 0,
+        stats: { total: 0 },
+        error: 'Database connection not available'
+      }, { status: 500 });
+    }
+
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const search = searchParams.get('search')?.toLowerCase();
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = (page - 1) * limit;
+
+    console.log('[Orders API] Fetching orders with filters:', { status, search, page, limit });
 
     // Build query
     let query = supabaseAdmin
@@ -33,14 +48,21 @@ export async function GET(req: NextRequest) {
     const { data: orders, error, count } = await query;
 
     if (error) {
-      console.error('Error fetching orders:', error);
+      console.error('[Orders API] Error fetching orders:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       return NextResponse.json({
         orders: [],
         totalOrders: 0,
         stats: { total: 0 },
-        error: error.message
-      }, { status: 200 });
+        error: `Failed to fetch orders: ${error.message}`
+      }, { status: 500 });
     }
+
+    console.log(`[Orders API] Successfully fetched ${orders?.length || 0} orders`);
 
     // Get stats
     const { data: allOrders } = await supabaseAdmin

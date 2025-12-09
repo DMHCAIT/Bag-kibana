@@ -71,8 +71,16 @@ export default function AdminProductsPage() {
         params.append('search', searchQuery);
       }
 
+      console.log('Fetching products with params:', params.toString());
       const response = await fetch(`/api/admin/products?${params}`);
+      
+      if (!response.ok) {
+        console.error('Failed to fetch products:', response.status, response.statusText);
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log('Products fetched:', data.products?.length || 0, 'products');
 
       if (response.ok && data.products) {
         setProducts(data.products);
@@ -80,9 +88,11 @@ export default function AdminProductsPage() {
         setTotalProducts(data.pagination?.total || 0);
       } else {
         console.error('Failed to fetch products:', data.error);
+        alert('Failed to load products: ' + (data.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error fetching products:', error);
+      alert('Failed to load products. Please check the console for details.');
     } finally {
       setLoading(false);
     }
