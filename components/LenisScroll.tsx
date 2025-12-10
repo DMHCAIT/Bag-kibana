@@ -18,7 +18,6 @@ export default function LenisScroll() {
     const lenis = new Lenis({
       duration: 1.1,
       smoothWheel: true,
-      smoothTouch: false,
       easing: (t) => 1 - Math.pow(1 - t, 2), // ease-out quad
     });
 
