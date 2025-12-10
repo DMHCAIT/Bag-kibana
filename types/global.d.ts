@@ -40,3 +40,17 @@ interface RazorpayInstance {
 interface Window {
   Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
 }
+
+// Spline web component typing for JSX
+declare namespace JSX {
+  interface IntrinsicElements {
+    "spline-viewer": React.DetailedHTMLProps<
+      React.HTMLAttributes<HTMLElement>,
+      HTMLElement
+    > & {
+      url: string;
+      loading?: string;
+    };
+  }
+}
+

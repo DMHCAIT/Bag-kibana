@@ -10,6 +10,21 @@ import { Product } from "@/lib/products-data";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/contexts/CartContext";
+import { motion } from "framer-motion";
+
+const makeSlug = (name: string, color: string) =>
+  `${name}-${color}`
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 18 },
+  whileInView: { opacity: 1, y: 0 },
+  transition: { duration: 0.55, delay },
+  viewport: { once: true, amount: 0.15 },
+});
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -22,110 +37,110 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Card className="border-0 shadow-none group h-full flex flex-col">
-      <CardContent className="p-0 space-y-3 flex flex-col h-full">
-        {/* Product Image */}
-        <Link href={`/products/${product.slug || product.id}`}>
-          <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
-            <Image
-              src={product.images[0]}
-              alt={`${product.name} - ${product.color}`}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 50vw, 25vw"
-            />
-            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
-          </div>
-        </Link>
-
-        {/* Product Info */}
-        <div className="space-y-2 flex-1 flex flex-col">
+    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.25, ease: "easeOut" }} className="h-full">
+      <Card className="border-0 shadow-none group h-full flex flex-col">
+        <CardContent className="p-0 space-y-3 flex flex-col h-full">
+          {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
-            <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity line-clamp-2">
-              {product.name}
-            </h3>
+            <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
+              <Image
+                src={product.images[0]}
+                alt={`${product.name} - ${product.color}`}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, 25vw"
+              />
+              <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+            </div>
           </Link>
 
-          {/* Rating */}
-          <div className="flex items-center gap-2">
-            <div className="flex gap-0.5">
-              {[...Array(5)].map((_, idx) => (
-                <Star
-                  key={idx}
-                  className={`w-3 h-3 ${
-                    idx < Math.floor(product.rating)
-                      ? "fill-black stroke-black"
-                      : "fill-none stroke-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-xs text-gray-500">({product.reviews})</span>
-          </div>
+          {/* Product Info */}
+          <div className="space-y-2 flex-1 flex flex-col">
+            <Link href={`/products/${product.slug || product.id}`}>
+              <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity line-clamp-2">
+                {product.name}
+              </h3>
+            </Link>
 
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
-            <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-            <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
-          </div>
-
-          {/* Color Swatches */}
-          {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-1.5 items-center">
-              {product.colors.map((colorOption, idx) => {
-                const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
-                const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
-                const colorVariantId = `${productNameSlug}-${colorSlug}`;
-                const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
-                
-                return (
-                  <Link
+            {/* Rating */}
+            <div className="flex items-center gap-2">
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, idx) => (
+                  <Star
                     key={idx}
-                    href={`/products/${colorVariantId}`}
-                    className={`relative rounded-full overflow-hidden ${
-                      isCurrentColor ? 'ring-2 ring-black' : 'ring-1 ring-gray-300'
+                    className={`w-3 h-3 ${
+                      idx < Math.floor(product.rating)
+                        ? "fill-black stroke-black"
+                        : "fill-none stroke-gray-300"
                     }`}
-                    style={{
-                      width: '24px',
-                      height: '24px',
-                      minWidth: '24px',
-                      minHeight: '24px',
-                    }}
-                    aria-label={`View ${colorOption.name} variant`}
-                    title={colorOption.name}
-                  >
-                    {colorOption.image ? (
-                      <Image
-                        src={colorOption.image}
-                        alt={colorOption.name}
-                        fill
-                        className="object-cover"
-                        sizes="24px"
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full"
-                        style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-gray-500">({product.reviews})</span>
             </div>
-          )}
 
-          {/* Add to Cart */}
-          <Button
-            variant="outline"
-            onClick={handleAddToCart}
-            className="w-full uppercase tracking-wider text-xs py-4 hover:bg-black hover:text-white transition-all duration-300 mt-auto"
-          >
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            {isAdded ? "Added!" : "Add to Cart"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+              <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
+            </div>
+
+            {/* Color Swatches */}
+            {product.colors && product.colors.length > 0 && (
+              <div className="flex gap-1.5 items-center">
+                {product.colors.map((colorOption) => {
+                  const colorVariantId = makeSlug(product.name, colorOption.name);
+                  const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
+                  
+                  return (
+                    <Link
+                      key={colorOption.name}
+                      href={`/products/${colorVariantId}`}
+                      className={`relative rounded-full overflow-hidden ${
+                        isCurrentColor ? 'ring-2 ring-black' : 'ring-1 ring-gray-300'
+                      }`}
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        minWidth: '24px',
+                        minHeight: '24px',
+                      }}
+                      aria-label={`View ${colorOption.name} variant`}
+                      title={colorOption.name}
+                    >
+                      {colorOption.image ? (
+                        <Image
+                          src={colorOption.image}
+                          alt={colorOption.name}
+                          fill
+                          className="object-cover"
+                          sizes="24px"
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full"
+                          style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
+                        />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Add to Cart */}
+            <Button
+              variant="outline"
+              onClick={handleAddToCart}
+              className="w-full uppercase tracking-wider text-xs py-4 hover:bg-black hover:text-white transition-all duration-300 mt-auto"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              {isAdded ? "Added!" : "Add to Cart"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -362,9 +377,9 @@ export default function ShopPage() {
         </div>
       ) : (
       <>
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
+      <motion.div {...fadeUp(0)} className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Category Links */}
-        <div className="flex justify-center gap-6 mb-12">
+        <motion.div {...fadeUp(0.05)} className="flex justify-center gap-6 mb-12">
           <Link href="/women">
             <button className="flex flex-col items-center gap-2 group">
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
@@ -393,7 +408,7 @@ export default function ShopPage() {
               <span className="text-xs font-medium">Shop Men</span>
             </button>
           </Link>
-        </div>
+        </motion.div>
 
         {/* Mobile Filter Button */}
         <div className="md:hidden mb-4">
@@ -502,8 +517,10 @@ export default function ShopPage() {
         {/* Products Grid */}
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-            {filteredProducts.map((product: Product) => (
-              <ProductCard key={product.id} product={product} />
+            {filteredProducts.map((product: Product, idx) => (
+              <motion.div key={product.id} {...fadeUp(idx * 0.05)}>
+                <ProductCard product={product} />
+              </motion.div>
             ))}
           </div>
         ) : (
@@ -526,10 +543,11 @@ export default function ShopPage() {
             </Button>
           </div>
         )}
-      </div>
+      </motion.div>
       </>
       )}
       <Footer />
     </div>
   );
 }
+

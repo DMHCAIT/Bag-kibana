@@ -25,7 +25,7 @@ const collections = [
     id: 3,
     title: "SLING",
     subtitle: "Edit",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Mocha%20Tan/09-10-2025--livia00781.jpg",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/collections/sling-collection-mocha.jpg",
     href: "/collections/sling",
   },
 ];

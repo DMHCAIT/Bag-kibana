@@ -15,6 +15,21 @@ import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
 import { useState, useEffect } from "react";
 import { ShoppingCart } from "lucide-react";
+import { motion } from "framer-motion";
+
+const makeSlug = (name: string, color: string) =>
+  `${name}-${color}`
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  transition: { duration: 0.6, delay },
+  viewport: { once: true, amount: 0.2 },
+});
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -27,112 +42,104 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Card className="border-0 shadow-none group h-full flex flex-col">
-      <CardContent className="p-0 space-y-3 flex flex-col h-full">
-        {/* Product Image */}
-        <Link href={`/products/${product.slug || product.id}`}>
-          <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
-            {/* First Image - always visible */}
-            <Image
-              src={product.images[0]}
-              alt={`${product.name} - ${product.color}`}
-              fill
-              className="object-cover transition-opacity duration-300 group-hover:opacity-0"
-              sizes="(max-width: 768px) 50vw, 25vw"
-            />
-            {/* Second Image - visible on hover */}
-            {product.images[1] && (
+    <motion.div
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      className="h-full"
+    >
+      <Card className="border-0 shadow-none group h-full flex flex-col">
+        <CardContent className="p-0 space-y-3 flex flex-col h-full">
+          {/* Product Image */}
+          <Link href={`/products/${product.slug || product.id}`}>
+            <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
+              {/* First Image - always visible */}
               <Image
-                src={product.images[1]}
-                alt={`${product.name} - ${product.color} hover`}
+                src={product.images[0]}
+                alt={`${product.name} - ${product.color}`}
                 fill
-                className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                className="object-cover transition-opacity duration-300 group-hover:opacity-0"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
-            )}
-          </div>
-        </Link>
-
-        {/* Product Info */}
-        <div className="space-y-2 flex-1 flex flex-col">
-          <Link href={`/products/${product.slug || product.id}`}>
-            <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity cursor-pointer line-clamp-2">
-              {product.name} - {product.color}
-            </h3>
-          </Link>
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
-            <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-            <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
-          </div>
-
-          {/* Color Swatches - Clickable */}
-          {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-1.5 items-center">
-              {product.colors.map((colorOption, idx) => {
-                // Generate product ID for this color variant
-                const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
-                const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
-                const colorVariantId = `${productNameSlug}-${colorSlug}`;
-                const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
-                
-                // DEBUG: Log color data
-                if (idx === 0) {
-                  console.log(`🎨 [NewCollection] ${product.name} - Color options:`, 
-                    product.colors?.map((c: any) => ({
-                      name: c.name, 
-                      hasImage: !!c.image,
-                      image: c.image
-                    })) || []
-                  );
-                }
-                
-                return (
-                  <Link
-                    key={idx}
-                    href={`/products/${colorVariantId}`}
-                    className={`relative rounded-full overflow-hidden ${
-                      isCurrentColor ? 'ring-2 ring-black' : 'ring-1 ring-gray-300'
-                    }`}
-                    style={{
-                      width: '24px',
-                      height: '24px',
-                      minWidth: '24px',
-                      minHeight: '24px',
-                    }}
-                    aria-label={`View ${colorOption.name} variant`}
-                    title={colorOption.name}
-                  >
-                    {colorOption.image ? (
-                      <img
-                        src={colorOption.image}
-                        alt={colorOption.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full"
-                        style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
+              {/* Second Image - visible on hover */}
+              {product.images[1] && (
+                <Image
+                  src={product.images[1]}
+                  alt={`${product.name} - ${product.color} hover`}
+                  fill
+                  className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                />
+              )}
             </div>
-          )}
+          </Link>
 
-          {/* Add to Cart Button */}
-          <Button
-            variant="outline"
-            onClick={handleAddToCart}
-            className="w-full uppercase tracking-wider text-xs py-4 hover:bg-black hover:text-white transition-all duration-300 mt-auto"
-          >
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            {isAdded ? "Added!" : "Add to Cart"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          {/* Product Info */}
+          <div className="space-y-2 flex-1 flex flex-col">
+            <Link href={`/products/${product.slug || product.id}`}>
+              <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity cursor-pointer line-clamp-2">
+                {product.name} - {product.color}
+              </h3>
+            </Link>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+              <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
+            </div>
+
+            {/* Color Swatches - Clickable */}
+            {product.colors && product.colors.length > 0 && (
+              <div className="flex gap-1.5 items-center">
+                {product.colors.map((colorOption) => {
+                  const colorVariantId = makeSlug(product.name, colorOption.name);
+                  const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
+
+                  return (
+                    <Link
+                      key={colorOption.name}
+                      href={`/products/${colorVariantId}`}
+                      className={`relative rounded-full overflow-hidden ${
+                        isCurrentColor ? "ring-2 ring-black" : "ring-1 ring-gray-300"
+                      }`}
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        minWidth: "24px",
+                        minHeight: "24px",
+                      }}
+                      aria-label={`View ${colorOption.name} variant`}
+                      title={colorOption.name}
+                    >
+                      {colorOption.image ? (
+                        <img
+                          src={colorOption.image}
+                          alt={colorOption.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full"
+                          style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, "") }}
+                        />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Add to Cart Button */}
+            <Button
+              variant="outline"
+              onClick={handleAddToCart}
+              className="w-full uppercase tracking-wider text-xs py-4 hover:bg-black hover:text-white transition-all duration-300 mt-auto"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              {isAdded ? "Added!" : "Add to Cart"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -191,17 +198,17 @@ export default function NewCollectionCarousel() {
   }, []);
 
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <motion.section {...fadeUp(0)} className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
+        <motion.div {...fadeUp(0.1)} className="text-center mb-12 md:mb-16">
           <h2 className="text-4xl md:text-5xl tracking-[0.15em] mb-4 font-semibold" style={{fontFamily: 'var(--font-abhaya)'}}>
             NEW COLLECTION
           </h2>
           <p className="text-sm md:text-base text-[#111111] tracking-wide" style={{fontFamily: 'var(--font-abhaya)'}}>
             Discover our latest exclusive designs
           </p>
-        </div>
+        </motion.div>
 
         {/* Loading State */}
         {loading ? (
@@ -220,10 +227,10 @@ export default function NewCollectionCarousel() {
             {/* Mobile: 2-row horizontal scroll */}
             <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
               <div className="grid grid-rows-2 grid-flow-col gap-4 auto-cols-[180px]">
-                {newProducts.map((product) => (
-                  <div key={product.id} className="w-[180px]">
+                {newProducts.map((product, idx) => (
+                  <motion.div key={product.id} {...fadeUp(idx * 0.05)} className="w-[180px]">
                     <ProductCard product={product} />
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
@@ -238,12 +245,14 @@ export default function NewCollectionCarousel() {
                 className="w-full"
               >
                 <CarouselContent className="-ml-4">
-                  {newProducts.map((product) => (
+                  {newProducts.map((product, idx) => (
                     <CarouselItem
                       key={product.id}
                       className="pl-4 basis-1/4"
                     >
-                      <ProductCard product={product} />
+                      <motion.div {...fadeUp(idx * 0.05)}>
+                        <ProductCard product={product} />
+                      </motion.div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -253,17 +262,18 @@ export default function NewCollectionCarousel() {
             </div>
             
             {/* View All Link */}
-            <div className="flex justify-center mt-8">
+            <motion.div {...fadeUp(0.2)} className="flex justify-center mt-8">
               <Link 
                 href="/shop"
                 className="text-sm uppercase tracking-wider text-black hover:opacity-60 transition-opacity underline underline-offset-4"
               >
                 View All
               </Link>
-            </div>
+            </motion.div>
           </>
         )}
       </div>
-    </section>
+    </motion.section>
   );
 }
+

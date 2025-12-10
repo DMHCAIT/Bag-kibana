@@ -8,6 +8,7 @@ import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import LenisScroll from "@/components/LenisScroll";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -115,6 +116,7 @@ export default function RootLayout({
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <ErrorBoundary>
+          <LenisScroll />
           <Providers>
             {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
              !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID') ? (
@@ -135,3 +137,4 @@ export default function RootLayout({
     </html>
   );
 }
+
