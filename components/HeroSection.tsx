@@ -66,14 +66,14 @@ export default function HeroSection() {
       {showSpline ? (
         <div className="absolute inset-0">
           {/* Spline Viewer (desktop only) */}
-          <spline-viewer
-            url={SPLINE_URL}
-            loading="lazy"
-            style={{ width: "100%", height: "100%", minHeight: "100vh" }}
-            aria-label="Kibana luxury bag 3D"
-            onLoad={() => setSplineReady(true)}
-            onError={() => setShowFallback(true)}
-          />
+          {React.createElement('spline-viewer', {
+            url: SPLINE_URL,
+            loading: 'lazy',
+            style: { width: '100%', height: '100%', minHeight: '100vh' },
+            'aria-label': 'Kibana luxury bag 3D',
+            onLoad: () => setSplineReady(true),
+            onError: () => setShowFallback(true)
+          })}
           {/* Soft gradient overlay to keep text readable */}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white" />
         </div>
