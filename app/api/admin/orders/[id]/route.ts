@@ -132,10 +132,10 @@ export async function PATCH(
       },
       message: 'Order updated successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error:', error);
     return NextResponse.json(
-      { error: error.message },
+      { error: error instanceof Error ? error.message : 'Failed to update order' },
       { status: 500 }
     );
   }

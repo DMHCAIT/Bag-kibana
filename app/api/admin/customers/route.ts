@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
 
     query = query.range(offset, offset + limit - 1);
 
-    const { data: users, error: usersError, count: usersCount } = await query;
+    const { data: users, count: usersCount } = await query;
 
     // Also get customer data from orders (for customers who may not be in users table)
     const { data: orders } = await supabaseAdmin

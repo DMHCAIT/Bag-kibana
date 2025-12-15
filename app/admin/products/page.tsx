@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Plus,
   Search,
@@ -29,13 +29,16 @@ import {
   Edit,
   Trash2,
   Eye,
-  Filter,
-  Download,
-  Upload,
   RefreshCcw,
 } from "lucide-react";
 import type { Product } from "@/lib/products-data";
 import { PRODUCT_CATEGORIES, PRODUCT_SECTIONS } from "@/lib/types/product";
+
+interface ProductWithExtras extends Product {
+  salePrice?: number;
+  stock?: number;
+  status?: 'published' | 'draft';
+}
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -51,7 +54,7 @@ export default function AdminProductsPage() {
   const [totalProducts, setTotalProducts] = useState(0);
 
   // Fetch products
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -96,11 +99,11 @@ export default function AdminProductsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, categoryFilter, sectionFilter, searchQuery]);
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, categoryFilter, sectionFilter]);
+  }, [fetchProducts]);
 
   // Handle search
   const handleSearch = (e: React.FormEvent) => {
@@ -360,33 +363,33 @@ export default function AdminProductsPage() {
                       <TableCell>
                         <div>
                           <p className="font-medium">₹{product.price.toLocaleString()}</p>
-                          {(product as any).salePrice && (
+                          {(product as ProductWithExtras).salePrice && (
                             <p className="text-sm text-green-600">
-                              Sale: ₹{(product as any).salePrice.toLocaleString()}
+                              Sale: ₹{(product as ProductWithExtras).salePrice.toLocaleString()}
                           </p>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 text-xs rounded-full ${
-                          ((product as any).stock || 100) > 10
+                          ((product as ProductWithExtras).stock || 100) > 10
                             ? 'bg-green-100 text-green-800'
-                            : ((product as any).stock || 100) > 0
+                            : ((product as ProductWithExtras).stock || 100) > 0
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {(product as any).stock || 100}
+                          {(product as ProductWithExtras).stock || 100}
                       </span>
                       </TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 text-xs rounded-full ${
-                          ((product as any).status || 'published') === 'published'
+                          ((product as ProductWithExtras).status || 'published') === 'published'
                             ? 'bg-green-100 text-green-800'
-                            : ((product as any).status || 'published') === 'draft'
+                            : ((product as ProductWithExtras).status || 'published') === 'draft'
                             ? 'bg-gray-100 text-gray-800'
                             : 'bg-red-100 text-red-800'
                         }`}>
-                          {(product as any).status || 'published'}
+                          {(product as ProductWithExtras).status || 'published'}
                       </span>
                       </TableCell>
                       <TableCell className="text-right">

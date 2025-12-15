@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Search, Mail, Phone, MapPin, ShoppingCart, Calendar } from "lucide-react";
+import { Search, Mail, ShoppingCart, Calendar } from "lucide-react";
 
 interface Customer {
   id: string;

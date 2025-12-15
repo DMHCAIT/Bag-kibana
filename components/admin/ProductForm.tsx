@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus, X, Upload, Star, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
+import { ArrowLeft, Plus, X, Upload, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import Link from "next/link";
 
 interface ProductFormProps {
@@ -444,7 +444,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Shows as "X Reviews" on product page
+                    Shows as &quot;X Reviews&quot; on product page
                   </p>
                 </div>
               </div>
