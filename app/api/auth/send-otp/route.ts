@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
 import { supabaseAdmin } from '@/lib/supabase';
+import { databaseRateLimit } from '@/lib/rate-limiter';
 
 // Note: OTPs are now persisted in Supabase 'otp_store' table
 // This replaces the in-memory Map for production/serverless compatibility
@@ -24,6 +25,23 @@ export async function POST(request: NextRequest) {
       } else {
         formattedPhone = '+91' + formattedPhone;
       }
+    }
+
+    // Apply rate limiting: 3 OTP requests per 15 minutes per phone number
+    const rateLimitResult = await databaseRateLimit(
+      `otp:${formattedPhone}`,
+      3, // max 3 requests
+      15 * 60 * 1000 // 15 minutes
+    );
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { 
+          error: 'Too many OTP requests. Please try again later.',
+          retryAfter: rateLimitResult.retryAfter 
+        },
+        { status: 429 }
+      );
     }
 
     // Generate 6-digit OTP
