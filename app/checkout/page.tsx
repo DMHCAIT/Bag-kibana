@@ -267,7 +267,7 @@ export default function CheckoutPage() {
               }),
             });
 
-            const verifyData = await verifyResponse.json();
+            await verifyResponse.json();
 
             if (verifyResponse.ok) {
               // Save order to admin with proper address format
@@ -336,7 +336,7 @@ export default function CheckoutPage() {
           },
         };
 
-        const razorpay = new (window as Window & { Razorpay: new (options: object) => { open: () => void } }).Razorpay(options);
+        const razorpay = new (window as unknown as Window & { Razorpay: new (options: object) => { open: () => void } }).Razorpay(options);
         razorpay.open();
       }
     } catch (error) {

@@ -257,11 +257,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       } catch (err: unknown) {
         if (!isMounted) return;
         
-        if (err.name === 'AbortError') {
+        if (err instanceof Error && err.name === 'AbortError') {
           setError('Request timed out. Please try again.');
         } else {
         console.error('Error fetching product:', err);
-          setError(err.message || 'Failed to load product');
+          setError(err instanceof Error ? err.message : 'Failed to load product');
         }
       } finally {
         if (isMounted) {

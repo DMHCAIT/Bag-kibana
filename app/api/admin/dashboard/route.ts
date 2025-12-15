@@ -42,9 +42,6 @@ export async function GET() {
 
     // Get current month dates
     const now = new Date();
-    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
     console.log("Dashboard API: Fetching data...");
 
