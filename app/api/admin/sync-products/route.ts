@@ -21,7 +21,7 @@ export async function POST() {
     console.log("Cleared existing products");
 
     // Transform static products to database format (only using columns that exist in DB)
-    const dbProducts = products.map((product, index) => ({
+    const dbProducts = products.map((product) => ({
       name: product.name,
       category: product.category,
       price: product.price,
@@ -47,7 +47,7 @@ export async function POST() {
     for (let i = 0; i < dbProducts.length; i += batchSize) {
       const batch = dbProducts.slice(i, i + batchSize);
       
-      const { data, error } = await supabaseAdmin
+      const { error } = await supabaseAdmin
         .from("products")
         .insert(batch)
         .select("id, name, color");
@@ -67,7 +67,7 @@ export async function POST() {
     console.log(`Successfully synced ${insertedCount} products`);
 
     // Get final count
-    const { count, error: countError } = await supabaseAdmin
+    const { count } = await supabaseAdmin
       .from("products")
       .select("*", { count: "exact", head: true });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, X, Upload, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import Link from "next/link";
@@ -74,13 +74,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const [newImageUrl, setNewImageUrl] = useState("");
   const [newCompartment, setNewCompartment] = useState("");
 
-  useEffect(() => {
-    if (productId) {
-      fetchProduct();
-    }
-  }, [productId]);
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/products/${productId}`);
       const data = await response.json();
@@ -133,7 +127,13 @@ export default function ProductForm({ productId }: ProductFormProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId]);
+
+  useEffect(() => {
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId, fetchProduct]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

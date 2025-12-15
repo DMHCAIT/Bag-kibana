@@ -1,15 +1,15 @@
 declare module "*.css" {
-  const content: any;
+  const content: { [className: string]: string };
   export default content;
 }
 
 declare module "*.scss" {
-  const content: any;
+  const content: { [className: string]: string };
   export default content;
 }
 
 declare module "*.sass" {
-  const content: any;
+  const content: { [className: string]: string };
   export default content;
 }
 
@@ -21,7 +21,7 @@ interface RazorpayOptions {
   name: string;
   description: string;
   order_id: string;
-  handler: (response: any) => void;
+  handler: (response: RazorpayResponse) => void;
   prefill?: {
     name?: string;
     email?: string;
@@ -32,17 +32,23 @@ interface RazorpayOptions {
   };
 }
 
-interface RazorpayInstance {
-  open: () => void;
-  on: (event: string, handler: (response: any) => void) => void;
+interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
 }
 
-interface Window {
-  Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: string, handler: (response: RazorpayResponse) => void) => void;
 }
 
 // Spline web component typing
 declare global {
+  interface Window {
+    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
+  }
+
   namespace JSX {
     interface IntrinsicElements {
       'spline-viewer': React.DetailedHTMLProps<

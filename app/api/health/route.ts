@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
@@ -7,7 +7,7 @@ export async function GET() {
       message: 'Server is running',
       timestamp: new Date().toISOString()
     }, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ 
       status: 'error',
       message: 'Server error',

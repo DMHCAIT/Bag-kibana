@@ -146,7 +146,7 @@ export async function optionalAuth(request: NextRequest): Promise<AuthenticatedU
       role: userData?.role || 'user',
       name: userData?.name
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 }
