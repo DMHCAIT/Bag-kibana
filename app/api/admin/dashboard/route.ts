@@ -10,7 +10,13 @@ interface Order {
   payment_status: string;
   order_status: string;
   created_at: string;
-  items: any[];
+  items: OrderItem[];
+}
+
+interface OrderItem {
+  product_id: number;
+  quantity: number;
+  price: number;
 }
 
 interface Product {
@@ -22,16 +28,6 @@ interface Product {
   stock: number;
   images: string[];
   created_at: string;
-}
-
-interface Customer {
-  id: string;
-  email: string;
-  full_name: string | null;
-  role: string;
-  created_at: string;
-  order_count?: number;
-  total_spent?: number;
 }
 
 export async function GET() {

@@ -75,17 +75,24 @@ export async function GET(req: NextRequest) {
       .from('orders')
       .select('order_status, payment_status, payment_method, total');
 
+    interface OrderData {
+      order_status: string;
+      payment_status: string;
+      payment_method: string;
+      total: number;
+    }
+
     const stats = {
       total: allOrders?.length || 0,
-      pending: allOrders?.filter((o: any) => o.order_status === 'pending').length || 0,
-      confirmed: allOrders?.filter((o: any) => o.order_status === 'confirmed').length || 0,
-      processing: allOrders?.filter((o: any) => o.order_status === 'processing').length || 0,
-      shipped: allOrders?.filter((o: any) => o.order_status === 'shipped').length || 0,
-      delivered: allOrders?.filter((o: any) => o.order_status === 'delivered').length || 0,
-      cancelled: allOrders?.filter((o: any) => o.order_status === 'cancelled').length || 0,
-      codOrders: allOrders?.filter((o: any) => o.payment_method === 'cod').length || 0,
-      razorpayOrders: allOrders?.filter((o: any) => o.payment_method === 'razorpay').length || 0,
-      totalRevenue: allOrders?.filter((o: any) => o.payment_status === 'paid').reduce((sum: number, o: any) => sum + (o.total || 0), 0) || 0,
+      pending: allOrders?.filter((o: OrderData) => o.order_status === 'pending').length || 0,
+      confirmed: allOrders?.filter((o: OrderData) => o.order_status === 'confirmed').length || 0,
+      processing: allOrders?.filter((o: OrderData) => o.order_status === 'processing').length || 0,
+      shipped: allOrders?.filter((o: OrderData) => o.order_status === 'shipped').length || 0,
+      delivered: allOrders?.filter((o: OrderData) => o.order_status === 'delivered').length || 0,
+      cancelled: allOrders?.filter((o: OrderData) => o.order_status === 'cancelled').length || 0,
+      codOrders: allOrders?.filter((o: OrderData) => o.payment_method === 'cod').length || 0,
+      razorpayOrders: allOrders?.filter((o: OrderData) => o.payment_method === 'razorpay').length || 0,
+      totalRevenue: allOrders?.filter((o: OrderData) => o.payment_status === 'paid').reduce((sum: number, o: OrderData) => sum + (o.total || 0), 0) || 0,
     };
 
     return NextResponse.json({
@@ -98,10 +105,10 @@ export async function GET(req: NextRequest) {
     }, {
       headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate' },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error:', error);
     return NextResponse.json(
-      { error: error.message, orders: [], totalOrders: 0 },
+      { error: error instanceof Error ? error.message : 'Failed to fetch orders', orders: [], totalOrders: 0 },
       { status: 500 }
     );
   }
@@ -182,10 +189,10 @@ export async function POST(req: NextRequest) {
       order,
       message: 'Order created successfully',
     }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating order:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error instanceof Error ? error.message : 'Failed to create order' },
       { status: 500 }
     );
   }

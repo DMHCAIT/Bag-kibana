@@ -49,10 +49,10 @@ export async function GET(
     }, {
       headers: { 'Cache-Control': 'no-store' }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error:', error);
     return NextResponse.json(
-      { error: error.message },
+      { error: error instanceof Error ? error.message : 'Failed to fetch order' },
       { status: 500 }
     );
   }
@@ -67,7 +67,15 @@ export async function PATCH(
     const { id } = await params;
     const body = await req.json();
 
-    const updateData: any = {
+    interface UpdateData {
+      updated_at: string;
+      order_status?: string;
+      payment_status?: string;
+      tracking_number?: string;
+      notes?: string;
+    }
+
+    const updateData: UpdateData = {
       updated_at: new Date().toISOString(),
     };
 

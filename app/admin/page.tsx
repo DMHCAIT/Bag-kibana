@@ -16,6 +16,13 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import type { Product } from "@/lib/products-data";
 
+interface ProductWithExtras extends Product {
+  stock?: number;
+  isFeatured?: boolean;
+  isNewArrival?: boolean;
+  status?: 'published' | 'draft';
+}
+
 interface DashboardStats {
   totalProducts: number;
   publishedProducts: number;
@@ -57,18 +64,22 @@ export default function AdminDashboard() {
         // Calculate stats
         const statsData: DashboardStats = {
           totalProducts: products.length,
-          publishedProducts: products.filter((p: any) => (p.status || 'published') === 'published').length,
-          draftProducts: products.filter((p: any) => (p.status || 'published') === 'draft').length,
-          totalValue: products.reduce((sum: number, p: Product) => sum + (p.price * ((p as any).stock || 100)), 0),
-          lowStockProducts: products.filter((p: any) => ((p as any).stock || 100) <= 10).length,
-          featuredProducts: products.filter((p: any) => (p as any).isFeatured === true).length,
-          newArrivals: products.filter((p: any) => (p as any).isNewArrival === true).length,
+          publishedProducts: products.filter((p: ProductWithExtras) => (p.status || 'published') === 'published').length,
+          draftProducts: products.filter((p: ProductWithExtras) => (p.status || 'published') === 'draft').length,
+          totalValue: products.reduce((sum: number, p: ProductWithExtras) => sum + (p.price * (p.stock || 100)), 0),
+          lowStockProducts: products.filter((p: ProductWithExtras) => (p.stock || 100) <= 10).length,
+          featuredProducts: products.filter((p: ProductWithExtras) => p.isFeatured === true).length,
+          newArrivals: products.filter((p: ProductWithExtras) => p.isNewArrival === true).length,
         };
 
         setStats(statsData);
 
         // Get recent products (sorted by updatedAt)
-        const sorted = [...products].sort((a: any, b: any) => {
+        interface SortableProduct {
+          updatedAt?: string;
+          createdAt?: string;
+        }
+        const sorted = [...products].sort((a: SortableProduct, b: SortableProduct) => {
           const dateA = a.updatedAt || a.createdAt || '2025-01-01';
           const dateB = b.updatedAt || b.createdAt || '2025-01-01';
           return new Date(dateB).getTime() - new Date(dateA).getTime();
@@ -274,7 +285,7 @@ export default function AdminDashboard() {
                       <div className="text-right">
                         <p className="font-bold text-lg text-gray-900">₹{product.price.toLocaleString()}</p>
                         <p className="text-xs text-gray-500 mt-1">
-                          Stock: <span className="font-medium">{(product as any).stock || 100}</span>
+                          Stock: <span className="font-medium">{(product as ProductWithExtras).stock || 100}</span>
           </p>
                       </div>
         </Link>

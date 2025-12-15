@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, use, useCallback } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import {
@@ -44,17 +43,12 @@ interface Order {
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    fetchOrder();
-  }, [id]);
-
-  const fetchOrder = async () => {
+  const fetchOrder = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -76,7 +70,11 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchOrder();
+  }, [fetchOrder]);
 
   const updateOrderStatus = async (newStatus: string) => {
     if (!order) return;
@@ -203,7 +201,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             {error || "Order Not Found"}
           </h2>
           <p className="text-red-600 mb-4">
-            The order you're looking for doesn't exist or has been removed.
+            The order you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
           <Link
             href="/admin/orders"
