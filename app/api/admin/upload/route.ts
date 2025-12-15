@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabaseAdmin } from '@/lib/supabase';
 
 // POST - Upload image(s)
 export async function POST(request: NextRequest) {
@@ -32,45 +33,43 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // In a real app, upload to Supabase Storage or S3
-      // For now, we'll simulate an upload and return a placeholder URL
-      
       // Generate unique filename
       const timestamp = Date.now();
       const randomStr = Math.random().toString(36).substring(7);
       const ext = file.name.split('.').pop();
-      const filename = `${timestamp}-${randomStr}.${ext}`;
+      const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const filename = `${timestamp}-${randomStr}-${sanitizedName}`;
 
-      // Simulated upload URL (in production, this would be actual Supabase URL)
-      const uploadedUrl = `https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/${filename}`;
-      
-      uploadedUrls.push(uploadedUrl);
+      try {
+        // REAL IMPLEMENTATION WITH SUPABASE
+        const buffer = Buffer.from(await file.arrayBuffer());
+        
+        const { data, error } = await supabaseAdmin.storage
+          .from('product-images')
+          .upload(`products/${filename}`, buffer, {
+            contentType: file.type,
+            cacheControl: '3600',
+            upsert: false
+          });
 
-      /* REAL IMPLEMENTATION WITH SUPABASE:
-      const { createClient } = require('@supabase/supabase-js');
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY! // Use service role key for server-side uploads
-      );
+        if (error) {
+          console.error('Supabase upload error:', error);
+          throw error;
+        }
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-      
-      const { data, error } = await supabase.storage
-        .from('product-images')
-        .upload(`products/${filename}`, buffer, {
-          contentType: file.type,
-          cacheControl: '3600',
-          upsert: false
-        });
+        const { data: { publicUrl } } = supabaseAdmin.storage
+          .from('product-images')
+          .getPublicUrl(`products/${filename}`);
 
-      if (error) throw error;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(`products/${filename}`);
-
-      uploadedUrls.push(publicUrl);
-      */
+        uploadedUrls.push(publicUrl);
+        console.log(`✅ Uploaded: ${filename} -> ${publicUrl}`);
+      } catch (uploadError: any) {
+        console.error(`Failed to upload ${file.name}:`, uploadError);
+        return NextResponse.json(
+          { error: `Failed to upload ${file.name}: ${uploadError.message}` },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({
@@ -106,25 +105,39 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // In a real app, delete from Supabase Storage
-    /* REAL IMPLEMENTATION:
-    const { createClient } = require('@supabase/supabase-js');
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // REAL IMPLEMENTATION: Delete from Supabase Storage
+    try {
+      const filePaths = urls.map(url => {
+        const urlObj = new URL(url);
+        // Extract path after 'product-images/'
+        const pathParts = urlObj.pathname.split('product-images/');
+        return pathParts.length > 1 ? pathParts[1] : '';
+      }).filter(path => path);
 
-    const filePaths = urls.map(url => {
-      const urlObj = new URL(url);
-      return urlObj.pathname.split('/').slice(-1)[0]; // Get filename
-    });
+      if (filePaths.length === 0) {
+        return NextResponse.json(
+          { error: 'Invalid URLs provided' },
+          { status: 400 }
+        );
+      }
 
-    const { data, error } = await supabase.storage
-      .from('product-images')
-      .remove(filePaths);
+      const { data, error } = await supabaseAdmin.storage
+        .from('product-images')
+        .remove(filePaths);
 
-    if (error) throw error;
-    */
+      if (error) {
+        console.error('Supabase delete error:', error);
+        throw error;
+      }
+
+      console.log(`✅ Deleted ${filePaths.length} file(s) from storage`);
+    } catch (deleteError: any) {
+      console.error('Failed to delete files:', deleteError);
+      return NextResponse.json(
+        { error: `Failed to delete files: ${deleteError.message}` },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       message: `${urls.length} file(s) deleted successfully`,

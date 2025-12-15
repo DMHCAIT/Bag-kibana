@@ -1,94 +1,40 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
-import Image from "next/image";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
-const SPLINE_URL =
-  process.env.NEXT_PUBLIC_SPLINE_HERO_URL ||
-  "https://prod.spline.design/kibana-hero-3d-bag/scene.splinecode";
-
-const MOBILE_FALLBACK =
-  "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Milky%20Blue/09-10-2025--livia00521.jpg";
-
 export default function HeroSection() {
-  const [shouldShowSpline, setShouldShowSpline] = useState(false);
-  const [splineScriptReady, setSplineScriptReady] = useState(false);
-  const [splineReady, setSplineReady] = useState(false);
-  const [showFallback, setShowFallback] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Only show Spline on desktop and when user does not prefer reduced motion
   useEffect(() => {
-    const update = () => {
-      const desktop = window.innerWidth > 940;
-      const prefersReduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      setShouldShowSpline(desktop && !prefersReduce);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
     };
-
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+    
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
-
-  // Lazy-load Spline viewer script only when needed
-  useEffect(() => {
-    if (!shouldShowSpline) return;
-
-    const existing = document.querySelector("script[data-spline-viewer]");
-    if (existing) {
-      setSplineScriptReady(true);
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/@splinetool/viewer@1.9.50/build/spline-viewer.js";
-    script.async = true;
-    script.dataset.splineViewer = "true";
-    script.onload = () => setSplineScriptReady(true);
-    script.onerror = () => setShowFallback(true);
-    document.head.appendChild(script);
-
-    return () => {
-      script.onload = null;
-      script.onerror = null;
-    };
-  }, [shouldShowSpline]);
-
-  const showSpline = useMemo(
-    () => shouldShowSpline && splineScriptReady && !showFallback,
-    [shouldShowSpline, splineScriptReady, showFallback]
-  );
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-white">
-      {/* Background: Spline or static fallback */}
-      {showSpline ? (
-        <div className="absolute inset-0">
-          {/* Spline Viewer (desktop only) */}
-          {React.createElement('spline-viewer', {
-            url: SPLINE_URL,
-            loading: 'lazy',
-            style: { width: '100%', height: '100%', minHeight: '100vh' },
-            'aria-label': 'Kibana luxury bag 3D',
-            onLoad: () => setSplineReady(true),
-            onError: () => setShowFallback(true)
-          })}
-          {/* Soft gradient overlay to keep text readable */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white" />
-        </div>
-      ) : (
-        <div className="absolute inset-0">
-          <Image
-            src={MOBILE_FALLBACK}
-            alt="Kibana luxury handbag hero"
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
+      {/* Background Video */}
+      <div className="absolute inset-0">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+          poster="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Milky%20Blue/09-10-2025--livia00521.jpg"
+        >
+          <source
+            src={isMobile ? "/videos/hero-mobile.mp4" : "/videos/homepage hero section.mp4"}
+            type="video/mp4"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/45 to-white" />
-        </div>
-      )}
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-white/20 to-white" />
+      </div>
 
       {/* Overlay content */}
       <div className="relative z-10">
@@ -97,7 +43,7 @@ export default function HeroSection() {
             <div className="space-y-6 md:space-y-8">
               <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-black/5">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs tracking-[0.2em] uppercase">New Collection</span>
+                <span className="text-xs tracking-[0.2em] uppercase">50% OFF - Limited Time</span>
               </div>
 
               <div className="space-y-4">
@@ -144,14 +90,6 @@ export default function HeroSection() {
           </div>
         </div>
       </div>
-
-      {/* Subtle status badge for Spline readiness */}
-      {showSpline && (
-        <div className="pointer-events-none absolute top-6 right-6 flex items-center gap-2 text-xs text-gray-600 bg-white/70 backdrop-blur-sm px-3 py-1.5 rounded-full border border-black/5 shadow-sm">
-          <span className={`w-2 h-2 rounded-full ${splineReady ? "bg-green-500" : "bg-amber-400"}`} />
-          <span>{splineReady ? "3D live" : "Loading 3D"}</span>
-        </div>
-      )}
     </section>
   );
 }
