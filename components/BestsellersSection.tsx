@@ -173,7 +173,9 @@ export default function BestsellersSection() {
         }
       } catch (error) {
         if (!isMounted) return;
-        console.error('Error fetching bestsellers:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching bestsellers:', error);
+        }
         // Fallback on error
         try {
           const fallbackResponse = await fetch('/api/products?limit=4');
@@ -182,7 +184,9 @@ export default function BestsellersSection() {
             setBestsellers(fallbackData.products);
           }
         } catch (fallbackError) {
-          console.error('Fallback fetch failed:', fallbackError);
+          if (process.env.NODE_ENV === 'development') {
+            console.error('Fallback fetch failed:', fallbackError);
+          }
         }
       } finally {
         if (isMounted) {

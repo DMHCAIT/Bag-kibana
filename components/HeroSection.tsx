@@ -120,7 +120,7 @@ export default function HeroSection() {
                   initial={{ opacity: 0, y: 18 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.4 }}
-                  className="text-4xl md:text-6xl lg:text-7xl font-semibold leading-tight tracking-tight text-gray-900"
+                  className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-semibold leading-tight tracking-tight text-gray-900"
                   style={{ fontFamily: "var(--font-abhaya)" }}
                 >
                   Luxury that defines you.
@@ -146,7 +146,7 @@ export default function HeroSection() {
                   <motion.button
                     whileHover={{ scale: 1.02, y: -2 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 md:px-8 py-3 md:py-3.5 bg-black text-white rounded-full text-sm tracking-[0.18em] uppercase shadow-lg shadow-black/10"
+                    className="px-8 md:px-8 py-3.5 md:py-3.5 bg-black text-white rounded-full text-sm tracking-[0.18em] uppercase shadow-lg shadow-black/10 touch-manipulation min-h-[44px]"
                   >
                     Shop Now
                   </motion.button>
