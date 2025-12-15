@@ -32,7 +32,7 @@ COMMENT ON COLUMN public.products.sku IS 'Stock Keeping Unit - unique product id
 -- Create inventory_transactions table for tracking all stock changes
 CREATE TABLE IF NOT EXISTS public.inventory_transactions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  product_id UUID NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
+  product_id INTEGER NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,
   transaction_type VARCHAR(20) NOT NULL, -- 'purchase', 'sale', 'adjustment', 'return'
   quantity INTEGER NOT NULL, -- Positive for additions, negative for subtractions
   previous_quantity INTEGER NOT NULL,
@@ -66,7 +66,7 @@ COMMENT ON TABLE public.inventory_transactions IS 'Tracks all inventory changes 
 
 -- Function to update product stock
 CREATE OR REPLACE FUNCTION update_product_stock(
-  p_product_id UUID,
+  p_product_id INTEGER,
   p_quantity_change INTEGER,
   p_transaction_type VARCHAR(20),
   p_reference_type VARCHAR(50) DEFAULT NULL,
@@ -158,7 +158,7 @@ COMMENT ON FUNCTION update_product_stock IS 'Safely updates product stock with t
 -- =====================================================
 
 CREATE OR REPLACE FUNCTION check_stock_availability(
-  p_product_id UUID,
+  p_product_id INTEGER,
   p_required_quantity INTEGER
 )
 RETURNS JSON AS $$
