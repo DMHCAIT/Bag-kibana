@@ -8,8 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ShoppingBag, Lock, Truck, CreditCard, Package } from "lucide-react";
+import { Lock, Truck, CreditCard, Package } from "lucide-react";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 

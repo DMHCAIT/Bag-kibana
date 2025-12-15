@@ -40,9 +40,6 @@ export async function GET() {
     
     // Authentication removed - direct access enabled for admin APIs
 
-    // Get current month dates
-    const now = new Date();
-
     console.log("Dashboard API: Fetching data...");
 
     // Initialize default values in case of database errors
@@ -50,7 +47,7 @@ export async function GET() {
     let totalRevenue = 0;
     let totalProducts = 0;
     let totalCustomers = 0;
-    let recentOrders: any[] = [];
+    let recentOrders: Order[] = [];
     let lowStockProducts = 0;
 
     try {
