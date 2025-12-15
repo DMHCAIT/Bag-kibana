@@ -75,10 +75,10 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  // Calculate automatic 25% discount
-  const discountPercentage = 25;
+  // Calculate automatic 50% discount
+  const discountPercentage = 50;
   const originalSubtotal = cart.subtotal;
-  const discountedSubtotal = Math.round(cart.subtotal * 0.75);
+  const discountedSubtotal = Math.round(cart.subtotal * 0.5);
   const discountAmount = originalSubtotal - discountedSubtotal;
   const finalTotal = discountedSubtotal;
 
@@ -162,12 +162,12 @@ export default function CheckoutPage() {
             name: `${item.product.name} - ${item.product.color}`,
             color: item.product.color,
             quantity: item.quantity,
-            price: Math.round(item.product.price * 0.75),
+            price: Math.round(item.product.price * 0.5),
             image: item.product.images?.[0] || "",
           })),
           subtotal: discountedSubtotal,
           discount: discountAmount,
-          discount_code: "AUTO25",
+          discount_code: "AUTO50",
           is_first_order: false,
           shipping_fee: 0,
           total: finalTotal,
@@ -284,12 +284,12 @@ export default function CheckoutPage() {
                   name: `${item.product.name} - ${item.product.color}`,
                   color: item.product.color,
                   quantity: item.quantity,
-                  price: Math.round(item.product.price * 0.75),
+                  price: Math.round(item.product.price * 0.5),
                   image: item.product.images?.[0] || "",
                 })),
                 subtotal: discountedSubtotal,
                 discount: discountAmount,
-                discount_code: "AUTO25",
+                discount_code: "AUTO50",
                 is_first_order: false,
                 shipping_fee: 0,
                 total: finalTotal,
@@ -606,8 +606,8 @@ export default function CheckoutPage() {
                         <p className="text-gray-600">Qty: {item.quantity}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-green-600">
-                          ₹{Math.round(item.product.price * 0.75 * item.quantity).toLocaleString()}
+                        <p className="font-medium text-black">
+                          ₹{Math.round(item.product.price * 0.5 * item.quantity).toLocaleString()}
                         </p>
                         <p className="text-xs text-gray-400 line-through">
                           ₹{(item.product.price * item.quantity).toLocaleString()}
@@ -619,14 +619,14 @@ export default function CheckoutPage() {
 
                 {/* Automatic Discount Banner */}
                 <div className="pt-4 border-t">
-                  <div className="bg-green-50 p-3 rounded-lg">
+                  <div className="bg-black p-3 rounded-lg">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">🎉</span>
                       <div>
-                        <p className="text-sm font-medium text-green-800">
-                          25% OFF Applied Automatically!
+                        <p className="text-sm font-medium text-white">
+                          50% OFF Applied Automatically!
                         </p>
-                        <p className="text-xs text-green-700">
+                        <p className="text-xs text-gray-200">
                           You're saving ₹{discountAmount.toLocaleString()} on this order
                         </p>
                       </div>
@@ -639,8 +639,8 @@ export default function CheckoutPage() {
                     <span className="text-gray-600">Original Price ({cart.totalItems} items)</span>
                     <span className="line-through text-gray-400">₹{originalSubtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-sm text-green-600 font-medium">
-                    <span>Discount (25% OFF)</span>
+                  <div className="flex justify-between text-sm text-black font-medium">
+                    <span>Discount (50% OFF)</span>
                     <span>-₹{discountAmount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">
