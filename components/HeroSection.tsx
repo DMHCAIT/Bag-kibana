@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from "react";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -95,90 +94,53 @@ export default function HeroSection() {
       <div className="relative z-10">
         <div className="container mx-auto px-4 md:px-8 lg:px-12 min-h-screen flex items-center">
           <div className="w-full max-w-3xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              className="space-y-6 md:space-y-8"
-            >
+            <div className="space-y-6 md:space-y-8">
               <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-sm border border-black/5">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-xs tracking-[0.2em] uppercase">New Collection</span>
               </div>
 
               <div className="space-y-4">
-                <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.35 }}
-                  className="text-sm md:text-base tracking-[0.28em] text-gray-800 uppercase"
-                >
+                <p className="text-sm md:text-base tracking-[0.28em] text-gray-800 uppercase">
                   KibanaLife
-                </motion.p>
+                </p>
 
-                <motion.h1
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
+                <h1
                   className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-semibold leading-tight tracking-tight text-gray-900"
                   style={{ fontFamily: "var(--font-abhaya)" }}
                 >
                   Luxury that defines you.
-                </motion.h1>
+                </h1>
 
-                <motion.p
-                  initial={{ opacity: 0, y: 14 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.55 }}
-                  className="text-base md:text-lg text-gray-700 max-w-2xl"
-                >
+                <p className="text-base md:text-lg text-gray-700 max-w-2xl">
                   Handcrafted silhouettes, premium leather finishes, and a modern 3D showcase so your next signature piece is seen in every dimension.
-                </motion.p>
+                </p>
               </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.65 }}
-                className="flex flex-wrap items-center gap-4"
-              >
+              <div className="flex flex-wrap items-center gap-4">
                 <Link href="/shop">
-                  <motion.button
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="px-8 md:px-8 py-3.5 md:py-3.5 bg-black text-white rounded-full text-sm tracking-[0.18em] uppercase shadow-lg shadow-black/10 touch-manipulation min-h-[44px]"
-                  >
+                  <button className="px-8 md:px-8 py-3.5 md:py-3.5 bg-black text-white rounded-full text-sm tracking-[0.18em] uppercase shadow-lg shadow-black/10 touch-manipulation min-h-[44px] hover:bg-gray-800 transition-colors">
                     Shop Now
-                  </motion.button>
+                  </button>
                 </Link>
                 <Link href="/collections/tote">
-                  <motion.button
-                    whileHover={{ scale: 1.02, y: -2 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="px-6 md:px-8 py-3 md:py-3.5 bg-white/80 text-black border border-black/10 rounded-full text-sm tracking-[0.18em] uppercase shadow-sm"
-                  >
+                  <button className="px-6 md:px-8 py-3 md:py-3.5 bg-white/80 text-black border border-black/10 rounded-full text-sm tracking-[0.18em] uppercase shadow-sm hover:bg-gray-100 transition-colors">
                     Explore Bags
-                  </motion.button>
+                  </button>
                 </Link>
-              </motion.div>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.75 }}
-                className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl pt-2"
-              >
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl pt-2">
                 {["Premium leather", "Hand finished", "Made in India"].map((item, idx) => (
-                  <motion.div
+                  <div
                     key={item}
-                    whileHover={{ y: -2 }}
                     className="px-4 py-3 rounded-xl bg-white/80 backdrop-blur-sm border border-black/5 shadow-sm text-sm text-gray-700"
                   >
                     {item}
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
-            </motion.div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

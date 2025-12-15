@@ -15,7 +15,6 @@ import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
 import { useState, useEffect } from "react";
 import { ShoppingCart } from "lucide-react";
-import { motion } from "framer-motion";
 
 const makeSlug = (name: string, color: string) =>
   `${name}-${color}`
@@ -23,13 +22,6 @@ const makeSlug = (name: string, color: string) =>
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.6, delay },
-  viewport: { once: true, amount: 0.2 },
-});
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -42,12 +34,8 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-      className="h-full"
-    >
-      <Card className="border-0 shadow-none group h-full flex flex-col">
+    <div className="h-full group">
+      <Card className="border-0 shadow-none h-full flex flex-col hover:-translate-y-1 transition-transform duration-200">
         <CardContent className="p-0 space-y-3 flex flex-col h-full">
           {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
@@ -139,7 +127,7 @@ function ProductCard({ product }: { product: Product }) {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -198,17 +186,17 @@ export default function NewCollectionCarousel() {
   }, []);
 
   return (
-    <motion.section {...fadeUp(0)} className="py-16 md:py-24 bg-white">
+    <section className="py-16 md:py-24 bg-white">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Section Header */}
-        <motion.div {...fadeUp(0.1)} className="text-center mb-12 md:mb-16">
+        <div className="text-center mb-12 md:mb-16">
           <h2 className="text-4xl md:text-5xl tracking-[0.15em] mb-4 font-semibold" style={{fontFamily: 'var(--font-abhaya)'}}>
             NEW COLLECTION
           </h2>
           <p className="text-sm md:text-base text-[#111111] tracking-wide" style={{fontFamily: 'var(--font-abhaya)'}}>
             Discover our latest exclusive designs
           </p>
-        </motion.div>
+        </div>
 
         {/* Loading State */}
         {loading ? (
@@ -228,9 +216,9 @@ export default function NewCollectionCarousel() {
             <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
               <div className="grid grid-rows-2 grid-flow-col gap-4 auto-cols-[180px]">
                 {newProducts.map((product, idx) => (
-                  <motion.div key={product.id} {...fadeUp(idx * 0.05)} className="w-[180px]">
+                  <div key={product.id} className="w-[180px]">
                     <ProductCard product={product} />
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -250,9 +238,9 @@ export default function NewCollectionCarousel() {
                       key={product.id}
                       className="pl-4 basis-1/4"
                     >
-                      <motion.div {...fadeUp(idx * 0.05)}>
+                      <div>
                         <ProductCard product={product} />
-                      </motion.div>
+                      </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
@@ -261,19 +249,19 @@ export default function NewCollectionCarousel() {
               </Carousel>
             </div>
             
-            {/* View All Link */}
-            <motion.div {...fadeUp(0.2)} className="flex justify-center mt-8">
-              <Link 
+            {/* View All Button */}
+            <div className="flex justify-center mt-8">
+              <Link
                 href="/shop"
                 className="text-sm uppercase tracking-wider text-black hover:opacity-60 transition-opacity underline underline-offset-4"
               >
                 View All
               </Link>
-            </motion.div>
+            </div>
           </>
         )}
       </div>
-    </motion.section>
+    </section>
   );
 }
 
