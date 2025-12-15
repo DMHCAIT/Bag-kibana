@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ArrowLeft, User, Mail, Phone, CheckCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, User, Mail, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,7 +95,7 @@ export default function SignupPage() {
       } else {
         setError(result.error || "Failed to send OTP");
       }
-    } catch (error) {
+    } catch {
       setError("An error occurred while sending OTP");
     } finally {
       setLoading(false);
@@ -128,8 +128,8 @@ export default function SignupPage() {
       } else {
         setError(result.error || "Failed to verify OTP");
       }
-    } catch (error) {
-      setError("An error occurred during verification");
+    } catch {
+      setError("An error occurred during OTP verification");
     } finally {
       setLoading(false);
     }
@@ -246,7 +246,7 @@ export default function SignupPage() {
                         disabled={loading}
                       />
                     </div>
-                    <p className="text-xs text-gray-500">You'll use this number to sign in with OTP</p>
+                    <p className="text-xs text-gray-500">You&apos;ll use this number to sign in with OTP</p>
                   </div>
 
                   <Button 
@@ -317,7 +317,7 @@ export default function SignupPage() {
 
                   <div className="text-center space-y-2">
                     <p className="text-sm text-gray-600">
-                      Didn't receive the OTP?
+                      Didn&apos;t receive the OTP?
                     </p>
                     <Button
                       type="button"

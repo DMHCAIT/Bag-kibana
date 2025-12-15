@@ -76,7 +76,6 @@ export default function CheckoutPage() {
   }, [user]);
 
   // Calculate automatic 50% discount
-  const discountPercentage = 50;
   const originalSubtotal = cart.subtotal;
   const discountedSubtotal = Math.round(cart.subtotal * 0.5);
   const discountAmount = originalSubtotal - discountedSubtotal;
@@ -254,7 +253,7 @@ export default function CheckoutPage() {
           name: "KIBANA",
           description: "Purchase from KIBANA",
           order_id: data.id,
-          handler: async function (response: any) {
+          handler: async function (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) {
             // Verify payment and save order
             const verifyResponse = await fetch("/api/razorpay/verify-payment", {
               method: "POST",
@@ -337,7 +336,7 @@ export default function CheckoutPage() {
           },
         };
 
-        const razorpay = new (window as any).Razorpay(options);
+        const razorpay = new (window as Window & { Razorpay: new (options: object) => { open: () => void } }).Razorpay(options);
         razorpay.open();
       }
     } catch (error) {
@@ -590,12 +589,13 @@ export default function CheckoutPage() {
                 <div className="space-y-4 max-h-64 overflow-y-auto">
                   {cart.items.map((item) => (
                     <div key={item.product.id} className="flex gap-3 text-sm">
-                      <div className="w-16 h-16 bg-gray-100 rounded flex-shrink-0 relative overflow-hidden">
+                      <div className="w-16 h-16 bg-gray-100 rounded shrink-0 relative overflow-hidden">
                         {item.product.images && item.product.images[0] && (
-                          <img
+                          <Image
                             src={item.product.images[0]}
                             alt={item.product.name}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
                         )}
                       </div>
@@ -627,7 +627,7 @@ export default function CheckoutPage() {
                           50% OFF Applied Automatically!
                         </p>
                         <p className="text-xs text-gray-200">
-                          You're saving ₹{discountAmount.toLocaleString()} on this order
+                          You&apos;re saving ₹{discountAmount.toLocaleString()} on this order
                         </p>
                       </div>
                     </div>

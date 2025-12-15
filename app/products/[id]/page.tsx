@@ -173,7 +173,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           throw new Error('Invalid product data received');
         }
 
-        let productData = data.product;
+        const productData = data.product;
         
         // Client-side fallback: If colors array is empty, generate from variants
         console.log(`📦 Product: ${productData.name} - Colors array:`, productData.colors);
@@ -254,7 +254,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           console.error('Error fetching related products:', err);
         }
 
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!isMounted) return;
         
         if (err.name === 'AbortError') {
