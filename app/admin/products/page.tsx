@@ -365,7 +365,7 @@ export default function AdminProductsPage() {
                           <p className="font-medium">₹{product.price.toLocaleString()}</p>
                           {(product as ProductWithExtras).salePrice && (
                             <p className="text-sm text-green-600">
-                              Sale: ₹{(product as ProductWithExtras).salePrice.toLocaleString()}
+                              Sale: ₹{(product as ProductWithExtras).salePrice?.toLocaleString()}
                           </p>
                           )}
                         </div>

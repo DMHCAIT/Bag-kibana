@@ -62,7 +62,7 @@ export default function NewProductPage() {
   const [newColorValue, setNewColorValue] = useState("#000000");
 
   // Handle input change
-  const handleChange = (field: string, value: string | number | boolean) => {
+  const handleChange = (field: string, value: string | number | boolean | undefined) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
