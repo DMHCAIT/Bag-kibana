@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-// In-memory OTP store (shared with send-otp route in same process)
-// For serverless, use database/Redis
-const otpStore = new Map<string, { otp: string; expiresAt: number }>();
-
-// Also import from send-otp if needed
-import { otpStore as sendOtpStore } from '../send-otp/route';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,10 +22,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check OTP in shared store
-    const storedData = sendOtpStore.get(formattedPhone) || otpStore.get(formattedPhone);
+    // Fetch OTP from Supabase database
+    const { data, error } = await supabaseAdmin
+      .from('otp_store')
+      .select('otp, expires_at')
+      .eq('phone', formattedPhone)
+      .single();
 
-    if (!storedData) {
+    if (error || !data) {
+      console.error('OTP lookup error:', error?.message);
       return NextResponse.json(
         { error: 'OTP not found. Please request a new one.' },
         { status: 400 }
@@ -39,9 +38,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if OTP has expired
-    if (Date.now() > storedData.expiresAt) {
-      sendOtpStore.delete(formattedPhone);
-      otpStore.delete(formattedPhone);
+    if (new Date(data.expires_at) < new Date()) {
+      // Delete expired OTP
+      await supabaseAdmin
+        .from('otp_store')
+        .delete()
+        .eq('phone', formattedPhone);
+      
       return NextResponse.json(
         { error: 'OTP has expired. Please request a new one.' },
         { status: 400 }
@@ -49,23 +52,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify OTP
-    if (storedData.otp !== otp) {
+    if (data.otp !== otp) {
       return NextResponse.json(
         { error: 'Invalid OTP. Please try again.' },
         { status: 400 }
       );
     }
 
-    // OTP is valid - remove it from store
-    sendOtpStore.delete(formattedPhone);
-    otpStore.delete(formattedPhone);
+    // OTP is valid - remove it from database
+    await supabaseAdmin
+      .from('otp_store')
+      .delete()
+      .eq('phone', formattedPhone);
 
     return NextResponse.json({
       success: true,
       message: 'OTP verified successfully',
       phone: formattedPhone
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Verify OTP error:', error);
     return NextResponse.json(
       { error: 'Failed to verify OTP' },

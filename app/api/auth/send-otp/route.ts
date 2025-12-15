@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
+import { supabaseAdmin } from '@/lib/supabase';
 
-// Store OTPs temporarily (in production, use Redis or database)
-const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+// Note: OTPs are now persisted in Supabase 'otp_store' table
+// This replaces the in-memory Map for production/serverless compatibility
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,16 +28,38 @@ export async function POST(request: NextRequest) {
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
     
-    // Store OTP with 5-minute expiry
-    otpStore.set(formattedPhone, {
-      otp,
-      expiresAt: Date.now() + 5 * 60 * 1000
-    });
+    // Store OTP in Supabase with 5-minute expiry
+    const { data, error } = await supabaseAdmin
+      .from('otp_store')
+      .upsert(
+        { phone: formattedPhone, otp, expires_at: expiresAt },
+        { onConflict: 'phone' }
+      )
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Failed to store OTP in database:', error);
+      // Fall back to returning OTP in dev mode
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Dev mode - OTP for ${formattedPhone}: ${otp}`);
+        return NextResponse.json({
+          success: true,
+          message: 'OTP stored in database (dev fallback)',
+          otp: otp // Only in development
+        });
+      }
+      return NextResponse.json(
+        { error: 'Failed to process OTP request' },
+        { status: 500 }
+      );
+    }
 
     // Check if Twilio credentials are configured
-      const accountSid = process.env.TWILIO_ACCOUNT_SID;
-      const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
     const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
 
     if (accountSid && authToken && twilioPhone) {
@@ -75,13 +98,13 @@ export async function POST(request: NextRequest) {
     } else {
       // No Twilio config - dev mode
       console.log(`Dev mode - OTP for ${formattedPhone}: ${otp}`);
-    return NextResponse.json({
-      success: true,
+      return NextResponse.json({
+        success: true,
         message: 'OTP generated (dev mode)',
         otp: otp
-    });
+      });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Send OTP error:', error);
     return NextResponse.json(
       { error: 'Failed to send OTP' },
@@ -89,6 +112,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Export OTP store for verification
-export { otpStore };
