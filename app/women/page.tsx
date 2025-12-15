@@ -64,9 +64,9 @@ function ProductCard({ product }: { product: Product }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.5).toLocaleString()}</p>
             <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-            <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
+            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">50% OFF</span>
           </div>
 
           {/* Color Swatches */}
@@ -153,6 +153,7 @@ export default function WomenPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Fetch products from API with timeout and fallback
   useEffect(() => {
@@ -202,7 +203,7 @@ export default function WomenPage() {
       
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Page Header */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-serif tracking-[0.15em] mb-4">
             WOMEN'S COLLECTION
           </h1>
@@ -210,6 +211,38 @@ export default function WomenPage() {
             Discover our curated collection of luxury handbags designed for the modern woman
           </p>
         </div>
+
+        {/* Category Filter */}
+        {!loading && !error && (
+          <div className="flex flex-wrap justify-center gap-3 mb-8">
+            <button
+              onClick={() => setSelectedCategory("all")}
+              className={`px-6 py-2 rounded-full uppercase text-sm tracking-wider transition-all ${
+                selectedCategory === "all"
+                  ? "bg-black text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              All Bags
+            </button>
+            {Array.from(new Set(products.map(p => p.category))).sort().map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-6 py-2 rounded-full uppercase text-sm tracking-wider transition-all ${
+                  selectedCategory === category
+                    ? "bg-black text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {category}
+                <span className="ml-2 text-xs opacity-75">
+                  ({products.filter(p => p.category === category).length})
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
 
         {loading ? (
           <div className="flex items-center justify-center h-96">
@@ -227,12 +260,20 @@ export default function WomenPage() {
           <>
             {/* Products Count */}
             <div className="mb-6">
-              <p className="text-sm text-gray-600">{products.length} products</p>
+              <p className="text-sm text-gray-600">
+                {selectedCategory === "all" 
+                  ? `${products.length} products` 
+                  : `${products.filter(p => p.category === selectedCategory).length} products in ${selectedCategory}`
+                }
+              </p>
             </div>
 
             {/* Products Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-              {products.map((product: Product) => (
+              {(selectedCategory === "all" 
+                ? products 
+                : products.filter(p => p.category === selectedCategory)
+              ).map((product: Product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>

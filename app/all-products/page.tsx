@@ -59,12 +59,16 @@ function ProductCard({ product }: { product: Product }) {
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
           
-          <p className="text-sm font-semibold">₹{product.price.toLocaleString()}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.5).toLocaleString()}</p>
+            <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">50% OFF</span>
+          </div>
           <p className="text-xs text-gray-500">{product.category}</p>
           
           {/* Color Swatches */}
           {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-1 items-center">
+            <div className="flex gap-1.5 items-center flex-wrap">
               {product.colors.map((colorOption, idx) => {
                 // Fix color values that have .jpg extension
                 let colorValue = colorOption.value;
@@ -88,19 +92,21 @@ function ProductCard({ product }: { product: Product }) {
                   <Link
                     key={idx}
                     href={`/products/${colorVariantId}`}
-                    style={{ 
-                      backgroundColor: colorValue,
-                      width: '10px',
-                      height: '10px',
-                      minWidth: '10px',
-                      minHeight: '10px',
-                      borderRadius: '50%',
-                      display: 'inline-block',
-                      border: isCurrentColor ? '1px solid black' : '1px solid #d1d5db',
-                    }}
-                    aria-label={`View ${colorOption.name} variant`}
-                    title={colorOption.name}
-                  />
+                    className="group relative"
+                  >
+                    <div
+                      style={{ 
+                        backgroundColor: colorValue,
+                        width: '20px',
+                        height: '20px',
+                        borderRadius: '50%',
+                        border: isCurrentColor ? '2px solid black' : '1px solid #d1d5db',
+                        boxShadow: isCurrentColor ? '0 0 0 2px white, 0 0 0 3px black' : 'none',
+                      }}
+                      className="hover:scale-110 transition-transform cursor-pointer"
+                      title={colorOption.name}
+                    />
+                  </Link>
                 );
               })}
             </div>

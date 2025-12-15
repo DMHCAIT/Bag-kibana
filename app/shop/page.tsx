@@ -80,9 +80,9 @@ function ProductCard({ product }: { product: Product }) {
             </div>
 
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+              <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.5).toLocaleString()}</p>
               <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
+              <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">50% OFF</span>
             </div>
 
             {/* Color Swatches */}
@@ -398,10 +398,10 @@ export default function ShopPage() {
             <button className="flex flex-col items-center gap-2 group">
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
                 <Image
-                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/men-icon.jpg"
+                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20TOTE%20(%20png%20)/SANDESH%20TOTE%20-%20Black/01.png"
                   alt="Men's Collection"
                   fill
-                  className="object-contain"
+                  className="object-cover"
                   sizes="64px"
                 />
               </div>
