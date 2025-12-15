@@ -62,9 +62,9 @@ function ProductCard({ product }: { product: Product }) {
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.5).toLocaleString()}</p>
             <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-            <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-semibold">25% OFF</span>
+            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">50% OFF</span>
           </div>
           <Button
             onClick={handleAddToCart}
@@ -343,16 +343,27 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
       
       <div className="flex-1">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
-          {/* Breadcrumb */}
-          <nav className="text-sm mb-6 md:mb-8">
-            <span className="text-gray-500">
-              <Link href="/" className="hover:text-black">Home</Link>
-              {" / "}
-              <Link href="/shop" className="hover:text-black">Shop</Link>
-              {" / "}
-            </span>
-            <span className="text-black">{product.name}</span>
-          </nav>
+          {/* Back Button & Breadcrumb */}
+          <div className="mb-6 md:mb-8">
+            <button
+              onClick={() => router.back()}
+              className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-black mb-3 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+            <nav className="text-sm">
+              <span className="text-gray-500">
+                <Link href="/" className="hover:text-black">Home</Link>
+                {" / "}
+                <Link href="/shop" className="hover:text-black">Shop</Link>
+                {" / "}
+              </span>
+              <span className="text-black">{product.name}</span>
+            </nav>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
             {/* Product Images */}
@@ -493,20 +504,20 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Price */}
               <div className="py-3 md:py-4 border-y">
                 <div className="flex items-center flex-wrap gap-2 md:gap-3">
-                  <p className="text-2xl md:text-3xl font-medium text-green-600">₹{Math.round(product.price * 0.75).toLocaleString()}</p>
+                  <p className="text-2xl md:text-3xl font-medium text-black">₹{Math.round(product.price * 0.5).toLocaleString()}</p>
                   <p className="text-lg md:text-xl text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-                  <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-xs md:text-sm font-semibold">25% OFF</span>
+                  <span className="bg-black text-white px-2 py-1 rounded text-xs md:text-sm font-semibold">50% OFF</span>
                 </div>
                 <p className="text-xs md:text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
             </div>
 
               {/* Offer Banner - Single Line */}
-              <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-2.5 md:p-3">
+              <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-2.5 md:p-3">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center flex-wrap gap-1 md:gap-1.5 text-[10px] md:text-xs">
                     <span className="font-semibold text-gray-900">Special Offers</span>
                     <span className="text-gray-400">|</span>
-                    <span><strong className="text-green-700">25% OFF</strong> - Already applied!</span>
+                    <span><strong className="text-black">50% OFF</strong> - Already applied!</span>
                     <span className="text-gray-400">|</span>
                     <span><strong>Free Shipping</strong> across India</span>
                   </div>
@@ -516,7 +527,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               {/* Available Colors */}
             {product.colors && product.colors.length > 0 ? (
                 <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-3">Color: {product.color}</h3>
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">Available Colors ({product.colors.length})</h3>
                   
                   {/* Color Swatches - Responsive Grid */}
                   <div className="flex flex-wrap gap-2 md:gap-3">
@@ -526,57 +537,53 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       const productLink = `/products/${baseName}-${colorSlug}`;
                       const isCurrentColor = colorOption.name.toLowerCase().trim() === product.color.toLowerCase().trim();
                       
-                      // DEBUG: Log FULL colorOption object to see its structure
-                      if (index === 0) {
-                        console.log(`🔍 [ProductDetail] ${product.name} - FULL COLOR OBJECT:`, colorOption);
-                        console.log(`🔍 All color keys:`, Object.keys(colorOption));
-                        console.log(`🔍 colorOption.image value:`, colorOption.image);
-                        console.log(`🔍 colorOption.image type:`, typeof colorOption.image);
-                      }
-                      
-                      // Use color's image if available, otherwise fallback to product's first image
-                      const imageToShow = colorOption.image || product.images?.[0] || null;
-                      
-                      console.log(`🎨 [ProductDetail] Color "${colorOption.name}": imageToShow = ${imageToShow}`);
+                      // Use color's image if available
+                      const imageToShow = colorOption.image || null;
                       
                       return (
                         <Link
                           key={index}
                           href={productLink}
-                          className={`group relative border-2 rounded-lg overflow-hidden transition-all flex-shrink-0 ${
+                          className={`group relative border-2 rounded-lg overflow-hidden transition-all flex-shrink-0 hover:shadow-md ${
                             isCurrentColor 
-                              ? 'border-black ring-2 ring-black ring-offset-1' 
-                              : 'border-gray-300 hover:border-gray-500'
+                              ? 'border-black ring-2 ring-black ring-offset-2' 
+                              : 'border-gray-300 hover:border-black'
                           } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
                           title={colorOption.available ? colorOption.name : `${colorOption.name} - Currently unavailable`}
                         >
-                          {/* Color Image - ALWAYS show image if available */}
-                          <div className="relative w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 overflow-hidden bg-gray-100">
+                          {/* Color Image or Fallback */}
+                          <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 overflow-hidden bg-gray-50">
                             {imageToShow ? (
-                              <img
+                              <Image
                                 src={imageToShow}
                                 alt={colorOption.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  console.error(`❌ Failed to load image for ${colorOption.name}:`, imageToShow);
-                                }}
-                                onLoad={() => {
-                                  console.log(`✅ Successfully loaded image for ${colorOption.name}`);
-                                }}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, 112px"
                               />
                             ) : (
                               <div
-                                className="w-full h-full flex items-center justify-center text-xs text-gray-500"
-                                style={{ backgroundColor: colorOption.value !== '#000000' ? colorOption.value : '#f3f4f6' }}
+                                className="w-full h-full flex items-center justify-center"
+                                style={{ 
+                                  backgroundColor: colorOption.value && colorOption.value !== '#000000' 
+                                    ? colorOption.value 
+                                    : '#f3f4f6' 
+                                }}
                               >
-                                {colorOption.name.substring(0, 2)}
+                                <span className="text-xs font-medium text-gray-700 text-center px-2">
+                                  {colorOption.name}
+                                </span>
                               </div>
                             )}
                           </div>
+                          {/* Color Name Label */}
+                          <div className="absolute bottom-0 inset-x-0 bg-white/90 backdrop-blur-sm py-1 px-2">
+                            <p className="text-[10px] font-medium text-center truncate">{colorOption.name}</p>
+                          </div>
                           {/* Checkmark for current color */}
                           {isCurrentColor && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <Check className="w-5 h-5 text-white drop-shadow-lg" style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.8))' }} />
+                            <div className="absolute top-1 right-1 bg-black rounded-full p-1">
+                              <Check className="w-3 h-3 text-white" />
                             </div>
                           )}
                         </Link>
