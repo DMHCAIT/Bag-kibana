@@ -46,7 +46,7 @@ export async function parseApiError(response: Response): Promise<ApiError> {
  * Get user-friendly error message
  */
 export function getUserFriendlyMessage(error: ApiError | Error): string {
-  if (error instanceof ApiError || 'status' in error) {
+  if ('status' in error) {
     const apiError = error as ApiError;
     
     switch (apiError.status) {
