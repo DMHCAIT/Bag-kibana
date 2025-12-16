@@ -275,7 +275,8 @@ export default function ProductForm({ productId }: ProductFormProps) {
           
           if (error) {
             console.error(`Error uploading ${file.name}:`, error);
-            failedFiles.push(file.name);
+            console.error('Error details:', JSON.stringify(error, null, 2));
+            failedFiles.push(`${file.name} (${error.message || 'Unknown error'})`);
             continue;
           }
           
