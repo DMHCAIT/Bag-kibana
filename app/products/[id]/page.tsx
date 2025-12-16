@@ -365,8 +365,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </nav>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
-            {/* Product Images */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] gap-8 lg:gap-12 xl:gap-16">
+            {/* Product Images - Left Side */}
             <div className="space-y-3 md:space-y-4">
               {/* Main Image - Swipeable */}
               <div className="relative">
@@ -473,8 +473,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               )}
           </div>
 
-            {/* Product Info */}
-            <div className="space-y-4 md:space-y-6">
+            {/* Product Info - Right Sidebar (Sticky) */}
+            <div className="lg:sticky lg:top-8 lg:self-start space-y-4 md:space-y-5 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <div>
                 <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-[0.1em] mb-2" style={{fontFamily: 'var(--font-abhaya)'}}>
                   {product.name}
@@ -596,6 +596,39 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 <p className="text-sm text-gray-500">Loading colors...</p>
               </div>
             )}
+
+              {/* Quantity Selector */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-900 mb-3">Quantity</h3>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center border rounded-lg">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="px-4 py-3 hover:bg-gray-100 transition-colors text-lg font-medium"
+                      aria-label="Decrease quantity"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="text"
+                      value={quantity}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 1;
+                        setQuantity(Math.max(1, Math.min(99, val)));
+                      }}
+                      className="w-16 text-center border-x py-3 font-medium focus:outline-none"
+                      aria-label="Quantity"
+                    />
+                    <button
+                      onClick={() => setQuantity(Math.min(99, quantity + 1))}
+                      className="px-4 py-3 hover:bg-gray-100 transition-colors text-lg font-medium"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
 
               {/* Actions */}
               <div className="space-y-3">

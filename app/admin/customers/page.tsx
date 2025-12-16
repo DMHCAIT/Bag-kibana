@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Search, Mail, ShoppingCart, Calendar } from "lucide-react";
+import { Search, Mail, ShoppingCart, Calendar, Phone, User, Shield, Activity, CheckCircle, XCircle } from "lucide-react";
 
 interface Customer {
   id: string;
   email: string;
+  phone: string | null;
   full_name: string | null;
   role: string;
+  status: string;
+  phone_verified: boolean;
+  registration_method: string;
+  last_login_at: string | null;
+  login_count: number;
   created_at: string;
   order_count?: number;
   total_spent?: number;
@@ -162,39 +168,101 @@ export default function CustomersPage() {
                     Contact
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Registration
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Activity
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Orders
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total Spent
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Joined
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredCustomers.map((customer) => (
-                  <tr key={customer.id} className="hover:bg-gray-50">
+                  <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white text-sm font-medium">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-medium ${
+                          customer.role === 'admin' ? 'bg-purple-600' : 'bg-gray-600'
+                        }`}>
                           {customer.full_name?.[0]?.toUpperCase() ||
-                            customer.email[0].toUpperCase()}
+                            customer.email?.[0]?.toUpperCase() ||
+                            customer.phone?.[0] || 'U'}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">
-                            {customer.full_name || "No Name"}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-gray-900">
+                              {customer.full_name || "No Name"}
+                            </p>
+                            {customer.role === 'admin' && (
+                              <Shield className="w-4 h-4 text-purple-600" title="Admin" />
+                            )}
+                          </div>
                           <p className="text-sm text-gray-500">
-                            {customer.email}
+                            ID: {customer.id.slice(0, 8)}...
                           </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Mail className="w-4 h-4" />
-                        <span>{customer.email}</span>
+                      <div className="space-y-1">
+                        {customer.email && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Mail className="w-4 h-4" />
+                            <span>{customer.email}</span>
+                          </div>
+                        )}
+                        {customer.phone && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <Phone className="w-4 h-4" />
+                            <span>{customer.phone}</span>
+                            {customer.phone_verified && (
+                              <CheckCircle className="w-3 h-3 text-green-600" title="Verified" />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        customer.status === 'active' ? 'bg-green-100 text-green-800' :
+                        customer.status === 'inactive' ? 'bg-gray-100 text-gray-800' :
+                        customer.status === 'suspended' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {customer.status || 'active'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-sm">
+                          <User className="w-4 h-4 text-gray-400" />
+                          <span className="capitalize">{customer.registration_method || 'phone'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <Calendar className="w-3 h-3" />
+                          {customer.created_at ? format(new Date(customer.created_at), "MMM dd, yyyy") : 'N/A'}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Activity className="w-4 h-4 text-gray-400" />
+                          <span className="font-medium">{customer.login_count || 0} logins</span>
+                        </div>
+                        {customer.last_login_at && (
+                          <div className="text-xs text-gray-500">
+                            Last: {format(new Date(customer.last_login_at), "MMM dd, HH:mm")}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -209,12 +277,6 @@ export default function CustomersPage() {
                       <span className="font-medium text-gray-900">
                         ₹{(customer.total_spent || 0).toLocaleString("en-IN")}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <Calendar className="w-4 h-4" />
-                        {customer.created_at ? format(new Date(customer.created_at), "MMM dd, yyyy") : 'N/A'}
-                      </div>
                     </td>
                   </tr>
                 ))}

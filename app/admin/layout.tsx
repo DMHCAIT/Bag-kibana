@@ -14,6 +14,7 @@ import {
   X,
   Layout,
   Palette,
+  Activity,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -25,6 +26,7 @@ const navigation = [
   { name: "Color Management", href: "/admin/color-management", icon: Palette },
   { name: "Placements", href: "/admin/placements", icon: Layout },
   { name: "Customers", href: "/admin/customers", icon: Users },
+  { name: "Login History", href: "/admin/login-history", icon: Activity },
   { name: "Reports", href: "/admin/reports", icon: BarChart3 },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];

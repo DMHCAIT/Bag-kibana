@@ -10,10 +10,10 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '100');
     const offset = (page - 1) * limit;
 
-    // First try to get users from users table
+    // First try to get users from users table with all new fields
     let query = supabaseAdmin
       .from('users')
-      .select('*', { count: 'exact' })
+      .select('id, email, phone, full_name, role, status, phone_verified, registration_method, last_login_at, login_count, created_at, updated_at', { count: 'exact' })
       .order('created_at', { ascending: false });
 
     if (search) {
@@ -65,8 +65,14 @@ export async function GET(req: NextRequest) {
         customers.push({
           id: user.id,
           email: user.email,
+          phone: user.phone,
           full_name: user.full_name,
           role: user.role,
+          status: user.status || 'active',
+          phone_verified: user.phone_verified || false,
+          registration_method: user.registration_method || 'phone',
+          last_login_at: user.last_login_at,
+          login_count: user.login_count || 0,
           created_at: user.created_at,
           order_count: orderData?.order_count || 0,
           total_spent: orderData?.total_spent || 0,
