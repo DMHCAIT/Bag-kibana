@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 export default function OfferBanner() {
   const [isVisible, setIsVisible] = useState(true);
   const [isClosed, setIsClosed] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
 
   useEffect(() => {
     // Check if user has closed the banner in this session
@@ -14,6 +15,26 @@ export default function OfferBanner() {
       setIsVisible(false);
       setIsClosed(true);
     }
+
+    // Countdown timer
+    const saleEndDate = new Date('2025-12-26T00:00:00').getTime();
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = saleEndDate - now;
+
+      if (distance < 0) {
+        clearInterval(timer);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0 });
+      } else {
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+        });
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
   }, []);
 
   const closeBanner = () => {
@@ -79,7 +100,7 @@ export default function OfferBanner() {
                 <path d="M12 2L9 8H6L10 11L8 17L12 14L16 17L14 11L18 8H15L12 2Z" />
                 <rect x="11" y="17" width="2" height="5" fill="currentColor" />
               </svg>
-              Limited Time Offer
+              Sale Ends: {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m
             </span>
           </div>
         </div>
