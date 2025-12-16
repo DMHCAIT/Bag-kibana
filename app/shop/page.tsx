@@ -398,7 +398,7 @@ export default function ShopPage() {
             <button className="flex flex-col items-center gap-2 group">
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
                 <Image
-                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20TOTE%20(%20png%20)/SANDESH%20TOTE%20-%20Black/01.png"
+                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/men-icon.jpg"
                   alt="Men's Collection"
                   fill
                   className="object-cover"
