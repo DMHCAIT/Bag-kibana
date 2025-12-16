@@ -28,7 +28,7 @@ export default function HeroSection() {
         key={isMobile ? "mobile" : "desktop"}
       >
         <source
-          src={isMobile ? "/videos/hero-mobile.mp4" : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/homepage%20hero%20section.mp4"}
+          src={isMobile ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Kiabana%20reel-%20mobile%20version%202%20(1).mp4" : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/homepage%20hero%20section.mp4"}
           type="video/mp4"
         />
         Your browser does not support the video tag.
