@@ -2,7 +2,7 @@
 
 export default function SantaHat() {
   return (
-    <div className="absolute -top-2 -right-1 md:-top-3 md:-right-2 w-6 h-6 md:w-8 md:h-8 animate-bounce-slow">
+    <div className="absolute -top-3 -right-2 md:-top-4 md:-right-3 w-8 h-8 md:w-10 md:h-10 z-10" style={{ animation: 'bounce-slow 2s ease-in-out infinite' }}>
       <svg
         viewBox="0 0 100 100"
         fill="none"
@@ -30,17 +30,14 @@ export default function SantaHat() {
         />
       </svg>
 
-      <style jsx>{`
+      <style jsx global>{`
         @keyframes bounce-slow {
           0%, 100% {
             transform: translateY(0) rotate(-15deg);
           }
           50% {
-            transform: translateY(-4px) rotate(-15deg);
+            transform: translateY(-6px) rotate(-15deg);
           }
-        }
-        .animate-bounce-slow {
-          animation: bounce-slow 2s ease-in-out infinite;
         }
       `}</style>
     </div>

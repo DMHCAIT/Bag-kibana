@@ -28,14 +28,14 @@ export default function ChristmasSnowflakes() {
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
       {snowflakes.map((flake) => (
         <div
           key={flake.id}
-          className="absolute top-0 animate-fall"
+          className="absolute -top-10"
           style={{
             left: `${flake.left}%`,
-            animationDuration: `${flake.animationDuration}s`,
+            animation: `snowfall ${flake.animationDuration}s linear infinite`,
             animationDelay: `${flake.delay}s`,
             opacity: flake.opacity,
           }}
@@ -58,19 +58,14 @@ export default function ChristmasSnowflakes() {
         </div>
       ))}
 
-      <style jsx>{`
-        @keyframes fall {
+      <style jsx global>{`
+        @keyframes snowfall {
           0% {
-            transform: translateY(-10vh) rotate(0deg);
+            transform: translateY(0) rotate(0deg);
           }
           100% {
-            transform: translateY(110vh) rotate(360deg);
+            transform: translateY(100vh) rotate(360deg);
           }
-        }
-        .animate-fall {
-          animation-name: fall;
-          animation-timing-function: linear;
-          animation-iteration-count: infinite;
         }
       `}</style>
     </div>
