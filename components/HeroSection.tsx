@@ -23,13 +23,15 @@ export default function HeroSection() {
         muted
         loop
         playsInline
+        preload="auto"
         className="w-full h-screen object-cover"
-        poster="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Milky%20Blue/09-10-2025--livia00521.jpg"
+        key={isMobile ? "mobile" : "desktop"}
       >
         <source
           src={isMobile ? "/videos/hero-mobile.mp4" : "/videos/homepage hero section.mp4"}
           type="video/mp4"
         />
+        Your browser does not support the video tag.
       </video>
     </section>
   );
