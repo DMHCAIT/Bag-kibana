@@ -15,13 +15,13 @@ export default function ChristmasSnowflakes() {
   const [snowflakes, setSnowflakes] = useState<Snowflake[]>([]);
 
   useEffect(() => {
-    // Generate 15 snowflakes (light, not heavy)
-    const flakes: Snowflake[] = Array.from({ length: 15 }, (_, i) => ({
+    // Generate 40 snowflakes (more visible)
+    const flakes: Snowflake[] = Array.from({ length: 40 }, (_, i) => ({
       id: i,
       left: Math.random() * 100, // 0-100%
       animationDuration: 10 + Math.random() * 20, // 10-30s
-      size: 8 + Math.random() * 8, // 8-16px
-      opacity: 0.3 + Math.random() * 0.4, // 0.3-0.7
+      size: 10 + Math.random() * 12, // 10-22px (larger)
+      opacity: 0.6 + Math.random() * 0.4, // 0.6-1.0 (more visible)
       delay: Math.random() * 10, // 0-10s delay
     }));
     setSnowflakes(flakes);
@@ -46,12 +46,12 @@ export default function ChristmasSnowflakes() {
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="text-blue-200"
+            className="text-white drop-shadow-lg"
           >
             <path
               d="M12 2L12 22M12 2L8 6M12 2L16 6M12 22L8 18M12 22L16 18M2 12L22 12M2 12L6 8M2 12L6 16M22 12L18 8M22 12L18 16M5.636 5.636L18.364 18.364M5.636 5.636L8.464 8.464M18.364 18.364L15.536 15.536M18.364 5.636L5.636 18.364M18.364 5.636L15.536 8.464M5.636 18.364L8.464 15.536"
               stroke="currentColor"
-              strokeWidth="1.5"
+              strokeWidth="2"
               strokeLinecap="round"
             />
           </svg>
