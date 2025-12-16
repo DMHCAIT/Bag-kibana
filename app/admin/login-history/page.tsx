@@ -40,7 +40,14 @@ export default function LoginHistoryPage() {
       const response = await fetch("/api/admin/login-history");
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch login history: HTTP ${response.status}`);
+        const errorData = await response.json();
+        
+        // Check if it's a migration issue
+        if (errorData.needsMigration) {
+          throw new Error(`⚠️ DATABASE MIGRATION REQUIRED\n\n${errorData.error}\n\nSteps to fix:\n1. Open Supabase Dashboard\n2. Go to SQL Editor\n3. Create a new query\n4. Copy and paste contents from: supabase/add-user-tracking.sql\n5. Run the query\n6. Refresh this page`);
+        }
+        
+        throw new Error(errorData.error || `Failed to fetch login history: HTTP ${response.status}`);
       }
       
       const data = await response.json();
@@ -115,20 +122,39 @@ export default function LoginHistoryPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-red-800 mb-2">
-              Error Loading Login History
-            </h2>
-            <p className="text-red-600">{error}</p>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-8">
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-red-800 mb-3">
+                Error Loading Login History
+              </h2>
+              <div className="bg-white border border-red-300 rounded-md p-4 mb-4">
+                <pre className="text-sm text-red-700 whitespace-pre-wrap font-mono">
+                  {error}
+                </pre>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={fetchLoginHistory}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-medium"
+                >
+                  Retry
+                </button>
+                {error.includes('MIGRATION REQUIRED') && (
+                  <a
+                    href="https://supabase.com/dashboard"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
+                  >
+                    Open Supabase Dashboard
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
-          <button
-            onClick={fetchLoginHistory}
-            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-          >
-            Retry
-          </button>
         </div>
       </div>
     );
