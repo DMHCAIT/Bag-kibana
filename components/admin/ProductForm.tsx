@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, X, Upload, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 interface ProductFormProps {
   productId?: string;
@@ -223,7 +224,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
     }
   };
 
-  // Handle file upload
+  // Handle file upload - DIRECT SUPABASE UPLOAD (bypasses Vercel limits)
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -231,13 +232,13 @@ export default function ProductForm({ productId }: ProductFormProps) {
     try {
       setUploadingImages(true);
       
-      // Validate file sizes before upload (100MB per file for better reliability)
-      const maxSize = 100 * 1024 * 1024; // 100MB - more practical limit for web uploads
+      // Validate file sizes - 50MB per file (Supabase free tier limit)
+      const maxSize = 50 * 1024 * 1024; // 50MB
       const fileArray = Array.from(files);
       
       for (const file of fileArray) {
         if (file.size > maxSize) {
-          alert(`File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 100MB. Please compress the image or choose a smaller file.`);
+          alert(`File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 50MB. Please compress the image or choose a smaller file.`);
           setUploadingImages(false);
           e.target.value = '';
           return;
@@ -252,49 +253,59 @@ export default function ProductForm({ productId }: ProductFormProps) {
         }
       }
       
-      // Upload files in smaller batches to avoid timeouts
-      const BATCH_SIZE = 3;
+      // Upload directly to Supabase Storage (bypasses Vercel 4.5MB limit)
       const uploadedUrls: string[] = [];
+      const failedFiles: string[] = [];
       
-      for (let i = 0; i < fileArray.length; i += BATCH_SIZE) {
-        const batch = fileArray.slice(i, i + BATCH_SIZE);
-        const formDataToSend = new FormData();
-        
-        batch.forEach(file => {
-          formDataToSend.append('files', file);
-        });
-
-        const response = await fetch('/api/admin/upload', {
-          method: 'POST',
-          body: formDataToSend
-        });
-
-        if (!response.ok) {
-          // Handle different error status codes
-          if (response.status === 413) {
-            alert(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: Files are too large. The maximum total size per batch is approximately 100MB. Please upload fewer or smaller files at a time.`);
-            break;
-          } else {
-            const data = await response.json();
-            alert(`Batch ${Math.floor(i / BATCH_SIZE) + 1} upload failed: ${data.error || 'Unknown error'}`);
-            break;
+      for (const file of fileArray) {
+        try {
+          // Generate unique filename
+          const timestamp = Date.now();
+          const randomStr = Math.random().toString(36).substring(7);
+          const ext = file.name.split('.').pop();
+          const filename = `${timestamp}-${randomStr}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+          
+          // Upload to Supabase Storage
+          const { data, error } = await supabase.storage
+            .from('product-images')
+            .upload(filename, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
+          
+          if (error) {
+            console.error(`Error uploading ${file.name}:`, error);
+            failedFiles.push(file.name);
+            continue;
           }
-        } else {
-          const data = await response.json();
-          if (data.urls) {
-            uploadedUrls.push(...data.urls);
-          }
+          
+          // Get public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('product-images')
+            .getPublicUrl(filename);
+          
+          uploadedUrls.push(publicUrl);
+          
+        } catch (err) {
+          console.error(`Exception uploading ${file.name}:`, err);
+          failedFiles.push(file.name);
         }
       }
 
+      // Update form data with uploaded URLs
       if (uploadedUrls.length > 0) {
         setFormData(prev => ({
           ...prev,
           images: [...prev.images, ...uploadedUrls]
         }));
-        alert(`Successfully uploaded ${uploadedUrls.length} image(s)!`);
+        
+        if (failedFiles.length > 0) {
+          alert(`Successfully uploaded ${uploadedUrls.length} image(s)!\n\nFailed: ${failedFiles.join(', ')}`);
+        } else {
+          alert(`Successfully uploaded ${uploadedUrls.length} image(s)!`);
+        }
       } else {
-        alert('No images were uploaded. Please try again with smaller files.');
+        alert(`All uploads failed. Please check:\n1. File sizes (max 50MB each)\n2. Internet connection\n3. Supabase Storage bucket permissions\n\nFailed files: ${failedFiles.join(', ')}`);
       }
     } catch (error) {
       console.error('Error uploading images:', error);
@@ -976,7 +987,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                         {uploadingImages ? 'Uploading...' : 'Click to upload images'}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
-                        Or drag and drop images here
+                        Max 50MB per file (direct to Supabase)
                       </p>
                     </div>
                   </label>
