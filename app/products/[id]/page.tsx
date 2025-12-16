@@ -388,7 +388,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       <div
                         key={index}
                         className="relative w-full bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 snap-center"
-                        style={{ aspectRatio: '3/4', maxHeight: '550px', maxWidth: '450px', margin: '0 auto' }}
+                        style={{ aspectRatio: '3/4' }}
                         onClick={() => {
                           setSelectedImage(index);
                           setIsModalOpen(true);
