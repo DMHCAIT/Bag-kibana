@@ -7,7 +7,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ChristmasSnowflakes from "@/components/ChristmasSnowflakes";
-import ChristmasBadge from "@/components/ChristmasBadge";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -123,7 +122,6 @@ export default function RootLayout({
         </noscript>
         {/* End Google Tag Manager (noscript) */}
         <ChristmasSnowflakes />
-        <ChristmasBadge />
         <ErrorBoundary>
           <Providers>
             {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
