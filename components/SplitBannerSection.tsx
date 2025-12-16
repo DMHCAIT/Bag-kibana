@@ -46,7 +46,7 @@ export default function SplitBannerSection() {
             <div className="relative h-[500px] md:h-[700px] bg-gray-100 rounded-sm overflow-hidden group cursor-pointer">
               {/* Men Model Image */}
               <Image
-                src="/man-model-monochrome.png"
+                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/men-icon.jpg"
                 alt="Men Collection"
                 fill
                 className="object-cover"
