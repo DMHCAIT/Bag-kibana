@@ -117,11 +117,11 @@ export async function createShipment(orderData: {
           payment_mode: orderData.paymentMode === 'prepaid' ? 'Prepaid' : 'COD',
           
           // Return address (your business address)
-          return_pin: '110001', // Update with your pickup pincode
-          return_city: 'Delhi', // Update with your city
-          return_phone: '+919876543210', // Update with your phone
-          return_add: 'Your Business Address', // Update with your address
-          return_state: 'Delhi', // Update with your state
+          return_pin: '110030',
+          return_city: 'Delhi',
+          return_phone: '+919015922227',
+          return_add: 'Building No.-581/2, Second Floor, Khatana Farm, Mandi Rd, Sultanpur, New Delhi-30',
+          return_state: 'Delhi',
           return_country: 'India',
           
           // Product details
@@ -132,7 +132,7 @@ export async function createShipment(orderData: {
           total_amount: orderData.totalAmount.toString(),
           
           // Seller details
-          seller_add: 'Your Business Address', // Update with your address
+          seller_add: 'Building No.-581/2, Second Floor, Khatana Farm, Mandi Rd, Sultanpur, New Delhi-30',
           seller_name: 'KIBANA',
           seller_inv: orderData.orderId,
           quantity: orderData.items.reduce((sum, item) => sum + item.quantity, 0).toString(),
