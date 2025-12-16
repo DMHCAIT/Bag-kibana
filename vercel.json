@@ -7,8 +7,7 @@
   "functions": {
     "app/api/admin/upload/route.ts": {
       "maxDuration": 60,
-      "memory": 3008,
-      "maxRequestBodySize": "524288000"
+      "memory": 3008
     }
   },
   "headers": [
