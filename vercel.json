@@ -4,6 +4,12 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "crons": [],
+  "functions": {
+    "app/api/admin/upload/route.ts": {
+      "maxDuration": 60,
+      "memory": 3008
+    }
+  },
   "headers": [
     {
       "source": "/api/(.*)",

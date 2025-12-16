@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 
+// Configure route to accept larger payloads
+export const runtime = 'nodejs';
+export const maxDuration = 60; // 60 seconds timeout
+export const dynamic = 'force-dynamic';
+
 // POST - Upload image(s)
 export async function POST(request: NextRequest) {
   try {
@@ -25,10 +30,10 @@ export async function POST(request: NextRequest) {
         continue; // Skip non-image files
       }
 
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
+      // Validate file size (max 10MB - increased from 5MB)
+      if (file.size > 10 * 1024 * 1024) {
         return NextResponse.json(
-          { error: `File ${file.name} is too large. Max size is 5MB.` },
+          { error: `File ${file.name} is too large. Max size is 10MB.` },
           { status: 400 }
         );
       }

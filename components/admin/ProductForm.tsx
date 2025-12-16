@@ -230,6 +230,18 @@ export default function ProductForm({ productId }: ProductFormProps) {
 
     try {
       setUploadingImages(true);
+      
+      // Validate file sizes before upload
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      for (const file of Array.from(files)) {
+        if (file.size > maxSize) {
+          alert(`File "${file.name}" is too large. Maximum size is 10MB. Please compress the image or choose a smaller file.`);
+          setUploadingImages(false);
+          e.target.value = '';
+          return;
+        }
+      }
+      
       const formDataToSend = new FormData();
       
       Array.from(files).forEach(file => {
@@ -241,19 +253,31 @@ export default function ProductForm({ productId }: ProductFormProps) {
         body: formDataToSend
       });
 
+      if (!response.ok) {
+        // Handle different error status codes
+        if (response.status === 413) {
+          alert('Files are too large. Please compress your images or upload smaller files (max 10MB each).');
+        } else {
+          const data = await response.json();
+          alert(`Upload failed: ${data.error || 'Unknown error'}`);
+        }
+        return;
+      }
+
       const data = await response.json();
 
-      if (response.ok && data.urls) {
+      if (data.urls) {
         setFormData(prev => ({
           ...prev,
           images: [...prev.images, ...data.urls]
         }));
+        alert(`Successfully uploaded ${data.urls.length} image(s)!`);
       } else {
-        alert(`Upload failed: ${data.error}`);
+        alert(`Upload failed: ${data.error || 'No URLs returned'}`);
       }
     } catch (error) {
       console.error('Error uploading images:', error);
-      alert('Failed to upload images');
+      alert('Failed to upload images. Please check your internet connection and try again.');
     } finally {
       setUploadingImages(false);
       // Reset file input
