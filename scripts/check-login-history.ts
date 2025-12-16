@@ -67,7 +67,7 @@ async function checkLoginHistorySetup() {
     }
 
     console.log(`   Found ${sampleData?.length || 0} recent entries:`);
-    sampleData?.forEach((entry, idx) => {
+    sampleData?.forEach((entry: any, idx: number) => {
       console.log(`\n   Entry ${idx + 1}:`);
       console.log(`   - Phone: ${entry.phone || 'N/A'}`);
       console.log(`   - Email: ${entry.email || 'N/A'}`);
