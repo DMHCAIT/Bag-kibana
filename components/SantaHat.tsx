@@ -2,7 +2,7 @@
 
 export default function SantaHat() {
   return (
-    <div className="absolute -top-3 -right-2 md:-top-4 md:-right-3 w-8 h-8 md:w-10 md:h-10 z-10" style={{ animation: 'bounce-slow 2s ease-in-out infinite' }}>
+    <div className="absolute -top-3 -left-1 md:-top-4 md:-left-2 w-8 h-8 md:w-10 md:h-10 z-10" style={{ animation: 'bounce-slow 2s ease-in-out infinite' }}>
       <svg
         viewBox="0 0 100 100"
         fill="none"
