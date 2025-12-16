@@ -387,7 +387,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     {images.map((image, index) => (
                       <div
                         key={index}
-                        className="relative aspect-[4/5] bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 w-full snap-center"
+                        className="relative aspect-[3/4] bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 w-full snap-center"
+                        style={{ maxHeight: '600px' }}
                         onClick={() => {
                           setSelectedImage(index);
                           setIsModalOpen(true);
@@ -398,7 +399,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           alt={`${product.name} - ${product.color} - View ${index + 1}`}
                           fill
                           priority={index === 0}
-                          className="object-contain p-4"
+                          className="object-cover"
                           sizes="(max-width: 1024px) 100vw, 50vw"
                         />
                       </div>
@@ -463,7 +464,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           src={image}
                           alt={`Thumbnail ${index + 1}`}
                         fill
-                          className="object-contain p-1 md:p-2"
+                          className="object-cover"
                           sizes="(max-width: 768px) 56px, 80px"
                       />
                     </button>
