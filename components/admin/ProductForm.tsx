@@ -231,49 +231,70 @@ export default function ProductForm({ productId }: ProductFormProps) {
     try {
       setUploadingImages(true);
       
-      // Validate file sizes before upload
-      const maxSize = 500 * 1024 * 1024; // 500MB
-      for (const file of Array.from(files)) {
+      // Validate file sizes before upload (100MB per file for better reliability)
+      const maxSize = 100 * 1024 * 1024; // 100MB - more practical limit for web uploads
+      const fileArray = Array.from(files);
+      
+      for (const file of fileArray) {
         if (file.size > maxSize) {
-          alert(`File "${file.name}" is too large. Maximum size is 500MB. Please compress the image or choose a smaller file.`);
+          alert(`File "${file.name}" is too large (${(file.size / 1024 / 1024).toFixed(2)}MB). Maximum size is 100MB. Please compress the image or choose a smaller file.`);
+          setUploadingImages(false);
+          e.target.value = '';
+          return;
+        }
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          alert(`File "${file.name}" is not an image. Please select only image files.`);
           setUploadingImages(false);
           e.target.value = '';
           return;
         }
       }
       
-      const formDataToSend = new FormData();
+      // Upload files in smaller batches to avoid timeouts
+      const BATCH_SIZE = 3;
+      const uploadedUrls: string[] = [];
       
-      Array.from(files).forEach(file => {
-        formDataToSend.append('files', file);
-      });
+      for (let i = 0; i < fileArray.length; i += BATCH_SIZE) {
+        const batch = fileArray.slice(i, i + BATCH_SIZE);
+        const formDataToSend = new FormData();
+        
+        batch.forEach(file => {
+          formDataToSend.append('files', file);
+        });
 
-      const response = await fetch('/api/admin/upload', {
-        method: 'POST',
-        body: formDataToSend
-      });
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          body: formDataToSend
+        });
 
-      if (!response.ok) {
-        // Handle different error status codes
-        if (response.status === 413) {
-          alert('Files are too large. Please compress your images or upload smaller files (max 500MB each).');
+        if (!response.ok) {
+          // Handle different error status codes
+          if (response.status === 413) {
+            alert(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: Files are too large. The maximum total size per batch is approximately 100MB. Please upload fewer or smaller files at a time.`);
+            break;
+          } else {
+            const data = await response.json();
+            alert(`Batch ${Math.floor(i / BATCH_SIZE) + 1} upload failed: ${data.error || 'Unknown error'}`);
+            break;
+          }
         } else {
           const data = await response.json();
-          alert(`Upload failed: ${data.error || 'Unknown error'}`);
+          if (data.urls) {
+            uploadedUrls.push(...data.urls);
+          }
         }
-        return;
       }
 
-      const data = await response.json();
-
-      if (data.urls) {
+      if (uploadedUrls.length > 0) {
         setFormData(prev => ({
           ...prev,
-          images: [...prev.images, ...data.urls]
+          images: [...prev.images, ...uploadedUrls]
         }));
-        alert(`Successfully uploaded ${data.urls.length} image(s)!`);
+        alert(`Successfully uploaded ${uploadedUrls.length} image(s)!`);
       } else {
-        alert(`Upload failed: ${data.error || 'No URLs returned'}`);
+        alert('No images were uploaded. Please try again with smaller files.');
       }
     } catch (error) {
       console.error('Error uploading images:', error);
