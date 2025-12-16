@@ -34,6 +34,11 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   
+  // API route configuration for large file uploads
+  serverRuntimeConfig: {
+    maxFileSizeBytes: 500 * 1024 * 1024, // 500MB
+  },
+  
   // Headers for security and performance
   async headers() {
     return [

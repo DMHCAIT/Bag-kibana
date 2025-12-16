@@ -5,6 +5,16 @@ import { supabaseAdmin } from '@/lib/supabase';
 export const runtime = 'nodejs';
 export const maxDuration = 60; // 60 seconds timeout
 export const dynamic = 'force-dynamic';
+export const bodyParser = false; // Disable default body parser
+
+// Set maximum body size for uploads (500MB)
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '500mb',
+    },
+  },
+};
 
 // POST - Upload image(s)
 export async function POST(request: NextRequest) {
