@@ -13,7 +13,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
-  const { cart } = useCart();
+  const { cart, openCart } = useCart();
   const { user, signOut, isLoading } = useAuth();
   const router = useRouter();
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -157,14 +157,14 @@ export default function Header() {
             </div>
 
             {/* Cart Icon */}
-            <Link href="/cart" className="relative hover:opacity-60 transition-opacity" aria-label="Shopping bag">
+            <button onClick={openCart} className="relative hover:opacity-60 transition-opacity" aria-label="Shopping bag">
               <ShoppingBag className="w-5 h-5" />
               {isClient && cart.totalItems > 0 && (
                 <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {cart.totalItems}
                 </span>
               )}
-            </Link>
+            </button>
           </div>
         </div>
       </div>

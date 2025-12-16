@@ -35,6 +35,7 @@ const saveCart = (items: CartItem[]) => {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   // Load cart ONCE on mount
   useEffect(() => {
@@ -84,6 +85,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         selectedColor: selectedColor || product.colors?.[0]
       }];
     });
+    setIsCartOpen(true); // Open cart drawer when item is added
   }, []);
 
   const removeFromCart = useCallback((productId: string) => {
@@ -111,6 +113,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return item?.quantity || 0;
   }, [cartItems]);
 
+  const openCart = useCallback(() => {
+    setIsCartOpen(true);
+  }, []);
+
+  const closeCart = useCallback(() => {
+    setIsCartOpen(false);
+  }, []);
+
   const value = useMemo(() => ({
     cart,
     addToCart,
@@ -118,8 +128,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     updateQuantity,
     clearCart,
     getItemQuantity,
-    isLoaded
-  }), [cart, addToCart, removeFromCart, updateQuantity, clearCart, getItemQuantity, isLoaded]);
+    isLoaded,
+    isCartOpen,
+    openCart,
+    closeCart
+  }), [cart, addToCart, removeFromCart, updateQuantity, clearCart, getItemQuantity, isLoaded, isCartOpen, openCart, closeCart]);
 
   return (
     <CartContext.Provider value={value}>

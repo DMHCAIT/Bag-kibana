@@ -27,5 +27,8 @@ export interface CartContextType {
   clearCart: () => void;
   getItemQuantity: (productId: string) => number;
   isLoaded: boolean;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 }
 

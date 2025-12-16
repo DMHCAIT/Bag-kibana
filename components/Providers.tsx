@@ -1,8 +1,15 @@
 "use client";
 
-// Removed SessionProvider as authentication is not currently active
-// If you need authentication in the future, uncomment and configure NextAuth properly
+import { useCart } from "@/contexts/CartContext";
+import CartDrawer from "./CartDrawer";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  const { isCartOpen, closeCart } = useCart();
+  
+  return (
+    <>
+      {children}
+      <CartDrawer isOpen={isCartOpen} onClose={closeCart} />
+    </>
+  );
 }
