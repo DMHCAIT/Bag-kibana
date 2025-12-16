@@ -126,7 +126,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [quantity] = useState(1);
+  const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
   // Accordion states
