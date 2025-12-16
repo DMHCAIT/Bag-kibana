@@ -72,6 +72,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const [newFeature, setNewFeature] = useState("");
   const [newCareInstruction, setNewCareInstruction] = useState("");
   const [newImageUrl, setNewImageUrl] = useState("");
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [newCompartment, setNewCompartment] = useState("");
 
   const fetchProduct = useCallback(async () => {
@@ -219,6 +220,46 @@ export default function ProductForm({ productId }: ProductFormProps) {
         images: [...formData.images, newImageUrl.trim()],
       });
       setNewImageUrl("");
+    }
+  };
+
+  // Handle file upload
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      setUploadingImages(true);
+      const formDataToSend = new FormData();
+      
+      Array.from(files).forEach(file => {
+        formDataToSend.append('files', file);
+      });
+
+      const response = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formDataToSend
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.urls) {
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, ...data.urls]
+        }));
+      } else {
+        alert(`Upload failed: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert('Failed to upload images');
+    } finally {
+      setUploadingImages(false);
+      // Reset file input
+      if (e.target) {
+        e.target.value = '';
+      }
     }
   };
 
@@ -867,6 +908,44 @@ export default function ProductForm({ productId }: ProductFormProps) {
                 ))}
 
                 <div className="space-y-2">
+                  {/* File Upload Button */}
+                  <label className="w-full block">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImages}
+                      className="hidden"
+                      id="image-file-upload"
+                    />
+                    <div
+                      className={`w-full px-4 py-3 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors ${
+                        uploadingImages
+                          ? 'border-gray-300 bg-gray-50 cursor-not-allowed'
+                          : 'border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50'
+                      }`}
+                    >
+                      <Upload className={`w-5 h-5 mx-auto mb-1 ${uploadingImages ? 'text-gray-400' : 'text-gray-600'}`} />
+                      <p className={`text-sm ${uploadingImages ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {uploadingImages ? 'Uploading...' : 'Click to upload images'}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Or drag and drop images here
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* URL Input (Alternative Method) */}
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200" />
+                    </div>
+                    <div className="relative flex justify-center text-xs">
+                      <span className="bg-gray-50 px-2 text-gray-500">OR</span>
+                    </div>
+                  </div>
+
                   <input
                     type="url"
                     value={newImageUrl}
@@ -874,16 +953,16 @@ export default function ProductForm({ productId }: ProductFormProps) {
                     onKeyPress={(e) =>
                       e.key === "Enter" && (e.preventDefault(), addImage())
                     }
-                    placeholder="Image URL..."
+                    placeholder="Paste image URL..."
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                   />
                   <button
                     type="button"
                     onClick={addImage}
-                    className="w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 text-gray-600 hover:text-gray-700 flex items-center justify-center gap-2"
+                    disabled={!newImageUrl.trim()}
+                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    <Upload className="w-4 h-4" />
-                    Add Image
+                    Add Image URL
                   </button>
                 </div>
               </div>
