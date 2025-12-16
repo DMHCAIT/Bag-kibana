@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Search, User, ShoppingBag, Menu, X, LogOut, Package } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useCart } from "@/contexts/CartContext";
@@ -91,9 +92,15 @@ export default function Header() {
             href="/"
             className="hover:opacity-60 transition-opacity relative"
           >
-            <h1 className="text-2xl md:text-3xl font-bold tracking-[0.3em] text-black font-abhaya">
-              KIBANA
-            </h1>
+            <div className="relative w-24 h-8 md:w-32 md:h-10">
+              <Image
+                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/logo%20kibana.jpg"
+                alt="KIBANA Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
             <SantaHat />
           </Link>
 
