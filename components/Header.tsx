@@ -8,7 +8,6 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import OfferBanner from "./OfferBanner";
-import SantaHat from "./SantaHat";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -87,12 +86,12 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* Center - Logo with Santa Hat */}
+          {/* Center - Logo */}
           <Link
             href="/"
-            className="hover:opacity-60 transition-opacity relative"
+            className="hover:opacity-60 transition-opacity"
           >
-            <div className="relative w-24 h-8 md:w-32 md:h-10">
+            <div className="relative w-28 h-10 md:w-36 md:h-12">
               <Image
                 src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/logo%20kibana.jpg"
                 alt="KIBANA Logo"
@@ -101,7 +100,6 @@ export default function Header() {
                 priority
               />
             </div>
-            <SantaHat />
           </Link>
 
           {/* Right Section - Icons (Desktop) & Cart */}
