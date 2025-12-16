@@ -232,10 +232,10 @@ export default function ProductForm({ productId }: ProductFormProps) {
       setUploadingImages(true);
       
       // Validate file sizes before upload
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 50 * 1024 * 1024; // 50MB
       for (const file of Array.from(files)) {
         if (file.size > maxSize) {
-          alert(`File "${file.name}" is too large. Maximum size is 10MB. Please compress the image or choose a smaller file.`);
+          alert(`File "${file.name}" is too large. Maximum size is 50MB. Please compress the image or choose a smaller file.`);
           setUploadingImages(false);
           e.target.value = '';
           return;
@@ -256,7 +256,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
       if (!response.ok) {
         // Handle different error status codes
         if (response.status === 413) {
-          alert('Files are too large. Please compress your images or upload smaller files (max 10MB each).');
+          alert('Files are too large. Please compress your images or upload smaller files (max 50MB each).');
         } else {
           const data = await response.json();
           alert(`Upload failed: ${data.error || 'Unknown error'}`);
