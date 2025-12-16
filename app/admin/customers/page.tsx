@@ -202,7 +202,7 @@ export default function CustomersPage() {
                               {customer.full_name || "No Name"}
                             </p>
                             {customer.role === 'admin' && (
-                              <Shield className="w-4 h-4 text-purple-600" title="Admin" />
+                              <Shield className="w-4 h-4 text-purple-600" aria-label="Admin" />
                             )}
                           </div>
                           <p className="text-sm text-gray-500">
@@ -224,7 +224,7 @@ export default function CustomersPage() {
                             <Phone className="w-4 h-4" />
                             <span>{customer.phone}</span>
                             {customer.phone_verified && (
-                              <CheckCircle className="w-3 h-3 text-green-600" title="Verified" />
+                              <CheckCircle className="w-3 h-3 text-green-600" aria-label="Verified" />
                             )}
                           </div>
                         )}
