@@ -6,6 +6,7 @@ import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import ChristmasSnowflakes from "@/components/ChristmasSnowflakes";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -120,6 +121,7 @@ export default function RootLayout({
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
+        <ChristmasSnowflakes />
         <ErrorBoundary>
           <Providers>
             {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 

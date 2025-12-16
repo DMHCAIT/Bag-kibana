@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import OfferBanner from "./OfferBanner";
+import SantaHat from "./SantaHat";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,14 +86,15 @@ export default function Header() {
             </nav>
           </div>
 
-          {/* Center - Logo */}
+          {/* Center - Logo with Santa Hat */}
           <Link
             href="/"
-            className="hover:opacity-60 transition-opacity"
+            className="hover:opacity-60 transition-opacity relative"
           >
             <h1 className="text-2xl md:text-3xl font-bold tracking-[0.3em] text-black font-abhaya">
               KIBANA
             </h1>
+            <SantaHat />
           </Link>
 
           {/* Right Section - Icons (Desktop) & Cart */}

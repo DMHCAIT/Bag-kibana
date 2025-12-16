@@ -34,19 +34,53 @@ export default function OfferBanner() {
       <div className="flex items-center h-12">
         <div className="animate-scroll flex whitespace-nowrap">
           <div className="flex items-center space-x-8 px-8">
-            <span className="text-sm font-medium">
+            <span className="flex items-center gap-2 text-sm font-medium">
+              <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 8H6L10 11L8 17L12 14L16 17L14 11L18 8H15L12 2Z" />
+                <rect x="11" y="17" width="2" height="5" fill="currentColor" />
+              </svg>
               <strong>50% OFF</strong> on All Products - <strong className="text-green-400">Automatically Applied!</strong>
             </span>
-            <span className="text-sm">Free Shipping on All Orders</span>
-            <span className="text-sm">Limited Time Offer</span>
+            <span className="flex items-center gap-2 text-sm">
+              <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="4" y="8" width="16" height="12" rx="1" />
+                <path d="M4 12L12 8L20 12" fill="#DC2626" />
+                <rect x="10" y="8" width="4" height="4" fill="#FEF3C7" />
+              </svg>
+              Free Shipping on All Orders
+            </span>
+            <span className="flex items-center gap-2 text-sm">
+              <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 8H6L10 11L8 17L12 14L16 17L14 11L18 8H15L12 2Z" />
+                <rect x="11" y="17" width="2" height="5" fill="currentColor" />
+              </svg>
+              Limited Time Offer
+            </span>
           </div>
           {/* Duplicate for seamless loop */}
           <div className="flex items-center space-x-8 px-8">
-            <span className="text-sm font-medium">
+            <span className="flex items-center gap-2 text-sm font-medium">
+              <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 8H6L10 11L8 17L12 14L16 17L14 11L18 8H15L12 2Z" />
+                <rect x="11" y="17" width="2" height="5" fill="currentColor" />
+              </svg>
               <strong>50% OFF</strong> on All Products - <strong className="text-white">Automatically Applied!</strong>
             </span>
-            <span className="text-sm">Free Shipping on All Orders</span>
-            <span className="text-sm">Limited Time Offer</span>
+            <span className="flex items-center gap-2 text-sm">
+              <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="4" y="8" width="16" height="12" rx="1" />
+                <path d="M4 12L12 8L20 12" fill="#DC2626" />
+                <rect x="10" y="8" width="4" height="4" fill="#FEF3C7" />
+              </svg>
+              Free Shipping on All Orders
+            </span>
+            <span className="flex items-center gap-2 text-sm">
+              <svg className="w-4 h-4 text-green-500" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L9 8H6L10 11L8 17L12 14L16 17L14 11L18 8H15L12 2Z" />
+                <rect x="11" y="17" width="2" height="5" fill="currentColor" />
+              </svg>
+              Limited Time Offer
+            </span>
           </div>
         </div>
       </div>
