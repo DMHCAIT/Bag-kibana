@@ -367,7 +367,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr,450px] gap-8 lg:gap-12 xl:gap-16">
             {/* Product Images - Left Side */}
-            <div className="space-y-3 md:space-y-4">
+            <div className="space-y-3 md:space-y-4 lg:max-w-[500px]">
               {/* Main Image - Swipeable */}
               <div className="relative">
                 <div 
@@ -388,7 +388,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       <div
                         key={index}
                         className="relative w-full bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 snap-center"
-                        style={{ aspectRatio: '3/4', maxHeight: '70vh' }}
+                        style={{ aspectRatio: '3/4', maxHeight: '500px' }}
                         onClick={() => {
                           setSelectedImage(index);
                           setIsModalOpen(true);
