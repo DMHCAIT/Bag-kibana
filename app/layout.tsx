@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ChristmasSnowflakes from "@/components/ChristmasSnowflakes";
+import CartDrawerWrapper from "@/components/CartDrawerWrapper";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -128,12 +129,18 @@ export default function RootLayout({
              !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID') ? (
               <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
                 <AuthProvider>
-                  <CartProvider>{children}</CartProvider>
+                  <CartProvider>
+                    {children}
+                    <CartDrawerWrapper />
+                  </CartProvider>
                 </AuthProvider>
               </GoogleOAuthProvider>
             ) : (
               <AuthProvider>
-                <CartProvider>{children}</CartProvider>
+                <CartProvider>
+                  {children}
+                  <CartDrawerWrapper />
+                </CartProvider>
               </AuthProvider>
             )}
           </Providers>
