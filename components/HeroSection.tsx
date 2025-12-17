@@ -22,8 +22,8 @@ export default function HeroSection() {
       <div className="relative w-full h-screen">
         <Image
           src={isMobile 
-            ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20sectionchristmas%20mobile.png"
-            : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Hero%20section%20christmas%20desktop.png"
+            ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20chris%20mobile.jpg"
+            : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20chris%20desktop.jpg"
           }
           alt="KibanaLife Christmas Collection"
           fill
