@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { supabaseAdmin } from '@/lib/supabase';
 import { emailService } from '@/lib/email-service';
+import { sendOrderConfirmationNotifications } from '@/lib/notification-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -120,6 +121,20 @@ export async function POST(request: NextRequest) {
           paymentMethod: orderData.payment_method,
           orderDate: orderData.created_at,
         }).catch(err => console.error('Email send error:', err));
+
+        // Send SMS and WhatsApp notifications (async, don't wait)
+        sendOrderConfirmationNotifications({
+          orderId: orderData.id,
+          customerName: orderData.customer_name,
+          customerPhone: orderData.customer_phone,
+          totalAmount: orderData.total,
+          items: orderData.items.map((item: any) => ({
+            name: item.product_name,
+            quantity: item.quantity,
+            price: item.price
+          })),
+          shippingAddress: `${orderData.shipping_address.address_line1}, ${orderData.shipping_address.city}, ${orderData.shipping_address.state} - ${orderData.shipping_address.postal_code}`
+        }).catch(err => console.error('Notification send error:', err));
       }
     } catch (dbError) {
       console.error('Exception saving order to database:', dbError);

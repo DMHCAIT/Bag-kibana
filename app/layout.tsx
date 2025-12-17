@@ -8,6 +8,7 @@ import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import ChristmasSnowflakes from "@/components/ChristmasSnowflakes";
 import CartDrawerWrapper from "@/components/CartDrawerWrapper";
+import CartReminderProvider from "@/components/CartReminderProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -130,6 +131,7 @@ export default function RootLayout({
               <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
                 <AuthProvider>
                   <CartProvider>
+                    <CartReminderProvider />
                     {children}
                     <CartDrawerWrapper />
                   </CartProvider>
@@ -138,6 +140,7 @@ export default function RootLayout({
             ) : (
               <AuthProvider>
                 <CartProvider>
+                  <CartReminderProvider />
                   {children}
                   <CartDrawerWrapper />
                 </CartProvider>
