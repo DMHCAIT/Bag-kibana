@@ -20,18 +20,22 @@ CREATE INDEX IF NOT EXISTS idx_cart_reminders_user_id ON cart_reminders(user_id)
 -- Enable RLS
 ALTER TABLE cart_reminders ENABLE ROW LEVEL SECURITY;
 
--- Policy: Admin can view all cart reminders
-CREATE POLICY "Admin can view all cart reminders" ON cart_reminders
-  FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM user_roles
-      WHERE user_roles.user_id = auth.uid()
-      AND user_roles.role = 'admin'
-    )
-  );
+-- Policy: Allow service role to insert cart reminders (for API)
+CREATE POLICY "Service role can insert cart reminders" ON cart_reminders
+  FOR INSERT
+  WITH CHECK (true);
+
+-- Policy: Allow service role to update cart reminders (for status updates)
+CREATE POLICY "Service role can update cart reminders" ON cart_reminders
+  FOR UPDATE
+  USING (true);
 
 -- Policy: Users can view their own cart reminders
 CREATE POLICY "Users can view their own cart reminders" ON cart_reminders
   FOR SELECT
   USING (user_id = auth.uid());
+
+-- Policy: Allow service role to view all (for admin dashboard if needed)
+CREATE POLICY "Service role can view all cart reminders" ON cart_reminders
+  FOR SELECT
+  USING (true);
