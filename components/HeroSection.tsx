@@ -30,6 +30,9 @@ export default function HeroSection() {
           priority
           className="object-cover"
           quality={100}
+          sizes={isMobile ? "1620px" : "1920px"}
+          width={isMobile ? 1620 : 1920}
+          height={isMobile ? 1912 : 1080}
         />
       </div>
     </section>
