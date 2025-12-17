@@ -14,66 +14,32 @@ import { Phone, Loader2, ArrowLeft } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
 
 function GoogleSignInButton() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const { signInWithGoogle } = useAuth();
   const [loading, setLoading] = useState(false);
-  const redirectTo = searchParams.get('redirect') || '/account';
 
-  // Check if Google OAuth is configured
-  const isGoogleConfigured = typeof window !== 'undefined' && 
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
-    !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID');
-
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setLoading(true);
-      
-      try {
-        // Fetch user info from Google
-        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`,
-          },
-        });
-        
-        const userInfo = await userInfoResponse.json();
-        
-        // Create user with real Google data
-        const googleUser = {
-          id: `GOOGLE-${userInfo.sub}`,
-          email: userInfo.email,
-          name: userInfo.name,
-          phone: '',
-          createdAt: new Date().toISOString(),
-          picture: userInfo.picture || '',
-        };
-
-        localStorage.setItem('kibana_user', JSON.stringify(googleUser));
-        
-        setLoading(false);
-        router.push(redirectTo);
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-        setLoading(false);
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      const result = await signInWithGoogle();
+      if (!result.success) {
+        console.error('Google sign in failed:', result.error);
+        alert(result.error || 'Failed to sign in with Google');
       }
-    },
-    onError: () => {
-      console.error('Google login failed');
+      // Note: On success, user will be redirected by OAuth flow
+    } catch (error) {
+      console.error('Error during Google sign in:', error);
+      alert('Failed to sign in with Google');
+    } finally {
       setLoading(false);
-    },
-  });
-
-  // Don't render if Google OAuth is not configured
-  if (!isGoogleConfigured) {
-    return null;
-  }
+    }
+  };
 
   return (
     <Button
       type="button"
       variant="outline"
       className="w-full"
-      onClick={() => googleLogin()}
+      onClick={handleGoogleSignIn}
       disabled={loading}
     >
       {loading ? (

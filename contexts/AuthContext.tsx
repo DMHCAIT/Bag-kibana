@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export interface User {
   id: string;
@@ -42,6 +43,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
+
+    // Listen for Supabase auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Create user object from Supabase session
+        const supabaseUser: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+          phone: session.user.phone || '',
+          createdAt: session.user.created_at,
+        };
+        
+        localStorage.setItem('kibana_user', JSON.stringify(supabaseUser));
+        setUser(supabaseUser);
+      } else if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('kibana_user');
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (name: string, email: string, phone: string, password: string) => {
@@ -270,19 +295,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
-      // Simulate Google Sign-In (in production, use actual Google OAuth)
-      // For demo purposes, create a guest user
-      const googleUser: User = {
-        id: `GOOGLE-${Date.now()}`,
-        email: 'user@gmail.com',
-        name: 'Google User',
-        phone: '',
-        createdAt: new Date().toISOString(),
-      };
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
+        }
+      });
 
-      localStorage.setItem('kibana_user', JSON.stringify(googleUser));
-      setUser(googleUser);
+      if (error) {
+        console.error('Google sign in error:', error);
+        return { success: false, error: error.message };
+      }
 
+      // OAuth will redirect to callback URL
       return { success: true };
     } catch (error) {
       console.error('Google sign in error:', error);
