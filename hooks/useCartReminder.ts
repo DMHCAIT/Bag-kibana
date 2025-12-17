@@ -28,8 +28,8 @@ export function useCartReminder() {
       // Set timeout for 30 minutes (1800000 ms)
       timeoutRef.current = setTimeout(async () => {
         try {
-          // Get user's phone from profile or use a placeholder
-          const phone = user.phone || user.user_metadata?.phone;
+          // Get user's phone from profile
+          const phone = user.phone;
           
           if (!phone) {
             console.log('No phone number available for cart reminder');
