@@ -17,9 +17,9 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-black">
-      {/* Full Screen Christmas Hero Image */}
-      <div className="relative w-full h-screen">
+    <section className="relative overflow-hidden bg-black">
+      {/* Christmas Hero Image */}
+      <div className={`relative w-full ${isMobile ? 'h-[70vh]' : 'h-screen'}`}>
         <Image
           src={isMobile 
             ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20chris%20mobile.jpg"
