@@ -153,7 +153,6 @@ export default function WomenPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Fetch products from API with timeout and fallback
   useEffect(() => {
@@ -218,35 +217,6 @@ export default function WomenPage() {
       )}
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
-        {/* Category Filter */}
-        {!loading && !error && (
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={`px-6 py-2 rounded-full uppercase text-sm tracking-wider transition-all ${
-                selectedCategory === "all"
-                  ? "bg-black text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              All Bags
-            </button>
-            {Array.from(new Set(products.map(p => p.category))).sort().map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-2 rounded-full uppercase text-sm tracking-wider transition-all ${
-                  selectedCategory === category
-                    ? "bg-black text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                {category} ({products.filter(p => p.category === category).length})
-              </button>
-            ))}
-          </div>
-        )}
-
         {loading ? (
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
@@ -261,22 +231,9 @@ export default function WomenPage() {
           </div>
         ) : (
           <>
-            {/* Products Count */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-600">
-                {selectedCategory === "all" 
-                  ? `${products.length} products` 
-                  : `${products.filter(p => p.category === selectedCategory).length} products in ${selectedCategory}`
-                }
-              </p>
-            </div>
-
             {/* Products Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
-              {(selectedCategory === "all" 
-                ? products 
-                : products.filter(p => p.category === selectedCategory)
-              ).map((product: Product) => (
+              {products.map((product: Product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
