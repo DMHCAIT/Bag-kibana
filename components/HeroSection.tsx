@@ -5,21 +5,30 @@ import Image from "next/image";
 
 export default function HeroSection() {
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+    const checkScreenSize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1024);
     };
     
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  const getHeight = () => {
+    if (isMobile) return 'h-[60vh] sm:h-[70vh]';
+    if (isTablet) return 'h-[75vh]';
+    return 'h-[80vh] xl:h-[85vh]';
+  };
 
   return (
     <section className="relative overflow-hidden bg-black">
       {/* Christmas Hero Image */}
-      <div className={`relative w-full ${isMobile ? 'h-[70vh]' : 'h-[80vh]'}`}>
+      <div className={`relative w-full ${getHeight()}`}>
         <Image
           src={isMobile 
             ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20chris%20mobile.jpg"
@@ -28,11 +37,9 @@ export default function HeroSection() {
           alt="KibanaLife Christmas Collection"
           fill
           priority
-          className="object-cover"
+          className="object-cover object-center"
           quality={100}
-          sizes={isMobile ? "1620px" : "1920px"}
-          width={isMobile ? 1620 : 1920}
-          height={isMobile ? 1912 : 1080}
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 100vw, 100vw"
         />
       </div>
     </section>
