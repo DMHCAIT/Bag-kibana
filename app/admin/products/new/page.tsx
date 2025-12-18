@@ -60,6 +60,7 @@ export default function NewProductPage() {
   const [newTag, setNewTag] = useState("");
   const [newColorName, setNewColorName] = useState("");
   const [newColorValue, setNewColorValue] = useState("#000000");
+  const [imageUrl, setImageUrl] = useState("");
 
   // Handle input change
   const handleChange = (field: string, value: string | number | boolean | undefined) => {
@@ -119,6 +120,23 @@ export default function NewProductPage() {
       ...prev,
       images: prev.images?.filter((_, i) => i !== index)
     }));
+  };
+
+  // Add image from URL
+  const addImageUrl = () => {
+    if (imageUrl.trim()) {
+      // Basic URL validation
+      try {
+        new URL(imageUrl);
+        setFormData(prev => ({
+          ...prev,
+          images: [...(prev.images || []), imageUrl.trim()]
+        }));
+        setImageUrl("");
+      } catch (error) {
+        alert('Please enter a valid URL');
+      }
+    }
   };
 
   // Add feature
@@ -445,24 +463,61 @@ export default function NewProductPage() {
               <CardTitle>Product Images <span className="text-red-500">*</span></CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="images">Upload Images (drag to reorder)</Label>
-                <div className="flex items-center gap-4 mt-2">
-                  <label htmlFor="images" className="cursor-pointer">
-                    <div className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition">
-                      <Upload className="w-5 h-5" />
-                      <span>{uploadingImages ? 'Uploading...' : 'Upload Images'}</span>
-                    </div>
-                    <input
-                      id="images"
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      disabled={uploadingImages}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="images">Upload Images</Label>
+                  <div className="flex items-center gap-4 mt-2">
+                    <label htmlFor="images" className="cursor-pointer">
+                      <div className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition">
+                        <Upload className="w-5 h-5" />
+                        <span>{uploadingImages ? 'Uploading...' : 'Upload Images'}</span>
+                      </div>
+                      <input
+                        id="images"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        disabled={uploadingImages}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-gray-300"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-gray-500">OR</span>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="imageUrl">Add Image URL</Label>
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      id="imageUrl"
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="https://example.com/image.jpg"
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addImageUrl())}
                     />
-                  </label>
+                    <Button 
+                      type="button" 
+                      onClick={addImageUrl} 
+                      variant="outline"
+                      disabled={!imageUrl.trim()}
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Add
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Paste image URLs from Supabase storage or any public image URL
+                  </p>
                 </div>
               </div>
 
