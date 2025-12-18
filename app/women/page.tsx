@@ -246,13 +246,13 @@ export default function WomenPage() {
 
         {/* Premium Brands Banner */}
         {!loading && !error && (
-          <div className="mb-12 rounded-lg overflow-hidden">
-            <div className="relative w-full aspect-[16/4] md:aspect-[21/4] lg:aspect-[24/4]">
+          <div className="mb-12 overflow-hidden">
+            <div className="relative w-full h-[200px] md:h-[250px] lg:h-[300px]">
               <Image
                 src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.png"
                 alt="New Premium Brands"
                 fill
-                className="object-cover object-center"
+                className="object-contain object-center"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
                 priority={false}
               />
