@@ -32,7 +32,7 @@ export default function HeroSection() {
         <Image
           src={isMobile 
             ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20chris%20mobile.jpg"
-            : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20chris%20desktop.jpg"
+            : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20desk.jpg"
           }
           alt="KibanaLife Christmas Collection"
           fill
