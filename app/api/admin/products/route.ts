@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
     let query = supabaseAdmin
       .from('products')
       .select('*', { count: 'exact' })
+      .order('display_order', { ascending: true })
       .order('created_at', { ascending: false });
 
     if (category && category !== 'all') {
@@ -152,6 +153,7 @@ export async function POST(request: NextRequest) {
       specifications: data.specifications || {},
       colors: data.colors || [],
       sections: data.sections || [],
+      display_order: data.display_order || 0,
     };
 
     console.log('Creating product in database:', newProduct);

@@ -49,6 +49,7 @@ function formatDbProduct(dbProduct: any) {
     isBestseller: dbProduct.is_bestseller,
     isNewArrival: dbProduct.is_new,
     colorImage: dbProduct.color_image,
+    display_order: dbProduct.display_order || 0,
     createdAt: dbProduct.created_at,
     updatedAt: dbProduct.updated_at,
   };
@@ -156,6 +157,7 @@ export async function PATCH(
     if (data.colors !== undefined) updateData.colors = data.colors;
     if (data.sections !== undefined) updateData.sections = data.sections;
     if (data.colorImage !== undefined) updateData.color_image = data.colorImage;
+    if (data.display_order !== undefined) updateData.display_order = parseInt(data.display_order);
 
     console.log('Updating product:', dbId, updateData);
 

@@ -36,6 +36,7 @@ interface ProductData {
   features: string[];
   care_instructions: string[];
   specifications: Specifications;
+  display_order: string;
 }
 
 export default function ProductForm({ productId }: ProductFormProps) {
@@ -68,6 +69,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
       capacity: "Fits essentials and more",
       dimensions: "12 x 8 x 4 inches (L x H x W)",
     },
+    display_order: "0",
   });
 
   const [newFeature, setNewFeature] = useState("");
@@ -122,6 +124,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
           capacity: specs.capacity || defaultSpecs.capacity,
           dimensions: specs.dimensions || defaultSpecs.dimensions,
         },
+        display_order: (data.display_order || 0).toString(),
       });
     } catch (error) {
       console.error("Failed to fetch product:", error);
@@ -446,24 +449,6 @@ export default function ProductForm({ productId }: ProductFormProps) {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price (₹) *
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      min="0"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) =>
-                        setFormData({ ...formData, price: e.target.value })
-                      }
-                      placeholder="2499.00"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Stock Quantity *
                     </label>
                     <input
@@ -477,6 +462,26 @@ export default function ProductForm({ productId }: ProductFormProps) {
                       placeholder="25"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Display Order *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      value={formData.display_order}
+                      onChange={(e) =>
+                        setFormData({ ...formData, display_order: e.target.value })
+                      }
+                      placeholder="0"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Lower numbers appear first. Use this to arrange products by color or preference.
+                    </p>
                   </div>
                 </div>
 

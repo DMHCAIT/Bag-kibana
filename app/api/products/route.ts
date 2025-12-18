@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
     let query = supabaseAdmin
       .from('products')
       .select('*')
+      .order('display_order', { ascending: true })
       .order('created_at', { ascending: false });
 
     // Filter by category
