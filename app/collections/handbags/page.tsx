@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,17 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { products, Product } from "@/lib/products-data";
+import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
-
-// Filter all handbag products (excluding backpacks)
-const handbagProducts = products.filter((p) => 
-  p.category === "Tote Bag" || 
-  p.category === "Clutch" || 
-  p.category === "Sling Bag" ||
-  p.category === "Shoulder Bag" ||
-  p.category === "Hobo Bag"
-);
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -137,6 +128,48 @@ function ProductCard({ product }: { product: Product }) {
 export default function HandbagsCollectionPage() {
   const [sortBy, setSortBy] = useState<string>("featured");
   const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [handbagProducts, setHandbagProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch products from API
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        
+        if (response.ok && data.products) {
+          // Filter all handbag products (excluding backpacks)
+          const handbags = data.products.filter((p: Product) => 
+            p.category === "Tote Bag" || 
+            p.category === "Clutch" || 
+            p.category === "Sling Bag" ||
+            p.category === "Shoulder Bag" ||
+            p.category === "Hobo Bag" ||
+            p.category === "tote" ||
+            p.category === "clutch" ||
+            p.category === "sling"
+          );
+          setHandbagProducts(handbags);
+        } else {
+          setError(data.error || 'Failed to load products');
+          setHandbagProducts([]);
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again.');
+        setHandbagProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   let filteredProducts = handbagProducts;
   if (filterCategory !== "all") {
@@ -170,25 +203,41 @@ export default function HandbagsCollectionPage() {
           </p>
         </div>
 
-        {/* Filters and Sort Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-gray-200">
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={filterCategory === "all" ? "default" : "outline"}
-              onClick={() => setFilterCategory("all")}
-              className="text-xs uppercase tracking-wider"
-            >
-              All
-            </Button>
-            <Button
-              variant={filterCategory === "Tote Bag" ? "default" : "outline"}
-              onClick={() => setFilterCategory("Tote Bag")}
-              className="text-xs uppercase tracking-wider"
-            >
-              Tote
-            </Button>
-            <Button
-              variant={filterCategory === "Clutch" ? "default" : "outline"}
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-16">
+            <p className="text-gray-600">Loading products...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-16">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* Filters and Sort Bar */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-gray-200">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={filterCategory === "all" ? "default" : "outline"}
+                  onClick={() => setFilterCategory("all")}
+                  className="text-xs uppercase tracking-wider"
+                >
+                  All
+                </Button>
+                <Button
+                  variant={filterCategory === "Tote Bag" ? "default" : "outline"}
+                  onClick={() => setFilterCategory("Tote Bag")}
+                  className="text-xs uppercase tracking-wider"
+                >
+                  Tote
+                </Button>
+                <Button
+                  variant={filterCategory === "Clutch" ? "default" : "outline"}
               onClick={() => setFilterCategory("Clutch")}
               className="text-xs uppercase tracking-wider"
             >
@@ -238,6 +287,8 @@ export default function HandbagsCollectionPage() {
           <div className="text-center py-16">
             <p className="text-gray-600">No products found in this collection.</p>
           </div>
+        )}
+          </>
         )}
       </div>
       <Footer />

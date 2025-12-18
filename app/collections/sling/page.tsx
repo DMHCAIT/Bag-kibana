@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { products, Product } from "@/lib/products-data";
+import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
-
-// Filter sling bags
-const slingProducts = products.filter((p) => p.category === "Sling Bag");
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -132,6 +129,41 @@ function ProductCard({ product }: { product: Product }) {
 
 export default function SlingCollectionPage() {
   const [sortBy, setSortBy] = useState<string>("featured");
+  const [slingProducts, setSlingProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch products from API
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        
+        if (response.ok && data.products) {
+          // Filter for sling bags
+          const slingBags = data.products.filter((p: Product) => 
+            p.category === "Sling Bag" || p.category === "sling"
+          );
+          setSlingProducts(slingBags);
+        } else {
+          setError(data.error || 'Failed to load products');
+          setSlingProducts([]);
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again.');
+        setSlingProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   const sortedProducts = [...slingProducts].sort((a, b) => {
     switch (sortBy) {
@@ -160,41 +192,59 @@ export default function SlingCollectionPage() {
           </p>
         </div>
 
-        {/* Sort Bar */}
-        <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
-          <p className="text-sm text-gray-600">
-            {slingProducts.length} {slingProducts.length === 1 ? "Product" : "Products"}
-          </p>
-          <div className="flex items-center gap-2">
-            <label htmlFor="sort" className="text-sm text-gray-600">
-              Sort by:
-            </label>
-            <select
-              id="sort"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-            >
-              <option value="featured">Featured</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Products Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-          {sortedProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {slingProducts.length === 0 && (
+        {/* Loading State */}
+        {loading && (
           <div className="text-center py-16">
-            <p className="text-gray-600">No products found in this collection.</p>
+            <p className="text-gray-600">Loading products...</p>
           </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-16">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* Sort Bar */}
+            <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
+              <p className="text-sm text-gray-600">
+                {slingProducts.length} {slingProducts.length === 1 ? "Product" : "Products"}
+              </p>
+              <div className="flex items-center gap-2">
+                <label htmlFor="sort" className="text-sm text-gray-600">
+                  Sort by:
+                </label>
+                <select
+                  id="sort"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                >
+                  <option value="featured">Featured</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="rating">Highest Rated</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
+              {sortedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* Empty State */}
+            {slingProducts.length === 0 && (
+              <div className="text-center py-16">
+                <p className="text-gray-600">No products found in this collection.</p>
+              </div>
+            )}
+          </>
         )}
       </div>
       <Footer />

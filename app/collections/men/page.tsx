@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,15 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { products, Product } from "@/lib/products-data";
+import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
-
-// For men's collection, showing backpacks and messenger bags primarily
-const menProducts = products.filter((p) => 
-  p.category === "Backpack" || 
-  p.category === "Messenger Bag" ||
-  p.category === "Briefcase"
-);
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -133,6 +126,45 @@ function ProductCard({ product }: { product: Product }) {
 
 export default function MenCollectionPage() {
   const [sortBy, setSortBy] = useState<string>("featured");
+  const [menProducts, setMenProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch products from API
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        
+        if (response.ok && data.products) {
+          // For men's collection, showing backpacks and messenger bags primarily
+          const menItems = data.products.filter((p: Product) => 
+            p.category === "Backpack" || 
+            p.category === "Messenger Bag" ||
+            p.category === "Briefcase" ||
+            p.category === "backpack" ||
+            p.category === "messenger"
+          );
+          setMenProducts(menItems);
+        } else {
+          setError(data.error || 'Failed to load products');
+          setMenProducts([]);
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again.');
+        setMenProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   const sortedProducts = [...menProducts].sort((a, b) => {
     switch (sortBy) {
@@ -161,7 +193,23 @@ export default function MenCollectionPage() {
           </p>
         </div>
 
-        {/* Sort Bar */}
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-16">
+            <p className="text-gray-600">Loading products...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-16">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* Sort Bar */}
         <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
           <p className="text-sm text-gray-600">
             {menProducts.length} {menProducts.length === 1 ? "Product" : "Products"}
@@ -197,6 +245,8 @@ export default function MenCollectionPage() {
             <p className="text-gray-600">No products found in this collection.</p>
             <p className="text-sm text-gray-500 mt-2">Check back soon for new arrivals!</p>
           </div>
+        )}
+          </>
         )}
       </div>
       <Footer />

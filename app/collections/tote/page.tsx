@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { products, Product } from "@/lib/products-data";
+import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
-
-// Filter tote bags
-const toteProducts = products.filter((p) => p.category === "Tote Bag");
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -132,6 +129,41 @@ function ProductCard({ product }: { product: Product }) {
 
 export default function ToteCollectionPage() {
   const [sortBy, setSortBy] = useState<string>("featured");
+  const [toteProducts, setToteProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch products from API
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        
+        if (response.ok && data.products) {
+          // Filter for tote bags
+          const toteBags = data.products.filter((p: Product) => 
+            p.category === "Tote Bag" || p.category === "tote"
+          );
+          setToteProducts(toteBags);
+        } else {
+          setError(data.error || 'Failed to load products');
+          setToteProducts([]);
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again.');
+        setToteProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   const sortedProducts = [...toteProducts].sort((a, b) => {
     switch (sortBy) {
@@ -160,7 +192,23 @@ export default function ToteCollectionPage() {
           </p>
         </div>
 
-        {/* Sort Bar */}
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-16">
+            <p className="text-gray-600">Loading products...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-16">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* Sort Bar */}
         <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
           <p className="text-sm text-gray-600">
             {toteProducts.length} {toteProducts.length === 1 ? "Product" : "Products"}
@@ -195,6 +243,8 @@ export default function ToteCollectionPage() {
           <div className="text-center py-16">
             <p className="text-gray-600">No products found in this collection.</p>
           </div>
+        )}
+          </>
         )}
       </div>
       <Footer />

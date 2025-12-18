@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { products, Product } from "@/lib/products-data";
+import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
-
-// Filter clutch bags
-const clutchProducts = products.filter((p) => p.category === "Clutch");
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -132,6 +129,41 @@ function ProductCard({ product }: { product: Product }) {
 
 export default function ClutchCollectionPage() {
   const [sortBy, setSortBy] = useState<string>("featured");
+  const [clutchProducts, setClutchProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch products from API
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        
+        if (response.ok && data.products) {
+          // Filter for clutch bags
+          const clutchBags = data.products.filter((p: Product) => 
+            p.category === "Clutch" || p.category === "clutch"
+          );
+          setClutchProducts(clutchBags);
+        } else {
+          setError(data.error || 'Failed to load products');
+          setClutchProducts([]);
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again.');
+        setClutchProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProducts();
+  }, []);
 
   const sortedProducts = [...clutchProducts].sort((a, b) => {
     switch (sortBy) {
@@ -160,13 +192,29 @@ export default function ClutchCollectionPage() {
           </p>
         </div>
 
-        {/* Sort Bar */}
-        <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
-          <p className="text-sm text-gray-600">
-            {clutchProducts.length} {clutchProducts.length === 1 ? "Product" : "Products"}
-          </p>
-          <div className="flex items-center gap-2">
-            <label htmlFor="sort" className="text-sm text-gray-600">
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-16">
+            <p className="text-gray-600">Loading products...</p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-16">
+            <p className="text-red-600">{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && (
+          <>
+            {/* Sort Bar */}
+            <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-200">
+              <p className="text-sm text-gray-600">
+                {clutchProducts.length} {clutchProducts.length === 1 ? "Product" : "Products"}
+              </p>
+              <div className="flex items-center gap-2">
+                <label htmlFor="sort" className="text-sm text-gray-600">
               Sort by:
             </label>
             <select
@@ -195,6 +243,8 @@ export default function ClutchCollectionPage() {
           <div className="text-center py-16">
             <p className="text-gray-600">No products found in this collection.</p>
           </div>
+        )}
+          </>
         )}
       </div>
       <Footer />
