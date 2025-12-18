@@ -202,15 +202,21 @@ export default function WomenPage() {
       <Header />
       
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
-        {/* Page Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-serif tracking-[0.15em] mb-4">
-            WOMEN'S COLLECTION
-          </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Discover our curated collection of luxury handbags designed for the modern woman
-          </p>
-        </div>
+        {/* Premium Brands Banner */}
+        {!loading && !error && (
+          <div className="mb-12 overflow-hidden">
+            <div className="relative w-full h-[200px] md:h-[250px] lg:h-[300px]">
+              <Image
+                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.png"
+                alt="New Premium Brands"
+                fill
+                className="object-contain object-center"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+                priority={false}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Category Filter */}
         {!loading && !error && (
@@ -241,22 +247,6 @@ export default function WomenPage() {
                 </span>
               </button>
             ))}
-          </div>
-        )}
-
-        {/* Premium Brands Banner */}
-        {!loading && !error && (
-          <div className="mb-12 overflow-hidden">
-            <div className="relative w-full h-[200px] md:h-[250px] lg:h-[300px]">
-              <Image
-                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.png"
-                alt="New Premium Brands"
-                fill
-                className="object-contain object-center"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
-                priority={false}
-              />
-            </div>
           </div>
         )}
 
