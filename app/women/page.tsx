@@ -205,7 +205,7 @@ export default function WomenPage() {
         <div className="w-full bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50">
           <div className="relative w-full" style={{ aspectRatio: '2000/446' }}>
             <Image
-              src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.png"
+              src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.jpg"
               alt="New Premium Brands"
               fill
               className="object-contain object-center"
@@ -217,6 +217,38 @@ export default function WomenPage() {
       )}
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
+        {/* Category Cards */}
+        {!loading && !error && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+            {Array.from(new Set(products.map(p => p.category))).sort().map((category) => (
+              <Link 
+                key={category} 
+                href={`/collections/${category.toLowerCase().replace(/\s+/g, '-')}`}
+                className="group"
+              >
+                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-all duration-300">
+                  {/* Category Image - using first product image from that category */}
+                  {products.find(p => p.category === category)?.images[0] && (
+                    <Image
+                      src={products.find(p => p.category === category)!.images[0]}
+                      alt={category}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                    />
+                  )}
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center p-4">
+                    <h3 className="text-white font-semibold text-sm md:text-base uppercase tracking-wider text-center">
+                      {category}
+                    </h3>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
         {loading ? (
           <div className="flex items-center justify-center h-96">
             <div className="text-center">
