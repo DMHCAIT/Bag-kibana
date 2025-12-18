@@ -362,10 +362,10 @@ export default function CheckoutPage() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
-          <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="lg:col-span-2 flex flex-col">
+            <form onSubmit={handleSubmit} className="space-y-6 flex flex-col">
               {/* Contact Information */}
-              <Card>
+              <Card className="order-1">
                 <CardContent className="p-6">
                   <h2 className="font-serif text-xl tracking-wider mb-6 flex items-center gap-2">
                     <Package className="w-5 h-5" />
@@ -392,7 +392,7 @@ export default function CheckoutPage() {
               </Card>
 
               {/* Shipping Information */}
-              <Card>
+              <Card className="order-2">
                 <CardContent className="p-6">
                   <h2 className="font-serif text-xl tracking-wider mb-6 flex items-center gap-2">
                     <Truck className="w-5 h-5" />
@@ -507,7 +507,7 @@ export default function CheckoutPage() {
               </Card>
 
               {/* Payment Method */}
-              <Card>
+              <Card className="order-4 lg:order-3">
                 <CardContent className="p-6">
                   <h2 className="font-serif text-xl tracking-wider mb-6 flex items-center gap-2">
                     <CreditCard className="w-5 h-5" />
@@ -566,7 +566,7 @@ export default function CheckoutPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full uppercase tracking-wider bg-black text-white hover:bg-gray-800 py-6 text-base"
+                className="w-full uppercase tracking-wider bg-black text-white hover:bg-gray-800 py-6 text-base order-5 lg:order-4"
               >
                 {loading
                   ? "Processing..."
@@ -578,7 +578,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 order-3 lg:order-none">
             <Card className="sticky top-24">
               <CardContent className="p-6 space-y-6">
                 <h2 className="font-serif text-xl tracking-[0.15em]">
