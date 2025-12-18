@@ -40,8 +40,9 @@ export async function GET(request: NextRequest) {
     let query = supabaseAdmin
       .from('products')
       .select('*')
+      .order('name', { ascending: true })
       .order('display_order', { ascending: true })
-      .order('created_at', { ascending: false });
+      .order('color', { ascending: true });
 
     // Filter by category
     if (category && category !== 'all') {
