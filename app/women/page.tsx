@@ -201,23 +201,23 @@ export default function WomenPage() {
     <div className="min-h-screen bg-white">
       <Header />
       
-      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
-        {/* Premium Brands Banner */}
-        {!loading && !error && (
-          <div className="mb-12 overflow-hidden">
-            <div className="relative w-full h-[200px] md:h-[250px] lg:h-[300px]">
-              <Image
-                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.png"
-                alt="New Premium Brands"
-                fill
-                className="object-contain object-center"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
-                priority={false}
-              />
-            </div>
+      {/* Premium Brands Banner - Hero Section */}
+      {!loading && !error && (
+        <div className="w-full bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50">
+          <div className="relative w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px]">
+            <Image
+              src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.png"
+              alt="New Premium Brands"
+              fill
+              className="object-contain object-center"
+              sizes="100vw"
+              priority={true}
+            />
           </div>
-        )}
+        </div>
+      )}
 
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Category Filter */}
         {!loading && !error && (
           <div className="flex flex-wrap justify-center gap-3 mb-8">
@@ -241,10 +241,7 @@ export default function WomenPage() {
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                {category}
-                <span className="ml-2 text-xs opacity-75">
-                  ({products.filter(p => p.category === category).length})
-                </span>
+                {category} ({products.filter(p => p.category === category).length})
               </button>
             ))}
           </div>
