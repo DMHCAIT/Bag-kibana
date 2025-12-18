@@ -203,7 +203,7 @@ export default function WomenPage() {
       {/* Premium Brands Banner - Hero Section */}
       {!loading && !error && (
         <div className="w-full bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50">
-          <div className="relative w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px] xl:h-[450px]">
+          <div className="relative w-full" style={{ aspectRatio: '2000/446' }}>
             <Image
               src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.png"
               alt="New Premium Brands"
