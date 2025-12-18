@@ -219,14 +219,14 @@ export default function WomenPage() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Category Cards */}
         {!loading && !error && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">
+          <div className="flex flex-wrap justify-center gap-6 mb-12">
             {Array.from(new Set(products.map(p => p.category))).sort().map((category) => (
               <Link 
                 key={category} 
                 href={`/collections/${category.toLowerCase().replace(/\s+/g, '-')}`}
-                className="group"
+                className="group flex flex-col items-center"
               >
-                <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 hover:shadow-lg transition-all duration-300">
+                <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden bg-gray-100 hover:shadow-xl transition-all duration-300 ring-2 ring-gray-200 hover:ring-black">
                   {/* Category Image - using first product image from that category */}
                   {products.find(p => p.category === category)?.images[0] && (
                     <Image
@@ -234,16 +234,13 @@ export default function WomenPage() {
                       alt={category}
                       fill
                       className="object-cover group-hover:scale-110 transition-transform duration-300"
-                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                      sizes="(max-width: 768px) 96px, 112px"
                     />
                   )}
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end justify-center p-4">
-                    <h3 className="text-white font-semibold text-sm md:text-base uppercase tracking-wider text-center">
-                      {category}
-                    </h3>
-                  </div>
                 </div>
+                <p className="mt-3 text-xs md:text-sm font-medium uppercase tracking-wider text-gray-800 group-hover:text-black transition-colors">
+                  {category}
+                </p>
               </Link>
             ))}
           </div>
