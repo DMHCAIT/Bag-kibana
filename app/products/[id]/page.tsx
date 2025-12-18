@@ -545,22 +545,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         <Link
                           key={index}
                           href={productLink}
-                          className={`group relative border-2 rounded-lg overflow-hidden transition-all flex-shrink-0 hover:shadow-md ${
+                          className={`group relative rounded-full overflow-hidden transition-all flex-shrink-0 hover:shadow-md ${
                             isCurrentColor 
-                              ? 'border-black ring-2 ring-black ring-offset-2' 
-                              : 'border-gray-300 hover:border-black'
+                              ? 'ring-2 ring-offset-2 ring-gray-900' 
+                              : 'ring-1 ring-gray-200 hover:ring-gray-400'
                           } ${!colorOption.available ? 'opacity-50 pointer-events-none' : ''}`}
                           title={colorOption.available ? colorOption.name : `${colorOption.name} - Currently unavailable`}
                         >
                           {/* Color Image or Fallback */}
-                          <div className="relative w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 overflow-hidden bg-gray-50">
+                          <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 overflow-hidden bg-white">
                             {imageToShow ? (
                               <Image
                                 src={imageToShow}
                                 alt={colorOption.name}
                                 fill
-                                className="object-cover"
-                                sizes="(max-width: 640px) 80px, (max-width: 768px) 96px, 112px"
+                                className="object-contain p-1"
+                                sizes="(max-width: 640px) 64px, (max-width: 768px) 80px, 96px"
                               />
                             ) : (
                               <div
@@ -577,13 +577,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                               </div>
                             )}
                           </div>
-                          {/* Color Name Label */}
-                          <div className="absolute bottom-0 inset-x-0 bg-white/90 backdrop-blur-sm py-1 px-2">
-                            <p className="text-[10px] font-medium text-center truncate">{colorOption.name}</p>
-                          </div>
                           {/* Checkmark for current color */}
                           {isCurrentColor && (
-                            <div className="absolute top-1 right-1 bg-black rounded-full p-1">
+                            <div className="absolute top-1 right-1 bg-black rounded-full p-0.5">
                               <Check className="w-3 h-3 text-white" />
                             </div>
                           )}
