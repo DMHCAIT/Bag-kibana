@@ -220,7 +220,10 @@ export default function WomenPage() {
         {/* Category Cards */}
         {!loading && !error && (
           <div className="flex flex-wrap justify-center gap-6 mb-12">
-            {Array.from(new Set(products.map(p => p.category))).sort().map((category) => (
+            {Array.from(new Set(products.map(p => p.category)))
+              .filter(category => category.toLowerCase() !== 'wallet')
+              .sort()
+              .map((category) => (
               <Link 
                 key={category} 
                 href={`/collections/${category.toLowerCase().replace(/\s+/g, '-')}`}
