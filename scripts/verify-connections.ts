@@ -41,7 +41,7 @@ async function verifyConnections() {
 
     if (error) throw error;
     
-    const productImagesBucket = buckets?.find(b => b.name === 'product-images');
+    const productImagesBucket = buckets?.find((b: any) => b.name === 'product-images');
     
     if (productImagesBucket) {
       console.log('✅ Storage connection: OK');
