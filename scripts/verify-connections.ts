@@ -137,7 +137,7 @@ async function verifyConnections() {
 
     if (error) throw error;
     console.log('✅ Users table: OK');
-    const adminCount = data?.filter(u => u.role === 'admin').length || 0;
+    const adminCount = data?.filter((u: any) => u.role === 'admin').length || 0;
     console.log(`   - Admin users: ${adminCount}`);
   } catch (error: any) {
     console.error('❌ Users table verification: FAILED');
