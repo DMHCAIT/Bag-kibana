@@ -141,14 +141,11 @@ export default function MenCollectionPage() {
         const data = await response.json();
         
         if (response.ok && data.products) {
-          // For men's collection, showing backpacks and messenger bags primarily
-          const menItems = data.products.filter((p: Product) => 
-            p.category === "Backpack" || 
-            p.category === "Messenger Bag" ||
-            p.category === "Briefcase" ||
-            p.category === "backpack" ||
-            p.category === "messenger"
-          );
+          // For men's collection, showing backpacks and laptop bags
+          const menItems = data.products.filter((p: Product) => {
+            const cat = p.category?.toLowerCase() || '';
+            return cat === "backpack" || cat.includes("laptop") || cat === "briefcase" || cat === "messenger";
+          });
           setMenProducts(menItems);
         } else {
           setError(data.error || 'Failed to load products');

@@ -144,9 +144,9 @@ export default function SlingCollectionPage() {
         const data = await response.json();
         
         if (response.ok && data.products) {
-          // Filter for sling bags
+          // Filter for sling bags (case-insensitive)
           const slingBags = data.products.filter((p: Product) => 
-            p.category === "Sling Bag" || p.category === "sling"
+            p.category?.toLowerCase() === "sling"
           );
           setSlingProducts(slingBags);
         } else {

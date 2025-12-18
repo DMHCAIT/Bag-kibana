@@ -144,9 +144,9 @@ export default function ClutchCollectionPage() {
         const data = await response.json();
         
         if (response.ok && data.products) {
-          // Filter for clutch bags
+          // Filter for clutch bags (case-insensitive)
           const clutchBags = data.products.filter((p: Product) => 
-            p.category === "Clutch" || p.category === "clutch"
+            p.category?.toLowerCase() === "clutch" || p.category?.toLowerCase() === "wallet"
           );
           setClutchProducts(clutchBags);
         } else {

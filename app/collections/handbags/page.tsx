@@ -143,17 +143,12 @@ export default function HandbagsCollectionPage() {
         const data = await response.json();
         
         if (response.ok && data.products) {
-          // Filter all handbag products (excluding backpacks)
-          const handbags = data.products.filter((p: Product) => 
-            p.category === "Tote Bag" || 
-            p.category === "Clutch" || 
-            p.category === "Sling Bag" ||
-            p.category === "Shoulder Bag" ||
-            p.category === "Hobo Bag" ||
-            p.category === "tote" ||
-            p.category === "clutch" ||
-            p.category === "sling"
-          );
+          // Filter all handbag products (excluding backpacks and laptop bags)
+          const handbags = data.products.filter((p: Product) => {
+            const cat = p.category?.toLowerCase() || '';
+            return cat.includes("tote") || cat === "clutch" || cat === "sling" || 
+                   cat === "wallet" || cat === "shoulder" || cat === "hobo";
+          });
           setHandbagProducts(handbags);
         } else {
           setError(data.error || 'Failed to load products');

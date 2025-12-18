@@ -144,9 +144,9 @@ export default function ToteCollectionPage() {
         const data = await response.json();
         
         if (response.ok && data.products) {
-          // Filter for tote bags
+          // Filter for tote bags (case-insensitive)
           const toteBags = data.products.filter((p: Product) => 
-            p.category === "Tote Bag" || p.category === "tote"
+            p.category?.toLowerCase().includes("tote")
           );
           setToteProducts(toteBags);
         } else {
