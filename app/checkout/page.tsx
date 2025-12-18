@@ -360,12 +360,12 @@ export default function CheckoutPage() {
           CHECKOUT
         </h1>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
           {/* Checkout Form */}
-          <div className="lg:col-span-2 flex flex-col">
-            <form onSubmit={handleSubmit} className="space-y-6 flex flex-col">
+          <div className="lg:col-span-2 flex flex-col order-1">
+            <form id="checkout-form" onSubmit={handleSubmit} className="space-y-6 flex flex-col">
               {/* Contact Information */}
-              <Card className="order-1">
+              <Card>
                 <CardContent className="p-6">
                   <h2 className="font-serif text-xl tracking-wider mb-6 flex items-center gap-2">
                     <Package className="w-5 h-5" />
@@ -392,7 +392,7 @@ export default function CheckoutPage() {
               </Card>
 
               {/* Shipping Information */}
-              <Card className="order-2">
+              <Card>
                 <CardContent className="p-6">
                   <h2 className="font-serif text-xl tracking-wider mb-6 flex items-center gap-2">
                     <Truck className="w-5 h-5" />
@@ -506,9 +506,11 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              {/* Payment Method */}
-              <Card className="order-4 lg:order-3">
-                <CardContent className="p-6">
+          {/* Payment Method and Submit - Separate container for mobile ordering */}
+          <div className="lg:col-span-2 order-3 lg:order-none">
+            {/* Payment Method */}
+            <Card>
+              <CardContent className="p-6">
                   <h2 className="font-serif text-xl tracking-wider mb-6 flex items-center gap-2">
                     <CreditCard className="w-5 h-5" />
                     Payment Method
@@ -566,7 +568,8 @@ export default function CheckoutPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full uppercase tracking-wider bg-black text-white hover:bg-gray-800 py-6 text-base order-5 lg:order-4"
+                form="checkout-form"
+                className="w-full uppercase tracking-wider bg-black text-white hover:bg-gray-800 py-6 text-base mt-6"
               >
                 {loading
                   ? "Processing..."
@@ -574,12 +577,13 @@ export default function CheckoutPage() {
                   ? "Place Order"
                   : "Proceed to Payment"}
               </Button>
+            </div>
             </form>
           </div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1 order-3 lg:order-none">
-            <Card className="sticky top-24">
+          <div className="lg:col-span-1 order-2 lg:order-none">
+            <Card className="lg:sticky lg:top-24">
               <CardContent className="p-6 space-y-6">
                 <h2 className="font-serif text-xl tracking-[0.15em]">
                   ORDER SUMMARY
