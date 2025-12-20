@@ -161,41 +161,38 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               </div>
 
               {/* Pricing Breakdown */}
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between text-gray-600">
-                  <span>Original Price</span>
-                  <span className="line-through">₹{cart.subtotal.toLocaleString()}</span>
+              <div className="border-t border-gray-200 pt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-lg font-medium text-gray-900">Estimated Total:</span>
+                  <span className="text-2xl font-bold text-black">₹{Math.round(cart.subtotal * 0.5).toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between text-black font-medium">
-                  <span>Discount (50% OFF)</span>
-                  <span>-₹{Math.round(cart.subtotal * 0.5).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-lg font-semibold border-t pt-2">
-                  <span>Subtotal</span>
-                  <span>₹{Math.round(cart.subtotal * 0.5).toLocaleString()}</span>
-                </div>
+                <p className="text-sm text-gray-600">
+                  Inclusive of all taxes. Discounts & Coupons applicable at checkout.
+                </p>
               </div>
 
-              <p className="text-sm text-gray-500 text-center">
-                Shipping and taxes calculated at checkout
-              </p>
-
-              {/* Action Buttons */}
-              <div className="space-y-3">
-                <Link
-                  href="/checkout"
-                  onClick={onClose}
-                  className="block w-full py-4 bg-black text-white text-center rounded-lg hover:bg-gray-800 transition-colors font-medium"
-                >
-                  Proceed to Checkout
-                </Link>
-                <button
-                  onClick={onClose}
-                  className="block w-full py-3 text-gray-600 text-center hover:text-gray-900 transition-colors"
-                >
-                  Continue Shopping
-                </button>
-              </div>
+              {/* Payment Button */}
+              <Link
+                href="/checkout"
+                onClick={onClose}
+                className="block w-full py-4 bg-[#0A2540] text-white text-center rounded-lg hover:bg-[#0d3052] transition-colors font-medium relative overflow-hidden group"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <span className="text-base">UPI/Cards/Partial COD</span>
+                  <div className="flex items-center gap-1">
+                    <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                      <span className="text-[#002970] font-bold text-xs">Paytm</span>
+                    </div>
+                    <div className="w-8 h-8 bg-[#5f259f] rounded flex items-center justify-center">
+                      <span className="text-white font-bold text-xs">PhonePe</span>
+                    </div>
+                    <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                      <span className="text-[#4285f4] font-bold text-xs">G</span>
+                    </div>
+                  </div>
+                  <span className="text-xl">›</span>
+                </div>
+              </Link>
             </div>
           )}
         </div>
