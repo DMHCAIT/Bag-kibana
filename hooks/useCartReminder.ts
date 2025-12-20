@@ -46,6 +46,12 @@ export function useCartReminder() {
               customerName: user.name || user.email?.split('@')[0] || 'Customer',
               customerPhone: phone,
               itemCount: cart.items.length,
+              cartItems: cart.items.map(item => ({
+                name: item.product.name,
+                quantity: item.quantity,
+                price: item.product.price,
+              })),
+              cartTotal: cart.subtotal,
             }),
           });
 

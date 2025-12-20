@@ -189,6 +189,27 @@ export default function CheckoutPage() {
           console.log("Order save response:", saveResponse.status, savedOrder);
           
           if (saveResponse.ok && savedOrder.success && savedOrder.order) {
+            // Send order confirmation notifications
+            try {
+              await fetch("/api/notifications/order-confirmation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  orderId: savedOrder.order.id,
+                  customerName: `${formData.firstName} ${formData.lastName}`,
+                  customerPhone: formData.phone,
+                  orderTotal: finalTotal,
+                  items: cart.items.map(item => ({
+                    name: item.product.name,
+                    quantity: item.quantity,
+                  })),
+                  deliveryAddress: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
+                }),
+              });
+            } catch (notifError) {
+              console.error("Failed to send order confirmation:", notifError);
+            }
+
             // Store order data for Facebook Pixel tracking
             localStorage.setItem('kibana-order-tracking', JSON.stringify({
               value: discountedSubtotal,
@@ -306,6 +327,29 @@ export default function CheckoutPage() {
                 });
                 const savedOrder = await saveResponse.json();
                 console.log("Order saved:", savedOrder);
+
+                // Send order confirmation notifications
+                if (saveResponse.ok && savedOrder.success) {
+                  try {
+                    await fetch("/api/notifications/order-confirmation", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        orderId: savedOrder.order?.id || response.razorpay_order_id,
+                        customerName: `${formData.firstName} ${formData.lastName}`,
+                        customerPhone: formData.phone,
+                        orderTotal: finalTotal,
+                        items: cart.items.map(item => ({
+                          name: item.product.name,
+                          quantity: item.quantity,
+                        })),
+                        deliveryAddress: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
+                      }),
+                    });
+                  } catch (notifError) {
+                    console.error("Failed to send order confirmation:", notifError);
+                  }
+                }
               } catch (saveError) {
                 console.error("Error saving order to admin:", saveError);
               }

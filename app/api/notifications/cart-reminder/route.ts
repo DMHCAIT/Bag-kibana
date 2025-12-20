@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, customerName, customerPhone, itemCount } = await request.json();
+    const { userId, customerName, customerPhone, itemCount, cartItems, cartTotal } = await request.json();
 
     if (!customerPhone || !itemCount) {
       return NextResponse.json(
@@ -13,17 +13,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Save cart reminder log to database
+    // Save cart reminder log to database with cart items
     await supabaseAdmin.from('cart_reminders').insert({
       user_id: userId,
       customer_name: customerName,
       customer_phone: customerPhone,
       item_count: itemCount,
+      cart_items: cartItems || [],
+      cart_total: cartTotal || 0,
       sent_at: new Date().toISOString(),
-      status: 'pending'
+      status: 'pending',
+      reminder_sent: false
     });
 
-    // Send notifications
+    // Send notifications immediately (first reminder)
     const cartUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://kibanalife.com'}/cart`;
     
     const result = await sendCartReminderNotifications({
@@ -39,7 +42,8 @@ export async function POST(request: NextRequest) {
       .update({
         status: result.smsSuccess || result.whatsappSuccess ? 'sent' : 'failed',
         sms_sent: result.smsSuccess,
-        whatsapp_sent: result.whatsappSuccess
+        whatsapp_sent: result.whatsappSuccess,
+        reminder_sent: true
       })
       .eq('customer_phone', customerPhone)
       .order('sent_at', { ascending: false })
