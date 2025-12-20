@@ -5,7 +5,7 @@ import { useState } from "react";
 
 export default function WhatsAppWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const phoneNumber = "919876543210"; // Replace with your actual WhatsApp number
+  const phoneNumber = "919711414110"; // WhatsApp Business number
   const defaultMessage = "Hi! I'm interested in your products.";
 
   const handleWhatsAppClick = () => {
