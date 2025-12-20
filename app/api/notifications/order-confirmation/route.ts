@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendWhatsAppMessage, sendSMS } from "@/lib/notification-service";
+import { sendOrderConfirmationWhatsApp, sendOrderConfirmationSMS } from "@/lib/notification-service";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,35 +20,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Format items for message
-    const itemsList = items
-      .map((item: any) => `${item.quantity}x ${item.name}`)
-      .join(", ");
+    // Format items for the notification service
+    const formattedItems = items.map((item: any) => ({
+      name: item.name,
+      quantity: item.quantity,
+      price: Math.round((orderTotal / items.reduce((sum: number, i: any) => sum + i.quantity, 0)) * item.quantity),
+    }));
 
-    // WhatsApp message
-    const whatsappMessage = `🎉 *Order Confirmed!*
-
-Thank you ${customerName}! Your order has been confirmed.
-
-📦 *Order ID:* ${orderId}
-💰 *Total:* ₹${orderTotal.toLocaleString()}
-🛍️ *Items:* ${itemsList}
-
-📍 *Delivery Address:*
-${deliveryAddress}
-
-We'll send you tracking details once your order ships.
-
-Need help? Reply to this message or call us at +91-XXXXXXXXXX
-
-Thank you for shopping with KibanaLife! 🛍️`;
-
-    // SMS message (shorter version)
-    const smsMessage = `KibanaLife: Order ${orderId} confirmed! Total: ₹${orderTotal}. Items: ${itemsList}. Track your order at kibanalife.com/tracking`;
+    const orderDetails = {
+      orderId,
+      customerName,
+      customerPhone,
+      totalAmount: orderTotal,
+      items: formattedItems,
+      shippingAddress: deliveryAddress,
+    };
 
     const results = await Promise.allSettled([
-      sendWhatsAppMessage(customerPhone, whatsappMessage),
-      sendSMS(customerPhone, smsMessage),
+      sendOrderConfirmationWhatsApp(orderDetails),
+      sendOrderConfirmationSMS(orderDetails),
     ]);
 
     const whatsappResult = results[0];
@@ -56,8 +46,8 @@ Thank you for shopping with KibanaLife! 🛍️`;
 
     return NextResponse.json({
       success: true,
-      whatsapp: whatsappResult.status === "fulfilled" ? whatsappResult.value : { error: (whatsappResult as any).reason },
-      sms: smsResult.status === "fulfilled" ? smsResult.value : { error: (smsResult as any).reason },
+      whatsapp: whatsappResult.status === "fulfilled" ? { success: whatsappResult.value } : { error: (whatsappResult as any).reason },
+      sms: smsResult.status === "fulfilled" ? { success: smsResult.value } : { error: (smsResult as any).reason },
     });
 
   } catch (error) {
