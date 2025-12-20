@@ -34,8 +34,8 @@ Add to `.env.local`:
 # Twilio Credentials
 TWILIO_ACCOUNT_SID=your_account_sid_here
 TWILIO_AUTH_TOKEN=your_auth_token_here
-TWILIO_PHONE_NUMBER=+1234567890
-TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
+TWILIO_PHONE_NUMBER=+919711414110
+TWILIO_WHATSAPP_NUMBER=whatsapp:+919711414110
 
 # Site URL for cart links
 NEXT_PUBLIC_SITE_URL=https://yourdomain.com
