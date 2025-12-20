@@ -26,7 +26,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-[480px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-[90%] sm:w-[480px] bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -126,9 +126,14 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                             <Plus className="w-3 h-3" />
                           </button>
                         </div>
-                        <p className="font-semibold text-gray-900">
-                          ₹{(item.product.price * item.quantity).toLocaleString()}
-                        </p>
+                        <div className="text-right">
+                          <p className="font-semibold text-black">
+                            ₹{Math.round(item.product.price * 0.5 * item.quantity).toLocaleString()}
+                          </p>
+                          <p className="text-xs text-gray-400 line-through">
+                            ₹{(item.product.price * item.quantity).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -140,12 +145,35 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           {/* Footer */}
           {!cart.isEmpty && (
             <div className="border-t border-gray-200 p-6 space-y-4">
-              {/* Subtotal */}
-              <div className="flex items-center justify-between text-lg">
-                <span className="font-medium text-gray-900">Subtotal</span>
-                <span className="font-semibold text-gray-900">
-                  ₹{cart.subtotal.toLocaleString()}
-                </span>
+              {/* Discount Banner */}
+              <div className="bg-black p-3 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">🎉</span>
+                  <div>
+                    <p className="text-sm font-medium text-white">
+                      50% OFF Applied Automatically!
+                    </p>
+                    <p className="text-xs text-gray-200">
+                      You're saving ₹{Math.round(cart.subtotal * 0.5).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing Breakdown */}
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-gray-600">
+                  <span>Original Price</span>
+                  <span className="line-through">₹{cart.subtotal.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-black font-medium">
+                  <span>Discount (50% OFF)</span>
+                  <span>-₹{Math.round(cart.subtotal * 0.5).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between text-lg font-semibold border-t pt-2">
+                  <span>Subtotal</span>
+                  <span>₹{Math.round(cart.subtotal * 0.5).toLocaleString()}</span>
+                </div>
               </div>
 
               <p className="text-sm text-gray-500 text-center">
@@ -160,13 +188,6 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   className="block w-full py-4 bg-black text-white text-center rounded-lg hover:bg-gray-800 transition-colors font-medium"
                 >
                   Proceed to Checkout
-                </Link>
-                <Link
-                  href="/cart"
-                  onClick={onClose}
-                  className="block w-full py-4 border-2 border-black text-black text-center rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                >
-                  View Full Cart
                 </Link>
                 <button
                   onClick={onClose}

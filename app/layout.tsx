@@ -9,6 +9,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import ChristmasSnowflakes from "@/components/ChristmasSnowflakes";
 import CartDrawerWrapper from "@/components/CartDrawerWrapper";
 import CartReminderProvider from "@/components/CartReminderProvider";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -143,6 +144,7 @@ export default function RootLayout({
                   <CartReminderProvider />
                   {children}
                   <CartDrawerWrapper />
+                  <WhatsAppWidget />
                 </CartProvider>
               </AuthProvider>
             )}

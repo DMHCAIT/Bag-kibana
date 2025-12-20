@@ -505,79 +505,6 @@ export default function CheckoutPage() {
                   </div>
                 </CardContent>
               </Card>
-
-          {/* Payment Method and Submit - Separate container for mobile ordering */}
-          <div className="lg:col-span-2 order-3 lg:order-none">
-            {/* Payment Method */}
-            <Card>
-              <CardContent className="p-6">
-                  <h2 className="font-serif text-xl tracking-wider mb-6 flex items-center gap-2">
-                    <CreditCard className="w-5 h-5" />
-                    Payment Method
-                  </h2>
-                  <div className="space-y-4">
-                    <label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="razorpay"
-                        checked={formData.paymentMethod === "razorpay"}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            paymentMethod: e.target.value as "razorpay",
-                          }))
-                        }
-                        className="w-4 h-4"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium">Online Payment (Razorpay)</p>
-                        <p className="text-sm text-gray-600">
-                          Credit Card, Debit Card, UPI, Net Banking
-                        </p>
-                      </div>
-                      <Lock className="w-5 h-5 text-green-600" />
-                    </label>
-
-                    <label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="cod"
-                        checked={formData.paymentMethod === "cod"}
-                        onChange={(e) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            paymentMethod: e.target.value as "cod",
-                          }))
-                        }
-                        className="w-4 h-4"
-                      />
-                      <div className="flex-1">
-                        <p className="font-medium">Cash on Delivery</p>
-                        <p className="text-sm text-gray-600">
-                          Pay when you receive your order
-                        </p>
-                      </div>
-                    </label>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={loading}
-                form="checkout-form"
-                className="w-full uppercase tracking-wider bg-black text-white hover:bg-gray-800 py-6 text-base mt-6"
-              >
-                {loading
-                  ? "Processing..."
-                  : formData.paymentMethod === "cod"
-                  ? "Place Order"
-                  : "Proceed to Payment"}
-              </Button>
-            </div>
             </form>
           </div>
 
@@ -677,6 +604,78 @@ export default function CheckoutPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Payment Method */}
+          <div className="lg:col-span-2 order-3 lg:order-none">
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="font-serif text-xl tracking-wider mb-6 flex items-center gap-2">
+                  <CreditCard className="w-5 h-5" />
+                  Payment Method
+                </h2>
+                <div className="space-y-4">
+                  <label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="razorpay"
+                      checked={formData.paymentMethod === "razorpay"}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          paymentMethod: e.target.value as "razorpay",
+                        }))
+                      }
+                      className="w-4 h-4"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium">Online Payment (Razorpay)</p>
+                      <p className="text-sm text-gray-600">
+                        Credit Card, Debit Card, UPI, Net Banking
+                      </p>
+                    </div>
+                    <Lock className="w-5 h-5 text-green-600" />
+                  </label>
+
+                  <label className="flex items-center gap-3 p-4 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cod"
+                      checked={formData.paymentMethod === "cod"}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          paymentMethod: e.target.value as "cod",
+                        }))
+                      }
+                      className="w-4 h-4"
+                    />
+                    <div className="flex-1">
+                      <p className="font-medium">Cash on Delivery</p>
+                      <p className="text-sm text-gray-600">
+                        Pay when you receive your order
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={loading}
+              form="checkout-form"
+              className="w-full uppercase tracking-wider bg-black text-white hover:bg-gray-800 py-6 text-base mt-6"
+            >
+              {loading
+                ? "Processing..."
+                : formData.paymentMethod === "cod"
+                ? "Place Order"
+                : "Proceed to Payment"}
+            </Button>
           </div>
         </div>
       </div>
