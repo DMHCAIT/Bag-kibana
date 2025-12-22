@@ -210,11 +210,19 @@ function generateInvoiceHTML(order: any): string {
       <div class="company-info">
         <h1>KIBANA LIFE</h1>
         <p>Premium Vegan Leather Bags</p>
-        <p>Made in India</p>
+        <p style="margin-top: 8px; font-size: 13px; line-height: 1.5;">
+          Building No.-581/2, First Floor, Khatana Farm,<br>
+          Mandi Rd, Sultanpur, New Delhi-30
+        </p>
+        <p style="margin-top: 8px; font-size: 13px;">
+          Phone: +91 9711414110<br>
+          Web: kibanalife.com
+        </p>
       </div>
       <div class="invoice-details">
         <h2>INVOICE</h2>
         <p><strong>Invoice #:</strong> ${order.id.slice(0, 8).toUpperCase()}</p>
+        <p><strong>Order ID:</strong> ${order.id}</p>
         <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString('en-IN', { 
           year: 'numeric', 
           month: 'long', 
