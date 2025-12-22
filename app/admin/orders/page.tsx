@@ -365,13 +365,24 @@ export default function OrdersPage() {
                       {order.created_at ? format(new Date(order.created_at), "MMM dd, yyyy") : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        href={`/admin/orders/${order.id}`}
-                        className="inline-flex items-center gap-1 text-black hover:text-gray-700"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View
-                      </Link>
+                      <div className="flex items-center justify-end gap-3">
+                        <Link
+                          href={`/admin/orders/${order.id}`}
+                          className="inline-flex items-center gap-1 text-black hover:text-gray-700"
+                        >
+                          <Eye className="w-4 h-4" />
+                          View
+                        </Link>
+                        <a
+                          href={`/api/admin/orders/${order.id}/invoice`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                        >
+                          <FileText className="w-4 h-4" />
+                          Invoice
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 ))}
