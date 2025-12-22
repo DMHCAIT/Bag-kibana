@@ -3,11 +3,11 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id: orderId } = await params;
     const supabase = supabaseAdmin;
-    const orderId = params.id;
 
     // Fetch order details
     const { data: order, error } = await supabase
