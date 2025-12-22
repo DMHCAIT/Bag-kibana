@@ -12,6 +12,7 @@ import {
   Truck,
   CheckCircle,
   XCircle,
+  FileText,
 } from "lucide-react";
 
 interface Order {
