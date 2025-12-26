@@ -30,7 +30,10 @@ export default function HeroSection() {
       {/* Hero Image */}
       <div className={`relative w-full ${getHeight()}`}>
         <Image
-          src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Pink%20Glitter%20Feather%20Watercolor%20Welcome%20Facebook%20Cover%20Page%20(1920%20x%201080%20px)%20(1).jpg"
+          src={isMobile 
+            ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Untitled%20design%20(4).jpg"
+            : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Pink%20Glitter%20Feather%20Watercolor%20Welcome%20Facebook%20Cover%20Page%20(1920%20x%201080%20px)%20(1).jpg"
+          }
           alt="KibanaLife Collection"
           fill
           priority
