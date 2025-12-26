@@ -27,14 +27,11 @@ export default function HeroSection() {
 
   return (
     <section className="relative overflow-hidden bg-black">
-      {/* Christmas Hero Image */}
+      {/* Hero Image */}
       <div className={`relative w-full ${getHeight()}`}>
         <Image
-          src={isMobile 
-            ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20chris%20mobile.jpg"
-            : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/hero%20desk.jpg"
-          }
-          alt="KibanaLife Christmas Collection"
+          src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Pink%20Glitter%20Feather%20Watercolor%20Welcome%20Facebook%20Cover%20Page%20(1920%20x%201080%20px)%20(1).jpg"
+          alt="KibanaLife Collection"
           fill
           priority
           className="object-cover object-center"
