@@ -11,14 +11,14 @@ const collections = [
     id: 1,
     title: "TOTE",
     subtitle: "Edit",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Milky%20Blue/09-10-2025--livia00521.jpg",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/09-10-2025--livia00489-Photoroom.png",
     href: "/collections/tote",
   },
   {
     id: 2,
     title: "CLUTCH",
     subtitle: "Edit",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/lekha%20wallet%20(%20clutch)%203/LEKHA%20WALLET%20-%20Teal%20Blue/09-10-2025--livia00974.jpg",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/lekha%20wallet%20(%20clutch)%20/LEKHA%20WALLET%20-%20Mocha%20Tan/09-10-2025--livia00932-Photoroom.png",
     href: "/collections/clutch",
   },
   {
