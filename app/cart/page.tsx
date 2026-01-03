@@ -148,7 +148,7 @@ export default function CartPage() {
                   <div className="md:hidden mt-4 pt-4 border-t text-right">
                     <p className="text-sm text-gray-600">Subtotal:</p>
                     <p className="font-medium text-lg">
-                      ₹{Math.round(item.product.price * 0.5 * item.quantity).toLocaleString()}
+                      ₹{Math.round(item.product.price * 0.8 * item.quantity).toLocaleString()}
                     </p>
                     <p className="text-sm text-gray-400 line-through">
                       ₹{(item.product.price * item.quantity).toLocaleString()}
