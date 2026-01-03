@@ -101,7 +101,7 @@ export async function sendCartReminderWhatsApp(details: CartReminderDetails): Pr
   }
 
   try {
-    const message = `Hi ${details.customerName}! 👋\n\n🛒 You left ${details.itemCount} item${details.itemCount > 1 ? 's' : ''} in your cart.\n\n🎁 *Special Offer: 50% OFF* on all products!\n\nComplete your purchase now:\n${details.cartUrl}\n\n⏰ Hurry! This offer won't last long.\n\n- KibanaLife Team`;
+    const message = `Hi ${details.customerName}! 👋\n\n🛒 You left ${details.itemCount} item${details.itemCount > 1 ? 's' : ''} in your cart.\n\n🎁 *Special Offer: 20% OFF* on all products!\n\nComplete your purchase now:\n${details.cartUrl}\n\n⏰ Hurry! This offer won't last long.\n\n- KibanaLife Team`;
 
     const formattedPhone = formatPhoneNumber(details.customerPhone);
 
@@ -130,7 +130,7 @@ export async function sendCartReminderSMS(details: CartReminderDetails): Promise
   }
 
   try {
-    const message = `Hi ${details.customerName}! You have ${details.itemCount} item${details.itemCount > 1 ? 's' : ''} in your cart. 🛒\n\nGet 50% OFF now! Complete your order: ${details.cartUrl}\n\n- KibanaLife`;
+    const message = `Hi ${details.customerName}! You have ${details.itemCount} item${details.itemCount > 1 ? 's' : ''} in your cart. 🛒\n\nGet 20% OFF now! Complete your order: ${details.cartUrl}\n\n- KibanaLife`;
 
     const formattedPhone = formatPhoneNumber(details.customerPhone);
 

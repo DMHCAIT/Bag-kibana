@@ -62,9 +62,9 @@ function ProductCard({ product }: { product: Product }) {
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.5).toLocaleString()}</p>
+            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.8).toLocaleString()}</p>
             <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">50% OFF</span>
+            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">20% OFF</span>
           </div>
           <Button
             onClick={handleAddToCart}
@@ -505,9 +505,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Price */}
               <div className="py-3 md:py-4 border-y">
                 <div className="flex items-center flex-wrap gap-2 md:gap-3">
-                  <p className="text-2xl md:text-3xl font-medium text-black">₹{Math.round(product.price * 0.5).toLocaleString()}</p>
-                  <p className="text-lg md:text-xl text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-                  <span className="bg-black text-white px-2 py-1 rounded text-xs md:text-sm font-semibold">50% OFF</span>
+                  <p className="text-2xl md:text-3xl font-medium text-black">₹{Math.round(product.price * 0.8).toLocaleString()}</p>
+                  <p className="text-base text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+                  <span className="bg-black text-white px-2 py-1 rounded text-xs md:text-sm font-semibold">20% OFF</span>
                 </div>
                 <p className="text-xs md:text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
             </div>
@@ -518,7 +518,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   <div className="flex items-center flex-wrap gap-1 md:gap-1.5 text-[10px] md:text-xs">
                     <span className="font-semibold text-gray-900">Special Offers</span>
                     <span className="text-gray-400">|</span>
-                    <span><strong className="text-black">50% OFF</strong> - Already applied!</span>
+                    <span><strong className="text-black">20% OFF</strong> - Already applied!</span>
                     <span className="text-gray-400">|</span>
                     <span><strong>Free Shipping</strong> across India</span>
                   </div>

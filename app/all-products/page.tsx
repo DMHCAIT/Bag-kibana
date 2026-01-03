@@ -60,9 +60,9 @@ function ProductCard({ product }: { product: Product }) {
           </div>
           
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.5).toLocaleString()}</p>
+            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.8).toLocaleString()}</p>
             <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">50% OFF</span>
+            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">20% OFF</span>
           </div>
           <p className="text-xs text-gray-500">{product.category}</p>
           

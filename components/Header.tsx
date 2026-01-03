@@ -93,7 +93,7 @@ export default function Header() {
           >
             <div className="relative w-28 h-10 md:w-36 md:h-12">
               <Image
-                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/logo%20kibana.jpg"
+                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/KIBANA%20copy.png"
                 alt="KIBANA Logo"
                 fill
                 className="object-contain"
