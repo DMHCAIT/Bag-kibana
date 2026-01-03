@@ -75,9 +75,9 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  // Calculate automatic 50% discount
+  // Calculate automatic 20% discount
   const originalSubtotal = cart.subtotal;
-  const discountedSubtotal = Math.round(cart.subtotal * 0.5);
+  const discountedSubtotal = Math.round(cart.subtotal * 0.8);
   const discountAmount = originalSubtotal - discountedSubtotal;
   const finalTotal = discountedSubtotal;
 
@@ -674,10 +674,14 @@ export default function CheckoutPage() {
                       className="w-4 h-4"
                     />
                     <div className="flex-1">
-                      <p className="font-medium">Online Payment (Razorpay)</p>
-                      <p className="text-sm text-gray-600">
-                        Credit Card, Debit Card, UPI, Net Banking
-                      </p>
+                      <p className="font-medium">UPI/Cards/Partial COD</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">Paytm</span>
+                          <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded">PhonePe</span>
+                          <span className="text-sm bg-red-100 text-red-800 px-2 py-1 rounded">G Pay</span>
+                        </div>
+                      </div>
                     </div>
                     <Lock className="w-5 h-5 text-green-600" />
                   </label>
