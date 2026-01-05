@@ -11,10 +11,13 @@ interface LoginPopupProps {
 export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
-  const [step, setStep] = useState<'mobile' | 'otp'>('mobile');
+  const [step, setStep] = useState<'mobile' | 'otp' | 'profile'>('mobile');
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
 
   // Close on escape key
   useEffect(() => {
@@ -49,21 +52,38 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
   const sendOTP = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // In a real app, you would call your backend API here
-      // For demo purposes, we'll simulate success
-      console.log("OTP sent to:", `+91${mobile}`);
-      setOtpSent(true);
-      setStep('otp');
-      setCountdown(30); // 30 seconds countdown
-      
-      // Show user the OTP for demo (remove in production)
-      alert(`Demo OTP sent! Use: 123456`);
+      const response = await fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: mobile
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("OTP sent to:", `+91${mobile}`);
+        setOtpSent(true);
+        setStep('otp');
+        setCountdown(30); // 30 seconds countdown
+        
+        // Show success message
+        alert(`OTP sent successfully to +91${mobile}`);
+        
+        // In development mode, show the OTP if returned by API
+        if (data.otp && process.env.NODE_ENV === 'development') {
+          console.log('Dev OTP:', data.otp);
+        }
+      } else {
+        console.error("Error sending OTP:", data.error);
+        alert(data.error || "Error sending OTP. Please try again.");
+      }
     } catch (error) {
       console.error("Error sending OTP:", error);
-      alert("Error sending OTP. Please try again.");
+      alert("Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -72,25 +92,112 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
   const verifyOTP = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // In demo, accept 123456 as valid OTP
-      if (otp === "123456") {
-        console.log("Login successful for:", `+91${mobile}`);
+      const response = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: mobile,
+          otp: otp
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("OTP verified successfully for:", `+91${mobile}`);
+        
+        // Store user data in localStorage
         localStorage.setItem('userLoggedIn', 'true');
         localStorage.setItem('userMobile', mobile);
-        alert("Welcome to Kibana! You're now logged in.");
+        localStorage.setItem('userPhone', data.phone);
+        localStorage.setItem('isNewUser', data.isNewUser.toString());
+        
+        if (data.user) {
+          localStorage.setItem('userData', JSON.stringify(data.user));
+        }
+
+        // Check if this is a new user and needs profile completion
+        setIsNewUser(data.isNewUser);
+        
+        if (data.isNewUser && !data.user?.full_name) {
+          // New user - show profile completion step
+          setStep('profile');
+          setIsLoading(false);
+          return;
+        }
+
+        // Existing user or profile already complete
+        if (data.isNewUser) {
+          alert("Welcome to Kibana! Your account has been created successfully. Enjoy 20% off your first order!");
+        } else {
+          alert("Welcome back to Kibana!");
+        }
+        
         onClose();
+        
+        // Optionally refresh the page to update login state
+        window.location.reload();
       } else {
-        alert("Invalid OTP. Please try again.");
+        console.error("Error verifying OTP:", data.error);
+        alert(data.error || "Invalid OTP. Please try again.");
         setOtp("");
       }
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      alert("Error verifying OTP. Please try again.");
+      alert("Network error. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const completeProfile = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone: mobile,
+          full_name: fullName,
+          email: email || undefined
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Profile completed for:", `+91${mobile}`);
+        
+        // Update localStorage with complete user data
+        if (data.user) {
+          localStorage.setItem('userData', JSON.stringify(data.user));
+        }
+
+        alert("Welcome to Kibana! Your profile has been completed. Enjoy 20% off your first order!");
+        onClose();
+        
+        // Refresh to update login state
+        window.location.reload();
+      } else {
+        console.error("Error completing profile:", data.error);
+        alert(data.error || "Error saving profile. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error completing profile:", error);
+      alert("Network error. Please check your connection and try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleProfileSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (fullName.trim().length >= 2) {
+      completeProfile();
     }
   };
 
@@ -100,13 +207,26 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // In a real app, you would integrate with Google OAuth
-    console.log("Google login initiated");
-    alert("Google login would be initiated here. For demo, logging you in...");
-    localStorage.setItem('userLoggedIn', 'true');
-    localStorage.setItem('userLoginMethod', 'google');
-    onClose();
+  const handleGoogleLogin = async () => {
+    try {
+      // In a real app, you would integrate with Google OAuth
+      console.log("Google login initiated");
+      
+      // For now, show that Google login would work here
+      // You can integrate with NextAuth.js Google provider or Firebase Auth
+      alert("Google login integration can be added here using NextAuth.js or Firebase Auth");
+      
+      // Example of how you might handle it:
+      // const response = await signIn('google', { callbackUrl: '/' });
+      // if (response?.ok) {
+      //   localStorage.setItem('userLoggedIn', 'true');
+      //   localStorage.setItem('userLoginMethod', 'google');
+      //   onClose();
+      // }
+    } catch (error) {
+      console.error("Google login error:", error);
+      alert("Google login error. Please try again.");
+    }
   };
 
   const handleMobileSubmit = (e: React.FormEvent) => {
@@ -148,13 +268,14 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-serif tracking-[0.15em] mb-4 text-black">KIBANA</h2>
           <h3 className="text-xl font-medium mb-2">
-            {step === 'mobile' ? 'Join Kibana' : 'Verify Your Number'}
+            {step === 'mobile' && 'Join Kibana'}
+            {step === 'otp' && 'Verify Your Number'}
+            {step === 'profile' && 'Complete Your Profile'}
           </h3>
           <p className="text-gray-600">
-            {step === 'mobile' 
-              ? 'Get 20% off your first order.' 
-              : `We sent OTP to +91${mobile}`
-            }
+            {step === 'mobile' && 'Get 20% off your first order.'} 
+            {step === 'otp' && `We sent OTP to +91${mobile}`}
+            {step === 'profile' && 'Just a few more details to get started.'}
           </p>
         </div>
 
@@ -209,7 +330,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
               <span className="text-gray-700 font-medium">Continue with Google</span>
             </button>
           </>
-        ) : (
+        ) : step === 'otp' ? (
           <>
             {/* OTP Form */}
             <form onSubmit={handleOTPSubmit} className="space-y-6">
@@ -257,6 +378,55 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
               className="w-full mt-4 text-sm text-gray-600 hover:text-black transition-colors"
             >
               ← Change mobile number
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Profile Completion Form */}
+            <form onSubmit={handleProfileSubmit} className="space-y-6">
+              <div>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-lg"
+                  placeholder="Full Name *"
+                  required
+                  disabled={isLoading}
+                  minLength={2}
+                />
+              </div>
+
+              <div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent text-lg"
+                  placeholder="Email (Optional)"
+                  disabled={isLoading}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={fullName.trim().length < 2 || isLoading}
+                className="w-full bg-black text-white py-4 rounded-lg uppercase tracking-wider text-sm font-semibold hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'SAVING...' : 'COMPLETE PROFILE'}
+              </button>
+            </form>
+
+            {/* Skip Option */}
+            <button
+              onClick={() => {
+                alert("Welcome to Kibana! Enjoy 20% off your first order!");
+                onClose();
+                window.location.reload();
+              }}
+              className="w-full mt-4 text-sm text-gray-600 hover:text-black transition-colors"
+            >
+              Skip for now
             </button>
           </>
         )}
