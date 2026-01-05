@@ -81,25 +81,29 @@ export async function POST(request: NextRequest) {
       user = updatedUser || existingUser;
 
       // Log login
-      await supabaseAdmin
-        .from('login_history')
-        .insert({
-          user_id: existingUser.id,
-          phone: existingUser.phone,
-          email: existingUser.email,
-          login_method: 'google_oauth',
-          ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-          user_agent: request.headers.get('user-agent'),
-          status: 'success',
-          ...parseUserAgent(request.headers.get('user-agent') || ''),
-        });
+      try {
+        await supabaseAdmin
+          .from('login_history')
+          .insert({
+            user_id: existingUser.id,
+            phone: existingUser.phone,
+            email: existingUser.email,
+            login_method: 'google_oauth',
+            ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+            user_agent: request.headers.get('user-agent'),
+            status: 'success',
+            ...parseUserAgent(request.headers.get('user-agent') || ''),
+          });
+      } catch (loginHistoryError) {
+        console.error('Failed to log login history (non-fatal):', loginHistoryError);
+      }
     } else {
       // Create new user
       const { data: newUser, error } = await supabaseAdmin
         .from('users')
         .insert({
           email: email,
-          full_name: name,
+          full_name: name || '',
           google_id: google_id,
           role: 'customer',
           created_at: new Date().toISOString(),
@@ -111,8 +115,12 @@ export async function POST(request: NextRequest) {
 
       if (error) {
         console.error('Failed to create user:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return NextResponse.json(
-          { error: 'Failed to create user account' },
+          { 
+            error: 'Failed to create user account', 
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+          },
           { status: 500 }
         );
       }
@@ -120,17 +128,21 @@ export async function POST(request: NextRequest) {
       user = newUser;
 
       // Log registration
-      await supabaseAdmin
-        .from('login_history')
-        .insert({
-          user_id: newUser.id,
-          email: newUser.email,
-          login_method: 'google_oauth',
-          ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-          user_agent: request.headers.get('user-agent'),
-          status: 'success',
-          ...parseUserAgent(request.headers.get('user-agent') || ''),
-        });
+      try {
+        await supabaseAdmin
+          .from('login_history')
+          .insert({
+            user_id: newUser.id,
+            email: newUser.email,
+            login_method: 'google_oauth',
+            ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+            user_agent: request.headers.get('user-agent'),
+            status: 'success',
+            ...parseUserAgent(request.headers.get('user-agent') || ''),
+          });
+      } catch (registrationHistoryError) {
+        console.error('Failed to log registration history (non-fatal):', registrationHistoryError);
+      }
     }
 
     return NextResponse.json({
