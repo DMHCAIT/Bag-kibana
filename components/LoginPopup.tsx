@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { useGoogleLogin } from '@react-oauth/google';
 
 interface LoginPopupProps {
   isOpen: boolean;
@@ -207,27 +208,77 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
     }
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      // In a real app, you would integrate with Google OAuth
-      console.log("Google login initiated");
-      
-      // For now, show that Google login would work here
-      // You can integrate with NextAuth.js Google provider or Firebase Auth
-      alert("Google login integration can be added here using NextAuth.js or Firebase Auth");
-      
-      // Example of how you might handle it:
-      // const response = await signIn('google', { callbackUrl: '/' });
-      // if (response?.ok) {
-      //   localStorage.setItem('userLoggedIn', 'true');
-      //   localStorage.setItem('userLoginMethod', 'google');
-      //   onClose();
-      // }
-    } catch (error) {
-      console.error("Google login error:", error);
-      alert("Google login error. Please try again.");
-    }
-  };
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsLoading(true);
+        
+        // Get user info from Google using the access token
+        const userInfoResponse = await fetch(
+          `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.access_token}`
+        );
+        
+        if (!userInfoResponse.ok) {
+          throw new Error('Failed to get user info from Google');
+        }
+        
+        const userInfo = await userInfoResponse.json();
+        
+        // Send to our backend API
+        const response = await fetch('/api/auth/google-login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            credential: tokenResponse.access_token,
+            user_info: userInfo
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log("Google login successful for:", userInfo.email);
+          
+          // Store user data in localStorage
+          localStorage.setItem('userLoggedIn', 'true');
+          localStorage.setItem('userLoginMethod', 'google');
+          localStorage.setItem('userEmail', userInfo.email);
+          localStorage.setItem('isNewUser', data.isNewUser.toString());
+          
+          if (data.user) {
+            localStorage.setItem('userData', JSON.stringify(data.user));
+          }
+
+          // Show success message
+          if (data.isNewUser) {
+            alert("Welcome to Kibana! Your Google account has been connected successfully. Enjoy 20% off your first order!");
+          } else {
+            alert("Welcome back to Kibana!");
+          }
+          
+          onClose();
+          
+          // Refresh to update login state
+          window.location.reload();
+        } else {
+          console.error("Error with Google login:", data.error);
+          alert(data.error || "Google login failed. Please try again.");
+        }
+      } catch (error) {
+        console.error("Google login error:", error);
+        alert("Google login error. Please check your connection and try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error("Google OAuth error:", error);
+      alert("Google login failed. Please try again.");
+    },
+    scope: 'openid email profile'
+  });
 
   const handleMobileSubmit = (e: React.FormEvent) => {
     e.preventDefault();

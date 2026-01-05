@@ -10,8 +10,8 @@ import CartDrawerWrapper from "@/components/CartDrawerWrapper";
 import CartReminderProvider from "@/components/CartReminderProvider";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import LoginPopupProvider from "@/components/LoginPopupProvider";
+import GoogleAuthProvider from "@/components/GoogleAuthProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -126,19 +126,7 @@ export default function RootLayout({
         {/* End Google Tag Manager (noscript) */}
         <ErrorBoundary>
           <Providers>
-            {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && 
-             !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID.includes('YOUR_GOOGLE_CLIENT_ID') ? (
-              <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-                <AuthProvider>
-                  <CartProvider>
-                    <CartReminderProvider />
-                    {children}
-                    <CartDrawerWrapper />
-                    <LoginPopupProvider />
-                  </CartProvider>
-                </AuthProvider>
-              </GoogleOAuthProvider>
-            ) : (
+            <GoogleAuthProvider>
               <AuthProvider>
                 <CartProvider>
                   <CartReminderProvider />
@@ -148,7 +136,7 @@ export default function RootLayout({
                   <LoginPopupProvider />
                 </CartProvider>
               </AuthProvider>
-            )}
+            </GoogleAuthProvider>
           </Providers>
         </ErrorBoundary>
         <SpeedInsights />
