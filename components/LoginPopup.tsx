@@ -369,7 +369,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
 
             {/* Google Login */}
             <button
-              onClick={handleGoogleLogin}
+              onClick={() => handleGoogleLogin()}
               className="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
