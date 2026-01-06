@@ -49,11 +49,36 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user exists by email or Google ID
-    const { data: existingUser } = await supabaseAdmin
+    // First try by email
+    const { data: userByEmail } = await supabaseAdmin
       .from('users')
       .select('id, phone, email, full_name, google_id, role, login_count')
       .eq('email', email)
-      .single();
+      .maybeSingle();
+
+    // Then try by Google ID if we didn't find by email
+    let userByGoogleId = null;
+    if (!userByEmail) {
+      const { data: googleUser } = await supabaseAdmin
+        .from('users')
+        .select('id, phone, email, full_name, google_id, role, login_count')
+        .eq('google_id', google_id)
+        .maybeSingle();
+      userByGoogleId = googleUser;
+    }
+
+    const existingUser = userByEmail || userByGoogleId;
+    let user = existingUser;
+    let isNewUser = !existingUser;
+
+    // Log lookup result for debugging
+    console.log('User lookup result:', { 
+      email, 
+      google_id, 
+      foundByEmail: !!userByEmail,
+      foundByGoogleId: !!userByGoogleId,
+      existingUser: !!existingUser 
+    });
 
     let user = existingUser;
     const isNewUser = !existingUser;
@@ -65,19 +90,33 @@ export async function POST(request: NextRequest) {
         login_count: (existingUser.login_count || 0) + 1,
       };
 
+      // Link Google ID if not already linked
       if (!existingUser.google_id) {
         updateData.google_id = google_id;
+        console.log('Linking Google ID to existing user:', existingUser.id);
       }
+      
+      // Update name if missing
       if (!existingUser.full_name && name) {
         updateData.full_name = name;
       }
 
-      const { data: updatedUser } = await supabaseAdmin
+      // Update email if found by Google ID but email doesn't match
+      if (userByGoogleId && !userByEmail && existingUser.email !== email) {
+        updateData.email = email;
+        console.log('Updating email for Google user:', existingUser.id);
+      }
+
+      const { data: updatedUser, error: updateError } = await supabaseAdmin
         .from('users')
         .update(updateData)
         .eq('id', existingUser.id)
         .select()
         .single();
+
+      if (updateError) {
+        console.error('Failed to update existing user:', updateError);
+      }
 
       user = updatedUser || existingUser;
 
@@ -132,71 +171,121 @@ export async function POST(request: NextRequest) {
           userData: { email, name, google_id }
         });
         
-        let errorMessage = 'Failed to create user account';
-        if (error.message?.includes('duplicate key value')) {
-          errorMessage = 'User with this email already exists';
-        } else if (error.message?.includes('violates check constraint')) {
-          errorMessage = 'Invalid data provided for user creation';
-        } else if (error.message?.includes('column') && error.message?.includes('does not exist')) {
-          errorMessage = 'Database schema mismatch - please contact support';
-        }
-        
-        return NextResponse.json(
-          { 
-            error: errorMessage,
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
-          },
-          { status: 500 }
-        );
-      }
-
-      user = newUser;
-
-      // Log registration
-      try {
-        const deviceInfo = parseUserAgent(request.headers.get('user-agent') || '');
-        await supabaseAdmin
-          .from('login_history')
-          .insert({
-            user_id: newUser.id,
-            phone: null,
-            email: newUser.email,
-            login_method: 'google',
-            ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-            user_agent: request.headers.get('user-agent'),
-            device_type: deviceInfo.device_type,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os,
-            status: 'success',
-          });
-      } catch (registrationHistoryError) {
-        console.error('Failed to log registration history (non-fatal):', registrationHistoryError);
-      }
-
-      // Log user activity
-      try {
-        await supabaseAdmin
-          .from('user_activity_logs')
-          .insert({
-            user_id: newUser.id,
-            activity_type: 'registration',
-            activity_description: 'New user registered via Google OAuth',
-            metadata: { 
-              email: newUser.email,
-              full_name: newUser.full_name,
-              registration_method: 'google',
+        // If it's a duplicate key error, try to find the existing user
+        if (error.message?.includes('duplicate key value') || error.code === '23505') {
+          console.log('Duplicate user detected, attempting to find existing user...');
+          
+          // Try to find the user again
+          const { data: duplicateUser } = await supabaseAdmin
+            .from('users')
+            .select('id, phone, email, full_name, google_id, role, login_count')
+            .or(`email.eq.${email},google_id.eq.${google_id}`)
+            .maybeSingle();
+            
+          if (duplicateUser) {
+            console.log('Found existing user after duplicate error:', duplicateUser.id);
+            user = duplicateUser;
+            isNewUser = false; // This was actually an existing user
+            // Continue with the flow instead of returning error
+          } else {
+            return NextResponse.json(
+              { 
+                error: 'User with this email or Google ID already exists',
+                details: process.env.NODE_ENV === 'development' ? error.message : undefined
+              },
+              { status: 409 }
+            );
+          }
+        } else {
+          let errorMessage = 'Failed to create user account';
+          if (error.message?.includes('violates check constraint')) {
+            errorMessage = 'Invalid data provided for user creation';
+          } else if (error.message?.includes('column') && error.message?.includes('does not exist')) {
+            errorMessage = 'Database schema mismatch - please contact support';
+          }
+          
+          return NextResponse.json(
+            { 
+              error: errorMessage,
+              details: process.env.NODE_ENV === 'development' ? error.message : undefined
             },
-            ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-            user_agent: request.headers.get('user-agent'),
-          });
-      } catch (activityLogError) {
-        console.error('Failed to log user activity (non-fatal):', activityLogError);
+            { status: 500 }
+          );
+        }
+      } else {
+        user = newUser;
+        isNewUser = true; // This is genuinely a new user
+      }
+
+      // Log registration/login activity based on whether this was truly a new user
+      if (newUser) {
+        // This is a genuinely new user
+        try {
+          const deviceInfo = parseUserAgent(request.headers.get('user-agent') || '');
+          await supabaseAdmin
+            .from('login_history')
+            .insert({
+              user_id: user.id,
+              phone: null,
+              email: user.email,
+              login_method: 'google',
+              ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+              user_agent: request.headers.get('user-agent'),
+              device_type: deviceInfo.device_type,
+              browser: deviceInfo.browser,
+              os: deviceInfo.os,
+              status: 'success',
+            });
+        } catch (registrationHistoryError) {
+          console.error('Failed to log registration history (non-fatal):', registrationHistoryError);
+        }
+
+        // Log user activity
+        try {
+          await supabaseAdmin
+            .from('user_activity_logs')
+            .insert({
+              user_id: user.id,
+              activity_type: 'registration',
+              activity_description: 'New user registered via Google OAuth',
+              metadata: { 
+                email: user.email,
+                full_name: user.full_name,
+                registration_method: 'google',
+              },
+              ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+              user_agent: request.headers.get('user-agent'),
+            });
+        } catch (activityLogError) {
+          console.error('Failed to log user activity (non-fatal):', activityLogError);
+        }
+      } else {
+        // This was an existing user found after duplicate detection
+        try {
+          const deviceInfo = parseUserAgent(request.headers.get('user-agent') || '');
+          await supabaseAdmin
+            .from('login_history')
+            .insert({
+              user_id: user.id,
+              phone: user.phone,
+              email: user.email,
+              login_method: 'google',
+              ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+              user_agent: request.headers.get('user-agent'),
+              device_type: deviceInfo.device_type,
+              browser: deviceInfo.browser,
+              os: deviceInfo.os,
+              status: 'success',
+            });
+        } catch (loginHistoryError) {
+          console.error('Failed to log login history for duplicate user (non-fatal):', loginHistoryError);
+        }
       }
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Google login successful',
+      message: isNewUser ? 'Google registration successful' : 'Google login successful',
       user: user,
       isNewUser: isNewUser
     });
