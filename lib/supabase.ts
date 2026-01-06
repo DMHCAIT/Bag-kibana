@@ -99,25 +99,52 @@ export type Database = {
       users: {
         Row: {
           id: string;
-          email: string;
+          email: string | null;
           full_name: string | null;
+          phone: string | null;
           role: 'admin' | 'customer';
+          phone_verified: boolean;
+          last_login_at: string | null;
+          login_count: number;
+          status: 'active' | 'inactive' | 'suspended' | 'deleted';
+          registration_method: 'phone' | 'email' | 'google' | 'facebook';
+          ip_address: string | null;
+          user_agent: string | null;
+          referral_source: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
-          email: string;
+          email?: string | null;
           full_name?: string | null;
+          phone?: string | null;
           role?: 'admin' | 'customer';
+          phone_verified?: boolean;
+          last_login_at?: string | null;
+          login_count?: number;
+          status?: 'active' | 'inactive' | 'suspended' | 'deleted';
+          registration_method?: 'phone' | 'email' | 'google' | 'facebook';
+          ip_address?: string | null;
+          user_agent?: string | null;
+          referral_source?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          email?: string;
+          email?: string | null;
           full_name?: string | null;
+          phone?: string | null;
           role?: 'admin' | 'customer';
+          phone_verified?: boolean;
+          last_login_at?: string | null;
+          login_count?: number;
+          status?: 'active' | 'inactive' | 'suspended' | 'deleted';
+          registration_method?: 'phone' | 'email' | 'google' | 'facebook';
+          ip_address?: string | null;
+          user_agent?: string | null;
+          referral_source?: string | null;
           created_at?: string;
           updated_at?: string;
         };

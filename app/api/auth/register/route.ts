@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     // Check if user already exists
     const { data: existingUser } = await supabaseAdmin
       .from('users')
-      .select('id, phone, email, full_name')
+      .select('id, phone, email, full_name, login_count')
       .eq('phone', formattedPhone)
       .single();
 
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       // User exists - update their info if provided
       const updates: any = {
         last_login_at: new Date().toISOString(),
-        login_count: supabaseAdmin.rpc('increment_login_count', { user_id: existingUser.id }),
+        login_count: (existingUser.login_count || 0) + 1,
         ip_address,
         user_agent,
       };
@@ -90,32 +90,40 @@ export async function POST(request: NextRequest) {
 
       userId = existingUser.id;
 
-      // Log login activity
-      await supabaseAdmin
-        .from('login_history')
-        .insert({
-          user_id: userId,
-          phone: formattedPhone,
-          email: existingUser.email,
-          login_method: 'phone_otp',
-          ip_address,
-          user_agent,
-          device_type: deviceInfo.device_type,
-          browser: deviceInfo.browser,
-          os: deviceInfo.os,
-          status: 'success',
-        });
+      // Log login activity (non-blocking)
+      try {
+        await supabaseAdmin
+          .from('login_history')
+          .insert({
+            user_id: userId,
+            phone: formattedPhone,
+            email: existingUser.email,
+            login_method: 'phone_otp',
+            ip_address,
+            user_agent,
+            device_type: deviceInfo.device_type,
+            browser: deviceInfo.browser,
+            os: deviceInfo.os,
+            status: 'success',
+          });
+      } catch (loginHistoryError) {
+        console.error('Failed to log login history for existing user:', loginHistoryError);
+      }
 
-      await supabaseAdmin
-        .from('user_activity_logs')
-        .insert({
-          user_id: userId,
-          activity_type: 'login',
-          activity_description: 'User logged in via phone OTP',
-          metadata: { phone: formattedPhone, device: deviceInfo },
-          ip_address,
-          user_agent,
-        });
+      try {
+        await supabaseAdmin
+          .from('user_activity_logs')
+          .insert({
+            user_id: userId,
+            activity_type: 'login',
+            activity_description: 'User logged in via phone OTP',
+            metadata: { phone: formattedPhone, device: deviceInfo },
+            ip_address,
+            user_agent,
+          });
+      } catch (activityLogError) {
+        console.error('Failed to log user activity for existing user:', activityLogError);
+      }
 
       return NextResponse.json({
         success: true,
@@ -150,65 +158,108 @@ export async function POST(request: NextRequest) {
       userId = authData.user.id;
 
       // Create user record in public.users table
-      const { error: userError } = await supabaseAdmin
+      const userInsertData = {
+        id: userId,
+        phone: formattedPhone,
+        email: email || `${formattedPhone}@kibana.temp`, // Ensure email is not null
+        full_name: full_name || null,
+        role: 'customer' as const,
+        phone_verified: true,
+        registration_method: 'phone' as const,
+        ip_address,
+        user_agent,
+        referral_source: referer || null,
+        last_login_at: new Date().toISOString(),
+        login_count: 1,
+        status: 'active' as const,
+      };
+
+      console.log('Attempting to insert user data:', { ...userInsertData, user_agent: userInsertData.user_agent?.substring(0, 50) + '...' });
+
+      const { data: insertResult, error: userError } = await supabaseAdmin
         .from('users')
-        .insert({
-          id: userId,
-          phone: formattedPhone,
-          email: email || null,
-          full_name: full_name || null,
-          role: 'customer',
-          phone_verified: true,
-          registration_method: 'phone',
-          ip_address,
-          user_agent,
-          referral_source: referer || null,
-          last_login_at: new Date().toISOString(),
-          login_count: 1,
-          status: 'active',
-        });
+        .insert(userInsertData)
+        .select('*');
 
       if (userError) {
-        console.error('User table insert error:', userError);
+        console.error('User table insert error:', {
+          error: userError,
+          message: userError.message,
+          details: userError.details,
+          hint: userError.hint,
+          code: userError.code,
+          insertData: { ...userInsertData, user_agent: userInsertData.user_agent?.substring(0, 50) + '...' }
+        });
+
         // Try to clean up auth user
-        await supabaseAdmin.auth.admin.deleteUser(userId);
+        try {
+          await supabaseAdmin.auth.admin.deleteUser(userId);
+          console.log('Cleaned up auth user:', userId);
+        } catch (cleanupError) {
+          console.error('Failed to cleanup auth user:', cleanupError);
+        }
+
+        // Return specific error information for debugging
+        let errorMessage = 'Failed to create user profile';
+        if (userError.message?.includes('duplicate key value')) {
+          errorMessage = 'User with this phone number already exists';
+        } else if (userError.message?.includes('violates check constraint')) {
+          errorMessage = 'Invalid data provided for user creation';
+        } else if (userError.message?.includes('column') && userError.message?.includes('does not exist')) {
+          errorMessage = 'Database schema mismatch - please contact support';
+        }
+
         return NextResponse.json(
-          { error: 'Failed to create user profile' },
+          { 
+            error: errorMessage, 
+            details: userError.message,
+            code: userError.code 
+          },
           { status: 500 }
         );
       }
 
-      // Log registration activity
-      await supabaseAdmin
-        .from('login_history')
-        .insert({
-          user_id: userId,
-          phone: formattedPhone,
-          email: email,
-          login_method: 'phone_otp',
-          ip_address,
-          user_agent,
-          device_type: deviceInfo.device_type,
-          browser: deviceInfo.browser,
-          os: deviceInfo.os,
-          status: 'success',
-        });
+      console.log('User created successfully:', insertResult);
 
-      await supabaseAdmin
-        .from('user_activity_logs')
-        .insert({
-          user_id: userId,
-          activity_type: 'registration',
-          activity_description: 'New user registered via phone OTP',
-          metadata: { 
-            phone: formattedPhone, 
+      // Log registration activity (non-blocking)
+      try {
+        await supabaseAdmin
+          .from('login_history')
+          .insert({
+            user_id: userId,
+            phone: formattedPhone,
             email: email,
-            full_name: full_name,
-            device: deviceInfo,
-          },
-          ip_address,
-          user_agent,
-        });
+            login_method: 'phone_otp',
+            ip_address,
+            user_agent,
+            device_type: deviceInfo.device_type,
+            browser: deviceInfo.browser,
+            os: deviceInfo.os,
+            status: 'success',
+          });
+      } catch (loginHistoryError) {
+        console.error('Failed to log login history:', loginHistoryError);
+      }
+
+      try {
+        await supabaseAdmin
+          .from('user_activity_logs')
+          .insert({
+            user_id: userId,
+            activity_type: 'registration',
+            activity_description: 'New user registered via phone OTP',
+            metadata: { 
+              phone: formattedPhone, 
+              email: email,
+              full_name: full_name,
+              device: deviceInfo,
+            },
+            ip_address,
+            user_agent,
+          });
+      } catch (activityLogError) {
+        console.error('Failed to log user activity:', activityLogError);
+      }
 
       return NextResponse.json({
         success: true,
