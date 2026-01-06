@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
     });
 
     let user = existingUser;
-    const isNewUser = !existingUser;
+    let isNewUser = !existingUser;
 
     if (existingUser) {
       // Update existing user with Google info if missing
