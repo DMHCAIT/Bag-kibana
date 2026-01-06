@@ -102,6 +102,7 @@ export type Database = {
           email: string | null;
           full_name: string | null;
           phone: string | null;
+          google_id: string | null;
           role: 'admin' | 'customer';
           phone_verified: boolean;
           last_login_at: string | null;
@@ -119,6 +120,7 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           phone?: string | null;
+          google_id?: string | null;
           role?: 'admin' | 'customer';
           phone_verified?: boolean;
           last_login_at?: string | null;
@@ -136,6 +138,7 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           phone?: string | null;
+          google_id?: string | null;
           role?: 'admin' | 'customer';
           phone_verified?: boolean;
           last_login_at?: string | null;

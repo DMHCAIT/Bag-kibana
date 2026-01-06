@@ -51,8 +51,8 @@ export async function POST(request: NextRequest) {
     // Check if user exists by email or Google ID
     const { data: existingUser } = await supabaseAdmin
       .from('users')
-      .select('id, phone, email, full_name, google_id, role')
-      .or(`email.eq.${email},google_id.eq.${google_id}`)
+      .select('id, phone, email, full_name, google_id, role, login_count')
+      .eq('email', email)
       .single();
 
     let user = existingUser;
@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
       // Update existing user with Google info if missing
       const updateData: any = {
         last_login_at: new Date().toISOString(),
+        login_count: (existingUser.login_count || 0) + 1,
       };
 
       if (!existingUser.google_id) {
@@ -82,43 +83,67 @@ export async function POST(request: NextRequest) {
 
       // Log login
       try {
+        const deviceInfo = parseUserAgent(request.headers.get('user-agent') || '');
         await supabaseAdmin
           .from('login_history')
           .insert({
             user_id: existingUser.id,
             phone: existingUser.phone,
             email: existingUser.email,
-            login_method: 'google_oauth',
+            login_method: 'google',
             ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
             user_agent: request.headers.get('user-agent'),
+            device_type: deviceInfo.device_type,
+            browser: deviceInfo.browser,
+            os: deviceInfo.os,
             status: 'success',
-            ...parseUserAgent(request.headers.get('user-agent') || ''),
           });
       } catch (loginHistoryError) {
         console.error('Failed to log login history (non-fatal):', loginHistoryError);
       }
     } else {
-      // Create new user
+      // Create new user with all required fields
       const { data: newUser, error } = await supabaseAdmin
         .from('users')
         .insert({
           email: email,
-          full_name: name || '',
+          full_name: name || null,
+          phone: null, // Will be updated when user adds phone
           google_id: google_id,
           role: 'customer',
-          created_at: new Date().toISOString(),
+          phone_verified: false,
+          registration_method: 'google',
+          ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
+          user_agent: request.headers.get('user-agent') || null,
           last_login_at: new Date().toISOString(),
           login_count: 1,
+          status: 'active',
         })
         .select()
         .single();
 
       if (error) {
-        console.error('Failed to create user:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
+        console.error('Failed to create Google user:', {
+          error: error,
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+          userData: { email, name, google_id }
+        });
+        
+        let errorMessage = 'Failed to create user account';
+        if (error.message?.includes('duplicate key value')) {
+          errorMessage = 'User with this email already exists';
+        } else if (error.message?.includes('violates check constraint')) {
+          errorMessage = 'Invalid data provided for user creation';
+        } else if (error.message?.includes('column') && error.message?.includes('does not exist')) {
+          errorMessage = 'Database schema mismatch - please contact support';
+        }
+        
         return NextResponse.json(
           { 
-            error: 'Failed to create user account', 
+            error: errorMessage,
             details: process.env.NODE_ENV === 'development' ? error.message : undefined
           },
           { status: 500 }
@@ -129,19 +154,43 @@ export async function POST(request: NextRequest) {
 
       // Log registration
       try {
+        const deviceInfo = parseUserAgent(request.headers.get('user-agent') || '');
         await supabaseAdmin
           .from('login_history')
           .insert({
             user_id: newUser.id,
+            phone: null,
             email: newUser.email,
-            login_method: 'google_oauth',
+            login_method: 'google',
             ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
             user_agent: request.headers.get('user-agent'),
+            device_type: deviceInfo.device_type,
+            browser: deviceInfo.browser,
+            os: deviceInfo.os,
             status: 'success',
-            ...parseUserAgent(request.headers.get('user-agent') || ''),
           });
       } catch (registrationHistoryError) {
         console.error('Failed to log registration history (non-fatal):', registrationHistoryError);
+      }
+
+      // Log user activity
+      try {
+        await supabaseAdmin
+          .from('user_activity_logs')
+          .insert({
+            user_id: newUser.id,
+            activity_type: 'registration',
+            activity_description: 'New user registered via Google OAuth',
+            metadata: { 
+              email: newUser.email,
+              full_name: newUser.full_name,
+              registration_method: 'google',
+            },
+            ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
+            user_agent: request.headers.get('user-agent'),
+          });
+      } catch (activityLogError) {
+        console.error('Failed to log user activity (non-fatal):', activityLogError);
       }
     }
 
