@@ -16,7 +16,6 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{success: boolean; error?: string}>;
   signInWithPhone: (phone: string, password: string) => Promise<{success: boolean; error?: string}>;
-  signInWithGoogle: () => Promise<{success: boolean; error?: string}>;
   signUp: (name: string, email: string, phone: string, password: string) => Promise<{success: boolean; error?: string}>;
   requestOTP: (phone: string) => Promise<{success: boolean; error?: string}>;
   signInWithOTP: (phone: string, otp: string) => Promise<{success: boolean; error?: string}>;
@@ -293,32 +292,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
-        }
-      });
-
-      if (error) {
-        console.error('Google sign in error:', error);
-        return { success: false, error: error.message };
-      }
-
-      // OAuth will redirect to callback URL
-      return { success: true };
-    } catch (error) {
-      console.error('Google sign in error:', error);
-      return { success: false, error: 'Failed to sign in with Google' };
-    }
-  };
-
   const signOut = () => {
     localStorage.removeItem('kibana_user');
     setUser(null);
@@ -330,7 +303,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading,
       signIn,
       signInWithPhone,
-      signInWithGoogle,
       signUp,
       requestOTP,
       signInWithOTP,

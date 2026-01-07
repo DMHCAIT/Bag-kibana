@@ -10,7 +10,6 @@ import CartDrawerWrapper from "@/components/CartDrawerWrapper";
 import CartReminderProvider from "@/components/CartReminderProvider";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import LoginPopupProvider from "@/components/LoginPopupProvider";
-import GoogleAuthProvider from "@/components/GoogleAuthProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const playfair = Playfair_Display({
@@ -126,17 +125,15 @@ export default function RootLayout({
         {/* End Google Tag Manager (noscript) */}
         <ErrorBoundary>
           <Providers>
-            <GoogleAuthProvider>
-              <AuthProvider>
-                <CartProvider>
-                  <CartReminderProvider />
-                  {children}
-                  <CartDrawerWrapper />
-                  <WhatsAppWidget />
-                  <LoginPopupProvider />
-                </CartProvider>
-              </AuthProvider>
-            </GoogleAuthProvider>
+            <AuthProvider>
+              <CartProvider>
+                <CartReminderProvider />
+                {children}
+                <CartDrawerWrapper />
+                <WhatsAppWidget />
+                <LoginPopupProvider />
+              </CartProvider>
+            </AuthProvider>
           </Providers>
         </ErrorBoundary>
         <SpeedInsights />
