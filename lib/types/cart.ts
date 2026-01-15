@@ -1,23 +1,30 @@
+import { Product } from "@/lib/products-data";
+
 export interface CartItem {
-  id: string;
-  name: string;
-  price: number;
+  product: Product;
   quantity: number;
-  image: string;
-  color?: string;
-  category?: string;
+  selectedColor?: {
+    name: string;
+    value: string;
+  };
 }
 
 export interface Cart {
   items: CartItem[];
-  total: number;
-  itemCount: number;
+  totalItems: number;
+  subtotal: number;
+  isEmpty: boolean;
 }
 
 export interface CartContextType {
   cart: Cart;
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  addToCart: (product: Product, quantity?: number, selectedColor?: { name: string; value: string }) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
+  getItemQuantity: (productId: string) => number;
+  isLoaded: boolean;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
 }
