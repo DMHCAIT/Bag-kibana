@@ -811,7 +811,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </button>
           <div className="relative max-w-5xl w-full h-[90vh]">
             {currentImage && (
-              <Image
+              <OptimizedImage
                 src={currentImage}
                 alt={`${product.name} - ${product.color}`}
                 fill
