@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 
 export default function HeroSection() {
   const [isMobile, setIsMobile] = useState(false);
@@ -29,7 +29,7 @@ export default function HeroSection() {
     <section className="relative overflow-hidden bg-black">
       {/* Hero Image */}
       <div className={`relative w-full ${getHeight()}`}>
-        <Image
+        <OptimizedImage
           src={isMobile 
             ? "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Untitled%20design%20(4).jpg"
             : "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Pink%20Glitter%20Feather%20Watercolor%20Welcome%20Facebook%20Cover%20Page%20(1920%20x%201080%20px)%20(1).jpg"

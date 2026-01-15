@@ -6,7 +6,7 @@ import { Star, ChevronDown, ChevronUp, X, Check } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
@@ -30,8 +30,8 @@ function ProductCard({ product }: { product: Product }) {
     <Card className="border-0 shadow-none group">
       <CardContent className="p-0 space-y-3">
         <Link href={`/products/${product.slug || product.id}`}>
-          <div className="relative aspect-[3/4] bg-gray-100 rounded-sm overflow-hidden cursor-pointer">
-            <Image
+          <div className="relative aspect-[3/4] rounded-sm overflow-hidden cursor-pointer">
+            <OptimizedImage
               src={product.images[0]}
               alt={`${product.name} - ${product.color}`}
               fill
@@ -387,14 +387,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     {images.map((image, index) => (
                       <div
                         key={index}
-                        className="relative w-full bg-gray-50 rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 snap-center"
+                        className="relative w-full rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 snap-center"
                         style={{ aspectRatio: '3/4' }}
                         onClick={() => {
                           setSelectedImage(index);
                           setIsModalOpen(true);
                         }}
                 >
-                  <Image
+                  <OptimizedImage
                           src={image}
                           alt={`${product.name} - ${product.color} - View ${index + 1}`}
                           fill
@@ -454,13 +454,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             });
                           }
                         }}
-                        className={`relative aspect-square bg-gray-50 rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
+                        className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
                           selectedImage === index
                             ? "border-black w-14 h-14 md:w-20 md:h-20"
                             : "border-transparent hover:border-gray-300 w-14 h-14 md:w-20 md:h-20"
                       }`}
                     >
-                      <Image
+                      <OptimizedImage
                           src={image}
                           alt={`Thumbnail ${index + 1}`}
                         fill

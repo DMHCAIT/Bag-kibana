@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/carousel";
 import { Product } from "@/lib/products-data";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useCart } from "@/contexts/CartContext";
 import { useState, useEffect } from "react";
 import { ShoppingCart } from "lucide-react";
@@ -39,9 +39,9 @@ function ProductCard({ product }: { product: Product }) {
         <CardContent className="p-0 space-y-3 flex flex-col h-full">
           {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
-            <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
+            <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden cursor-pointer">
               {/* First Image - always visible */}
-              <Image
+              <OptimizedImage
                 src={product.images[0]}
                 alt={`${product.name} - ${product.color}`}
                 fill
@@ -50,7 +50,7 @@ function ProductCard({ product }: { product: Product }) {
               />
               {/* Second Image - visible on hover */}
               {product.images[1] && (
-                <Image
+                <OptimizedImage
                   src={product.images[1]}
                   alt={`${product.name} - ${product.color} hover`}
                   fill

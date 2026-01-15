@@ -1,19 +1,37 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Product } from "@/lib/products-data";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, index }: { product: Product; index: number }) {
   const { addToCart } = useCart();
   const [isAdding, setIsAdding] = useState(false);
+  const [isVisible, setIsVisible] = useState(index < 8); // Load first 8 images immediately
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (index >= 8 && cardRef.current) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        },
+        { rootMargin: '50px' }
+      );
+      observer.observe(cardRef.current);
+      return () => observer.disconnect();
+    }
+  }, [index]);
 
   const handleAddToCart = () => {
     setIsAdding(true);
@@ -22,17 +40,20 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <Card className="border-0 shadow-sm hover:shadow-md transition-shadow group h-full flex flex-col">
+    <Card ref={cardRef} className="border-0 shadow-sm hover:shadow-md transition-shadow group h-full flex flex-col">
       <CardContent className="p-4 space-y-3 flex flex-col h-full">
         <Link href={`/products/${product.id}`}>
-          <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg overflow-hidden cursor-pointer">
-            <Image
-              src={product.images[0]}
-              alt={`${product.name} - ${product.color}`}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            />
+          <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden cursor-pointer">
+            {isVisible && (
+              <OptimizedImage
+                src={product.images[0]}
+                alt={`${product.name} - ${product.color}`}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                priority={index < 4}
+              />
+            )}
           </div>
         </Link>
         
@@ -214,8 +235,8 @@ export default function AllProductsPage() {
                   </span>
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {categoryProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                  {categoryProducts.map((product, idx) => (
+                    <ProductCard key={product.id} product={product} index={idx} />
                   ))}
                 </div>
               </div>
@@ -231,8 +252,8 @@ export default function AllProductsPage() {
               </span>
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {filteredProducts.map((product, idx) => (
+                <ProductCard key={product.id} product={product} index={idx} />
               ))}
             </div>
           </div>

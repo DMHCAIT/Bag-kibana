@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Star, ShoppingCart } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
 import { useState, useEffect } from "react";
@@ -17,7 +17,7 @@ const makeSlug = (name: string, color: string) =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const { addToCart } = useCart();
   const [isAdded, setIsAdded] = useState(false);
 
@@ -33,16 +33,17 @@ function ProductCard({ product }: { product: Product }) {
         <CardContent className="p-0 space-y-3 flex flex-col h-full">
           {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
-            <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
-              <Image
+            <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden cursor-pointer">
+              <OptimizedImage
                 src={product.images[0]}
                 alt={`${product.name} - ${product.color}`}
                 fill
                 className="object-cover transition-opacity duration-300 group-hover:opacity-0"
                 sizes="(max-width: 768px) 50vw, 25vw"
+                priority={priority}
               />
               {product.images[1] && (
-                <Image
+                <OptimizedImage
                   src={product.images[1]}
                   alt={`${product.name} - ${product.color} hover`}
                   fill
@@ -242,7 +243,7 @@ export default function BestsellersSection() {
                 <div className="grid grid-rows-2 grid-flow-col gap-4 auto-cols-[180px]">
                   {bestsellers.map((product, idx) => (
                     <div key={product.id} className="w-[180px]">
-                      <ProductCard product={product} />
+                      <ProductCard product={product} priority={idx < 2} />
                     </div>
                   ))}
                 </div>
@@ -252,7 +253,7 @@ export default function BestsellersSection() {
               <div className="hidden lg:grid lg:grid-cols-4 gap-8">
                 {bestsellers.map((product, idx) => (
                 <div key={product.id}>
-                  <ProductCard product={product} />
+                  <ProductCard product={product} priority={idx < 4} />
                 </div>
               ))}
             </div>
