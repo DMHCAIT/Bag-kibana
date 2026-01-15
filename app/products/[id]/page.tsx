@@ -555,7 +555,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           {/* Color Image or Fallback */}
                           <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 overflow-hidden bg-white">
                             {imageToShow ? (
-                              <Image
+                              <OptimizedImage
                                 src={imageToShow}
                                 alt={colorOption.name}
                                 fill
