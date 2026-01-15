@@ -23,6 +23,7 @@ export const PRODUCT_SECTIONS = [
 export const PRODUCT_STATUS = [
   "active",
   "draft",
+  "published",
   "archived",
   "out-of-stock"
 ] as const;
