@@ -34,11 +34,23 @@ export type ProductStatus = typeof PRODUCT_STATUS[number];
 export interface ProductFormData {
   name: string;
   category: ProductCategory;
+  color?: string;
   price: number;
+  salePrice?: number;
+  stock?: number;
+  rating?: number;
+  reviews?: number;
   description: string;
   images: string[];
   status: ProductStatus;
   sections: ProductSection[];
+  slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  tags?: string[];
+  isFeatured?: boolean;
+  isNewArrival?: boolean;
+  publishedAt?: string;
   specifications?: {
     material?: string;
     texture?: string;
