@@ -43,7 +43,7 @@ export interface ProductFormData {
   description: string;
   images: string[];
   status: ProductStatus;
-  sections: ProductSection[];
+  sections?: string[];
   slug?: string;
   metaTitle?: string;
   metaDescription?: string;
