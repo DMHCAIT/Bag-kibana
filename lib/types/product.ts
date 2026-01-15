@@ -12,12 +12,12 @@ export const PRODUCT_CATEGORIES = [
 ] as const;
 
 export const PRODUCT_SECTIONS = [
-  "new-arrivals",
-  "bestsellers",
-  "featured",
-  "sale",
-  "women",
-  "men"
+  { id: "new-arrivals", name: "New Arrivals" },
+  { id: "bestsellers", name: "Bestsellers" },
+  { id: "featured", name: "Featured" },
+  { id: "sale", name: "Sale" },
+  { id: "women", name: "Women" },
+  { id: "men", name: "Men" }
 ] as const;
 
 export const PRODUCT_STATUS = [
