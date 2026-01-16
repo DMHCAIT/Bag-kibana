@@ -177,17 +177,31 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 onClick={onClose}
                 className="block w-full py-4 bg-[#0A2540] text-white text-center rounded-lg hover:bg-[#0d3052] transition-colors font-medium relative overflow-hidden group"
               >
-                <div className="flex items-center justify-center gap-2">
-                  <span className="text-base">UPI/Cards/Partial COD</span>
-                  <div className="flex items-center gap-1">
-                    <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                      <span className="text-[#002970] font-bold text-xs">Paytm</span>
+                <div className="flex items-center justify-center gap-3">
+                  <span className="text-base font-semibold">UPI/Cards/COD</span>
+                  <div className="flex items-center gap-1.5">
+                    {/* PhonePe */}
+                    <div className="w-7 h-7 bg-gradient-to-br from-[#5f259f] to-[#3d1363] rounded-md flex items-center justify-center shadow-sm">
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
                     </div>
-                    <div className="w-8 h-8 bg-[#5f259f] rounded flex items-center justify-center">
-                      <span className="text-white font-bold text-xs">PhonePe</span>
+                    {/* Google Pay */}
+                    <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center shadow-sm">
+                      <svg className="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                        <path fill="#34A853" d="M12 7v5l4 4c1.5-1.5 2-3.5 2-5 0-2.8-2.2-5-5-5z"/>
+                        <path fill="#FBBC04" d="M7 12l5-5v5H7z"/>
+                        <path fill="#EA4335" d="M12 17v-5h5c0 2.8-2.2 5-5 5z"/>
+                      </svg>
                     </div>
-                    <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                      <span className="text-[#4285f4] font-bold text-xs">G</span>
+                    {/* Paytm */}
+                    <div className="w-7 h-7 bg-gradient-to-br from-[#00BAF2] to-[#002970] rounded-md flex items-center justify-center shadow-sm">
+                      <span className="text-white font-bold text-[10px]">₹</span>
+                    </div>
+                    {/* Generic UPI */}
+                    <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center shadow-sm border border-gray-200">
+                      <span className="text-gray-700 font-bold text-[9px]">UPI</span>
                     </div>
                   </div>
                   <span className="text-xl">›</span>
