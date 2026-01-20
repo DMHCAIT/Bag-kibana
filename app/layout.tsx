@@ -9,7 +9,6 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import CartDrawerWrapper from "@/components/CartDrawerWrapper";
 import CartReminderProvider from "@/components/CartReminderProvider";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
-import LoginPopupProvider from "@/components/LoginPopupProvider";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const playfair = Playfair_Display({
@@ -131,7 +130,6 @@ export default function RootLayout({
                 {children}
                 <CartDrawerWrapper />
                 <WhatsAppWidget />
-                <LoginPopupProvider />
               </CartProvider>
             </AuthProvider>
           </Providers>
