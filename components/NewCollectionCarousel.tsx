@@ -40,12 +40,12 @@ function ProductCard({ product }: { product: Product }) {
           {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
             <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden cursor-pointer bg-gray-100">
-              {/* First Image - base layer (always visible) */}
+              {/* First Image - base layer (fades out on hover) */}
               <OptimizedImage
                 src={product.images[0]}
                 alt={`${product.name} - ${product.color}`}
                 fill
-                className="object-cover"
+                className="object-cover transition-opacity duration-300 group-hover:opacity-0"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
               {/* Second Image - hover layer (overlays on hover) */}
