@@ -34,25 +34,23 @@ function ProductCard({ product, priority = false }: { product: Product; priority
           {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
             <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden cursor-pointer bg-gray-100">
-              {/* First Image - base layer */}
-              <div className="absolute inset-0 z-0">
-                <OptimizedImage
-                  src={product.images[0]}
-                  alt={`${product.name} - ${product.color}`}
-                  fill
-                  className="object-cover transition-opacity duration-300 group-hover:opacity-0"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  priority={priority}
-                />
-              </div>
-              {/* Second Image - hover layer */}
+              {/* First Image - base layer (always visible) */}
+              <OptimizedImage
+                src={product.images[0]}
+                alt={`${product.name} - ${product.color}`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 50vw, 25vw"
+                priority={priority}
+              />
+              {/* Second Image - hover layer (overlays on hover) */}
               {product.images[1] && (
-                <div className="absolute inset-0 z-10 pointer-events-none">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                   <OptimizedImage
                     src={product.images[1]}
                     alt={`${product.name} - ${product.color} hover`}
                     fill
-                    className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                    className="object-cover"
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />
                 </div>
