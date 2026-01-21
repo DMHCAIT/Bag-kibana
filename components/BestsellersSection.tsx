@@ -43,13 +43,15 @@ function ProductCard({ product, priority = false }: { product: Product; priority
                 priority={priority}
               />
               {product.images[1] && (
-                <OptimizedImage
-                  src={product.images[1]}
-                  alt={`${product.name} - ${product.color} hover`}
-                  fill
-                  className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                />
+                <div className="absolute inset-0 pointer-events-none">
+                  <OptimizedImage
+                    src={product.images[1]}
+                    alt={`${product.name} - ${product.color} hover`}
+                    fill
+                    className="object-cover transition-opacity duration-300 opacity-0 group-hover:opacity-100"
+                    sizes="(max-width: 768px) 50vw, 25vw"
+                  />
+                </div>
               )}
             </div>
           </Link>
