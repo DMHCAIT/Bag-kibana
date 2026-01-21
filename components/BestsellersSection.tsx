@@ -33,17 +33,21 @@ function ProductCard({ product, priority = false }: { product: Product; priority
         <CardContent className="p-0 space-y-3 flex flex-col h-full">
           {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
-            <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden cursor-pointer">
-              <OptimizedImage
-                src={product.images[0]}
-                alt={`${product.name} - ${product.color}`}
-                fill
-                className="object-cover transition-opacity duration-300 group-hover:opacity-0"
-                sizes="(max-width: 768px) 50vw, 25vw"
-                priority={priority}
-              />
+            <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden cursor-pointer bg-gray-100">
+              {/* First Image - base layer */}
+              <div className="absolute inset-0 z-0">
+                <OptimizedImage
+                  src={product.images[0]}
+                  alt={`${product.name} - ${product.color}`}
+                  fill
+                  className="object-cover transition-opacity duration-300 group-hover:opacity-0"
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  priority={priority}
+                />
+              </div>
+              {/* Second Image - hover layer */}
               {product.images[1] && (
-                <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute inset-0 z-10 pointer-events-none">
                   <OptimizedImage
                     src={product.images[1]}
                     alt={`${product.name} - ${product.color} hover`}
