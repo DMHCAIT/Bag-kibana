@@ -677,27 +677,30 @@ export default function CheckoutPage() {
                       <p className="font-medium">UPI/Cards/Partial COD</p>
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex items-center gap-1.5">
-                          {/* Paytm - White circle with blue text */}
-                          <svg className="w-11 h-11" viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="23.5" fill="white" stroke="#E6E6E6"/>
-                            <text x="24" y="30" fontSize="11" fontWeight="bold" fill="#002970" textAnchor="middle">Paytm</text>
+                          {/* Paytm */}
+                          <svg className="w-12 h-12" viewBox="0 0 50 50" fill="none">
+                            <circle cx="25" cy="25" r="24" fill="white" stroke="#DDD" strokeWidth="1"/>
+                            <path d="M15 18h6c2.2 0 4 1.8 4 4s-1.8 4-4 4h-2v6h-4v-14zm4 6h2c1.1 0 2-.9 2-2s-.9-2-2-2h-2v4z" fill="#00BAF2"/>
+                            <circle cx="33" cy="21" r="2" fill="#00BAF2"/>
+                            <rect x="31" y="24" width="4" height="8" rx="0.5" fill="#00BAF2"/>
                           </svg>
-                          {/* PhonePe - Purple circle with rupee symbol */}
-                          <svg className="w-11 h-11" viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="24" fill="#5F259F"/>
-                            <text x="24" y="32" fontSize="20" fontWeight="bold" fill="white" textAnchor="middle">₹</text>
+                          {/* PhonePe */}
+                          <svg className="w-12 h-12" viewBox="0 0 50 50" fill="none">
+                            <circle cx="25" cy="25" r="24" fill="#5F259F"/>
+                            <path d="M18 16h8c2.2 0 4 1.8 4 4s-1.8 4-4 4h-3v6h-5v-14zm5 6h3c1.1 0 2-.9 2-2s-.9-2-2-2h-3v4z" fill="white"/>
+                            <path d="M28 26h5v8h-5z" fill="white"/>
                           </svg>
-                          {/* Google Pay - White circle with G Pay */}
-                          <svg className="w-11 h-11" viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="23.5" fill="white" stroke="#E6E6E6"/>
-                            <text x="13" y="30" fontSize="13" fontWeight="700" fill="#4285F4">G</text>
-                            <text x="24" y="30" fontSize="8" fontWeight="500" fill="#666">Pay</text>
+                          {/* Google Pay */}
+                          <svg className="w-12 h-12" viewBox="0 0 50 50" fill="none">
+                            <circle cx="25" cy="25" r="24" fill="white" stroke="#DDD" strokeWidth="1"/>
+                            <text x="16" y="32" fontSize="11" fontWeight="700" fill="#4285F4" fontFamily="Arial">G</text>
+                            <text x="25" y="32" fontSize="7" fontWeight="500" fill="#5F6368" fontFamily="Arial">Pay</text>
                           </svg>
-                          {/* UPI - White circle with orange/green arrows */}
-                          <svg className="w-11 h-11" viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="23.5" fill="white" stroke="#E6E6E6"/>
-                            <path d="M24 12 L30 24 L24 27 L18 24 Z" fill="#FF6600"/>
-                            <path d="M24 27 L30 24 L24 36 L18 24 Z" fill="#097969"/>
+                          {/* UPI */}
+                          <svg className="w-12 h-12" viewBox="0 0 50 50" fill="none">
+                            <circle cx="25" cy="25" r="24" fill="white" stroke="#DDD" strokeWidth="1"/>
+                            <path d="M25 12l8 12-8 4-8-12z" fill="#FF6F00"/>
+                            <path d="M25 28l8-4-8 14-8-14z" fill="#097B3E"/>
                           </svg>
                         </div>                      </div>                    </div>
                     <Lock className="w-5 h-5 text-green-600" />
