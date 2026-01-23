@@ -75,9 +75,9 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  // Calculate automatic 20% discount
+  // Calculate automatic 30% discount
   const originalSubtotal = cart.subtotal;
-  const discountedSubtotal = Math.round(cart.subtotal * 0.8);
+  const discountedSubtotal = Math.round(cart.subtotal * 0.7);
   const discountAmount = originalSubtotal - discountedSubtotal;
   const finalTotal = discountedSubtotal;
 
@@ -161,12 +161,12 @@ export default function CheckoutPage() {
             name: `${item.product.name} - ${item.product.color}`,
             color: item.product.color,
             quantity: item.quantity,
-            price: Math.round(item.product.price * 0.8),
+            price: Math.round(item.product.price * 0.7),
             image: item.product.images?.[0] || "",
           })),
           subtotal: discountedSubtotal,
           discount: discountAmount,
-          discount_code: "AUTO20",
+          discount_code: "AUTO30",
           is_first_order: false,
           shipping_fee: 0,
           total: finalTotal,
@@ -304,12 +304,12 @@ export default function CheckoutPage() {
                   name: `${item.product.name} - ${item.product.color}`,
                   color: item.product.color,
                   quantity: item.quantity,
-                  price: Math.round(item.product.price * 0.8),
+                  price: Math.round(item.product.price * 0.7),
                   image: item.product.images?.[0] || "",
                 })),
                 subtotal: discountedSubtotal,
                 discount: discountAmount,
-                discount_code: "AUTO20",
+                discount_code: "AUTO30",
                 is_first_order: false,
                 shipping_fee: 0,
                 total: finalTotal,
@@ -582,7 +582,7 @@ export default function CheckoutPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-black">
-                          ₹{Math.round(item.product.price * 0.8 * item.quantity).toLocaleString()}
+                          ₹{Math.round(item.product.price * 0.7 * item.quantity).toLocaleString()}
                         </p>
                         <p className="text-xs text-gray-400 line-through">
                           ₹{(item.product.price * item.quantity).toLocaleString()}
@@ -599,7 +599,7 @@ export default function CheckoutPage() {
                       <span className="text-lg">🎉</span>
                       <div>
                         <p className="text-sm font-medium text-white">
-                          20% OFF Applied Automatically!
+                          30% OFF Applied Automatically!
                         </p>
                         <p className="text-xs text-gray-200">
                           You&apos;re saving ₹{discountAmount.toLocaleString()} on this order
@@ -615,7 +615,7 @@ export default function CheckoutPage() {
                     <span className="line-through text-gray-400">₹{originalSubtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm text-black font-medium">
-                    <span>Discount (20% OFF)</span>
+                    <span>Discount (30% OFF)</span>
                     <span>-₹{discountAmount.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm">

@@ -304,7 +304,7 @@ function generateInvoiceHTML(order: any): string {
       </div>
       ${discount > 0 ? `
       <div class="totals-row">
-        <span>Discount (20% OFF):</span>
+        <span>Discount (30% OFF):</span>
         <span>-₹${discount.toLocaleString('en-IN')}</span>
       </div>
       ` : ''}

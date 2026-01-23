@@ -10,7 +10,6 @@ import { Product } from "@/lib/products-data";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCart } from "@/contexts/CartContext";
-import { motion } from "framer-motion";
 
 const makeSlug = (name: string, color: string) =>
   `${name}-${color}`
@@ -18,13 +17,6 @@ const makeSlug = (name: string, color: string) =>
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 18 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.55, delay },
-  viewport: { once: true, amount: 0.15 },
-});
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -44,7 +36,7 @@ function ProductCard({ product }: { product: Product }) {
           <Link href={`/products/${product.slug || product.id}`}>
             <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
               <Image
-                src={product.images[0]}
+     div
                 alt={`${product.name} - ${product.color}`}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -80,9 +72,9 @@ function ProductCard({ product }: { product: Product }) {
             </div>
 
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.8).toLocaleString()}</p>
+              <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.7).toLocaleString()}</p>
               <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
-              <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">20% OFF</span>
+              <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">30% OFF</span>
             </div>
 
             {/* Color Swatches */}
@@ -147,7 +139,7 @@ function ProductCard({ product }: { product: Product }) {
 // Filter Dropdown Component
 function FilterDropdown({ 
   label, 
-  options, 
+  opti
   value, 
   onChange,
   isOpen,
@@ -359,6 +351,7 @@ export default function ShopPage() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
+      
       {loading ? (
         <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
           <div className="flex items-center justify-center h-96">
@@ -376,10 +369,9 @@ export default function ShopPage() {
           </div>
         </div>
       ) : (
-      <>
-      <motion.div {...fadeUp(0)} className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Category Links */}
-        <motion.div {...fadeUp(0.05)} className="flex justify-center gap-6 mb-12">
+        <div className="flex justify-center gap-6 mb-12">
           <Link href="/women">
             <button className="flex flex-col items-center gap-2 group">
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
@@ -408,7 +400,7 @@ export default function ShopPage() {
               <span className="text-xs font-medium">Shop Men</span>
             </button>
           </Link>
-        </motion.div>
+        </div>
 
         {/* Mobile Filter Button */}
         <div className="md:hidden mb-4">
@@ -518,9 +510,9 @@ export default function ShopPage() {
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
             {filteredProducts.map((product: Product, idx) => (
-              <motion.div key={product.id} {...fadeUp(idx * 0.05)}>
+              <div key={product.id}>
                 <ProductCard product={product} />
-              </motion.div>
+              </div>
             ))}
           </div>
         ) : (
@@ -543,8 +535,7 @@ export default function ShopPage() {
             </Button>
           </div>
         )}
-      </motion.div>
-      </>
+      </div>
       )}
       <Footer />
     </div>

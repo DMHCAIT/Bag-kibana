@@ -130,7 +130,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
 
         // Existing user or profile already complete
         if (data.isNewUser) {
-          alert("Welcome to Kibana! Your account has been created successfully. Enjoy 20% off your first order!");
+          alert("Welcome to Kibana! Your account has been created successfully. Enjoy 30% off your first order!");
         } else {
           alert("Welcome back to Kibana!");
         }
@@ -177,7 +177,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
           localStorage.setItem('userData', JSON.stringify(data.user));
         }
 
-        alert("Welcome to Kibana! Your profile has been completed. Enjoy 20% off your first order!");
+        alert("Welcome to Kibana! Your profile has been completed. Enjoy 30% off your first order!");
         onClose();
         
         // Refresh to update login state
@@ -251,7 +251,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
             {step === 'profile' && 'Complete Your Profile'}
           </h3>
           <p className="text-gray-600">
-            {step === 'mobile' && 'Get 20% off your first order.'} 
+            {step === 'mobile' && 'Get 30% off your first order.'} 
             {step === 'otp' && `We sent OTP to +91${mobile}`}
             {step === 'profile' && 'Just a few more details to get started.'}
           </p>
@@ -377,7 +377,7 @@ export default function LoginPopup({ isOpen, onClose }: LoginPopupProps) {
             {/* Skip Option */}
             <button
               onClick={() => {
-                alert("Welcome to Kibana! Enjoy 20% off your first order!");
+                alert("Welcome to Kibana! Enjoy 30% off your first order!");
                 onClose();
                 window.location.reload();
               }}

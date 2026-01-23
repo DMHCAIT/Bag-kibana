@@ -60,7 +60,7 @@ export default function OfferBanner() {
                 <path d="M12 2L9 8H6L10 11L8 17L12 14L16 17L14 11L18 8H15L12 2Z" />
                 <rect x="11" y="17" width="2" height="5" fill="currentColor" />
               </svg>
-              <strong>20% OFF</strong> on All Products - <strong className="text-green-400">Automatically Applied!</strong>
+              <strong>30% OFF</strong> on All Products - <strong className="text-green-400">Automatically Applied!</strong>
             </span>
             <span className="flex items-center gap-2 text-sm">
               <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
@@ -85,7 +85,7 @@ export default function OfferBanner() {
                 <path d="M12 2L9 8H6L10 11L8 17L12 14L16 17L14 11L18 8H15L12 2Z" />
                 <rect x="11" y="17" width="2" height="5" fill="currentColor" />
               </svg>
-              <strong>20% OFF</strong> on All Products - <strong className="text-white">Automatically Applied!</strong>
+              <strong>30% OFF</strong> on All Products - <strong className="text-white">Automatically Applied!</strong>
             </span>
             <span className="flex items-center gap-2 text-sm">
               <svg className="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="currentColor">
