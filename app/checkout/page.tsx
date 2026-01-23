@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
-import { Lock, Truck, CreditCard, Package, Smartphone, Wallet, CreditCard as Card } from "lucide-react";
+import { Lock, Truck, CreditCard, Package, Smartphone, Wallet } from "lucide-react";
 import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -687,7 +687,7 @@ export default function CheckoutPage() {
                           </div>
                           {/* Cards */}
                           <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-sm border border-blue-100">
-                            <Card className="w-6 h-6 text-white" strokeWidth={2.5} />
+                            <CreditCard className="w-6 h-6 text-white" strokeWidth={2.5} />
                           </div>
                           {/* UPI */}
                           <svg className="w-11 h-11" viewBox="0 0 48 48" fill="none">
