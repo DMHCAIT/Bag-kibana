@@ -29,14 +29,14 @@ function ProductCard({ product }: { product: Product }) {
   };
 
   return (
-    <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.25, ease: "easeOut" }} className="h-full">
+    <div className="h-full">
       <Card className="border-0 shadow-none group h-full flex flex-col">
         <CardContent className="p-0 space-y-3 flex flex-col h-full">
           {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
             <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
               <Image
-     div
+                src={product.images[0]}
                 alt={`${product.name} - ${product.color}`}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
