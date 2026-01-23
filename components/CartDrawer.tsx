@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment } from "react";
-import { X, ShoppingBag, Minus, Plus, Trash2 } from "lucide-react";
+import { X, ShoppingBag, Minus, Plus, Trash2, Smartphone, Wallet, CreditCard } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
@@ -181,33 +181,29 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <span className="text-base font-semibold">UPI/Cards/COD</span>
                   <div className="flex items-center gap-1.5">
                     {/* Paytm */}
-                    <svg className="w-11 h-11" viewBox="0 0 48 48" fill="none">
-                      <circle cx="24" cy="24" r="23" fill="#00B9F5" stroke="#E8F5FD" strokeWidth="1"/>
-                      <path d="M16 15c0-1.1.9-2 2-2h4c2.2 0 4 1.8 4 4s-1.8 4-4 4h-2v5h-4V15zm4 4h2c1.1 0 2-.9 2-2s-.9-2-2-2h-2v4z" fill="white"/>
-                      <circle cx="31" cy="18" r="2.5" fill="white"/>
-                      <rect x="29" y="22" width="4" height="7" rx="0.8" fill="white"/>
-                    </svg>
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#00B9F5] to-[#0095D5] flex items-center justify-center shadow-sm border border-blue-100">
+                      <Wallet className="w-6 h-6 text-white" strokeWidth={2.5} />
+                    </div>
                     {/* PhonePe */}
-                    <svg className="w-11 h-11" viewBox="0 0 48 48" fill="none">
-                      <circle cx="24" cy="24" r="23" fill="#5F259F"/>
-                      <path d="M15 14h7c2.8 0 5 2.2 5 5s-2.2 5-5 5h-2v6h-5V14zm5 7h2c1.7 0 3-1.3 3-3s-1.3-3-3-3h-2v6z" fill="white"/>
-                      <rect x="27" y="24" width="5" height="10" rx="0.5" fill="white"/>
-                      <circle cx="29.5" cy="18.5" r="2.5" fill="white"/>
-                    </svg>
-                    {/* Google Pay */}
-                    <svg className="w-11 h-11" viewBox="0 0 48 48" fill="none">
-                      <circle cx="24" cy="24" r="23" fill="white" stroke="#E8E8E8" strokeWidth="1.5"/>
-                      <path d="M18.5 27.5v-11h5.2c1.4 0 2.5.4 3.3 1.2.8.8 1.2 1.9 1.2 3.3 0 1.4-.4 2.5-1.2 3.3-.8.8-1.9 1.2-3.3 1.2h-2.7v2h-2.5zm2.5-4.5h2.7c.7 0 1.3-.2 1.7-.7.4-.4.7-1 .7-1.8s-.2-1.3-.7-1.8c-.4-.4-1-.7-1.7-.7h-2.7v5z" fill="#4285F4"/>
-                      <path d="M31.5 27.5v-5.8c0-.9.3-1.6.9-2.2.6-.6 1.3-.9 2.2-.9.9 0 1.6.3 2.2.9.6.6.9 1.3.9 2.2v5.8h-2v-5.8c0-.4-.1-.7-.4-1-.3-.3-.6-.4-1-.4s-.7.1-1 .4c-.3.3-.4.6-.4 1v5.8h-2z" fill="#34A853"/>
-                      <circle cx="32.5" cy="17" r="1.2" fill="#FBBC04"/>
-                      <circle cx="35.5" cy="17" r="1.2" fill="#EA4335"/>
-                    </svg>
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#5F259F] to-[#4A1C7D] flex items-center justify-center shadow-sm">
+                      <Smartphone className="w-6 h-6 text-white" strokeWidth={2.5} />
+                    </div>
+                    {/* Cards */}
+                    <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-sm border border-blue-100">
+                      <CreditCard className="w-6 h-6 text-white" strokeWidth={2.5} />
+                    </div>
                     {/* UPI */}
                     <svg className="w-11 h-11" viewBox="0 0 48 48" fill="none">
+                      <defs>
+                        <linearGradient id="upiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#FF6F00" />
+                          <stop offset="100%" stopColor="#FF9800" />
+                        </linearGradient>
+                      </defs>
                       <circle cx="24" cy="24" r="23" fill="white" stroke="#E8E8E8" strokeWidth="1.5"/>
-                      <path d="M24 14l6 9-6 3-6-9z" fill="#FF6F00" opacity="0.9"/>
-                      <path d="M24 26l6-3-6 11-6-11z" fill="#097B3E" opacity="0.9"/>
-                      <path d="M24 23l4-6-4 9-4-9z" fill="#FF9800" opacity="0.7"/>
+                      <path d="M24 14l6 9-6 3-6-9z" fill="url(#upiGradient)" opacity="0.95"/>
+                      <path d="M24 26l6-3-6 11-6-11z" fill="#097B3E" opacity="0.95"/>
+                      <path d="M24 23l4-6-4 9-4-9z" fill="#FFA726" opacity="0.7"/>
                     </svg>
                   </div>
                   <span className="text-xl">›</span>
