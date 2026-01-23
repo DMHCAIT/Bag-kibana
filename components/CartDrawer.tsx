@@ -181,41 +181,32 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <span className="text-base font-semibold">UPI/Cards/COD</span>
                   <div className="flex items-center gap-1.5">
                     {/* PhonePe */}
-                    <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center shadow-sm">
-                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                        <rect width="24" height="24" rx="4" fill="#5F259F"/>
-                        <path d="M8 6h8v2.5h-3v9.5h-2V8.5H8V6z" fill="white"/>
+                    <div className="w-10 h-10 bg-[#5F259F] rounded-lg flex items-center justify-center shadow-md">
+                      <svg className="w-8 h-8" viewBox="0 0 40 40" fill="none">
+                        <path d="M20 0C8.95 0 0 8.95 0 20s8.95 20 20 20 20-8.95 20-20S31.05 0 20 0zm7 26h-3V14h-8v-3h11v15z" fill="white"/>
                       </svg>
                     </div>
                     {/* Google Pay */}
-                    <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center shadow-sm">
-                      <svg className="w-5 h-5" viewBox="0 0 48 20" fill="none">
-                        <path d="M24 9.5V14h-2.5V4h6.6c1.6 0 3 .6 4 1.6 1 1 1.6 2.3 1.6 3.9s-.6 2.9-1.6 3.9c-1 1-2.4 1.6-4 1.6H24zm0-2.5h4.1c.8 0 1.6-.3 2.1-.9.6-.6.9-1.3.9-2.1s-.3-1.5-.9-2.1c-.6-.6-1.3-.9-2.1-.9H24v6z" fill="#5F6368"/>
-                        <path d="M44.5 8.3c1.2 0 2.1.3 2.9 1 .8.7 1.1 1.6 1.1 2.8V18h-2.4v-1.4h-.1c-.8 1.1-1.8 1.7-3 1.7-1.1 0-2-.3-2.7-1-.7-.6-1.1-1.5-1.1-2.5 0-1.1.4-1.9 1.2-2.6.8-.6 1.8-1 3.1-1 1 0 1.9.2 2.6.5v-.4c0-.6-.3-1.2-.7-1.6-.5-.4-1-.7-1.7-.7-.9 0-1.7.4-2.2 1.1l-2.2-1.4c.9-1.3 2.3-2 4.2-2zm-2.4 7.4c0 .5.2.9.6 1.2.4.3.8.5 1.4.5.7 0 1.4-.3 2-.8.6-.6.9-1.2.9-2-.6-.4-1.4-.6-2.3-.6-.7 0-1.3.2-1.8.5-.5.4-.8.8-.8 1.2z" fill="#5F6368"/>
-                        <path d="M35.9 18.3c-1.6 0-3-.6-4.1-1.7-1.1-1.1-1.6-2.5-1.6-4.2s.5-3.1 1.6-4.2c1.1-1.1 2.5-1.7 4.1-1.7 1.7 0 3 .6 4.1 1.7l-1.7 1.7c-.7-.7-1.5-1.1-2.4-1.1-1 0-1.8.3-2.5 1-.7.7-1 1.5-1 2.6s.3 1.9 1 2.6c.7.7 1.5 1 2.5 1 .9 0 1.7-.3 2.4-1l1.7 1.7c-1.1 1.1-2.4 1.7-4.1 1.7z" fill="#5F6368"/>
-                        <path d="M7.7 10.8c0-.5 0-1 .1-1.4H4v2.7h2.1c-.1.5-.4 1-.8 1.3v1.8h1.3c.8-.7 1.1-1.8 1.1-3.4z" fill="#4285F4"/>
-                        <path d="M4 15.5c1.1 0 2-.4 2.7-1l-1.3-1c-.4.3-.9.4-1.4.4-1.1 0-2-.7-2.3-1.7H.3v1.9C1 14.9 2.4 15.5 4 15.5z" fill="#34A853"/>
-                        <path d="M1.7 12.2c-.2-.5-.2-1.1 0-1.6V8.7H.3c-.4.8-.4 1.7 0 2.5l1.4 1z" fill="#FBBC04"/>
-                        <path d="M4 8.8c.6 0 1.2.2 1.6.6l1.2-1.2C6.1 7.5 5.1 7 4 7c-1.6 0-3 .8-3.7 2.1l1.4 1.1c.3-1 1.2-1.7 2.3-1.7z" fill="#EA4335"/>
+                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md border border-gray-200">
+                      <svg className="w-9 h-9" viewBox="0 0 122.88 35.28" fill="none">
+                        <path d="M15.45,17.34a8.68,8.68,0,0,1-8.25,9.11c-4.85,0-8.83-3.9-8.83-9.11S2.35,8.23,7.2,8.23a8.56,8.56,0,0,1,6.13,2.43l-2.48,2.38A5.24,5.24,0,0,0,7.2,11.28c-3.14,0-5.69,2.53-5.69,6.06s2.55,6.06,5.69,6.06a5.48,5.48,0,0,0,5.73-4.48H7.2V15.85h8.09a7.86,7.86,0,0,1,.16,1.49Z" fill="#4285F4"/>
+                        <path d="M28.11,11.38a5.91,5.91,0,0,1,5.92,6.15,5.92,5.92,0,1,1-11.84,0,5.91,5.91,0,0,1,5.92-6.15Zm0,9.82a3.67,3.67,0,1,0-3.41-3.67A3.48,3.48,0,0,0,28.11,21.2Z" fill="#EA4335"/>
+                        <path d="M42.77,11.38a5.91,5.91,0,0,1,5.92,6.15,5.92,5.92,0,1,1-11.84,0,5.91,5.91,0,0,1,5.92-6.15Zm0,9.82a3.67,3.67,0,1,0-3.41-3.67A3.48,3.48,0,0,0,42.77,21.2Z" fill="#FBBC04"/>
+                        <path d="M56.79,11.64V25.5c0,5.71-3.37,8-7.35,8a7.45,7.45,0,0,1-6.92-4.61l2.19-0.91a5,5,0,0,0,4.73,3.27c3.09,0,5-1.91,5-5.5v-1.1h-0.14a5.82,5.82,0,0,1-4.52,2,6.15,6.15,0,0,1,0-12.29,5.76,5.76,0,0,1,4.52,2h0.14V11.64h2.35Zm-2.18,5.89a3.94,3.94,0,0,0-3.65-4.15,4.14,4.14,0,1,0,0,8.27,3.93,3.93,0,0,0,3.65-4.12Z" fill="#4285F4"/>
+                        <path d="M63.54,0.77V26.1H61.19V0.77h2.35Z" fill="#34A853"/>
+                        <path d="M77.42,21.2l5.95,14.08H80.77L78.54,29.9H71.25l-2.23,5.38H66.48l6.08-14.08h4.86ZM74.9,15.51l-2.59,6.12h5.18l-2.59-6.12Z" fill="#EA4335"/>
+                        <path d="M93.81,11.38c3.78,0,6.48,2.61,6.48,6.15a6.48,6.48,0,1,1-12.95,0c0-3.54,2.7-6.15,6.47-6.15Zm0,2.46a3.94,3.94,0,0,0-3.95,3.69,4,4,0,1,0,7.9,0,3.94,3.94,0,0,0-3.95-3.69Z" fill="#4285F4"/>
+                        <path d="M109.79,26.1l-6.95-10.81V26.1h-2.35V11.64h2.6l6.7,10.44V11.64h2.35V26.1h-2.35Z" fill="#34A853"/>
+                        <path d="M122.88,17.74a8,8,0,0,1-7.94,8.36,7.85,7.85,0,0,1-5.75-2.39l1.69-1.69a5.68,5.68,0,0,0,4.06,1.62,5.54,5.54,0,0,0,5.51-4.46H114.9V17.38h7.82a7.32,7.32,0,0,1,.16.36Z" fill="#FBBC04"/>
                       </svg>
                     </div>
                     {/* Paytm */}
-                    <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center shadow-sm">
-                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                        <defs>
-                          <linearGradient id="paytm-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style={{stopColor: '#00BAF2'}}/>
-                            <stop offset="100%" style={{stopColor: '#002970'}}/>
-                          </linearGradient>
-                        </defs>
-                        <rect width="24" height="24" rx="4" fill="url(#paytm-gradient)"/>
-                        <path d="M8 6h3c1.7 0 3 1.3 3 3s-1.3 3-3 3H9.5v4H8V6zm1.5 4.5h1.5c1 0 1.5-.5 1.5-1.5s-.5-1.5-1.5-1.5H9.5v3z" fill="white"/>
-                        <path d="M15 9h1.5v7H15V9zm.75-2.5c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9z" fill="white"/>
+                    <div className="w-10 h-10 bg-[#00BAF2] rounded-lg flex items-center justify-center shadow-md">
+                      <svg className="w-8 h-8" viewBox="0 0 40 40" fill="none">
+                        <path d="M8,10 h8 c3,0 5,2 5,5 s-2,5 -5,5 h-3 v10 h-5 V10 z M13,16 h3 c1.5,0 2,-0.5 2,-2 s-0.5,-2 -2,-2 h-3 v4 z" fill="white"/>
+                        <circle cx="27" cy="13" r="2.5" fill="white"/>
+                        <rect x="24.5" y="17" width="5" height="13" fill="white"/>
                       </svg>
-                    </div>
-                    {/* Generic UPI */}
-                    <div className="w-7 h-7 bg-white rounded-md flex items-center justify-center shadow-sm border border-gray-200">
-                      <span className="text-gray-700 font-bold text-[9px]">UPI</span>
                     </div>
                   </div>
                   <span className="text-xl">›</span>
