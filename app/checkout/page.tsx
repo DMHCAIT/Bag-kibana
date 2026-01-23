@@ -677,7 +677,6 @@ export default function CheckoutPage() {
                       <p className="font-medium">UPI/Cards/Partial COD</p>
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex items-center gap-1.5">
-                                                  <div className="flex items-center gap-1.5">
                           {/* Paytm - White circle with blue text */}
                           <svg className="w-11 h-11" viewBox="0 0 48 48">
                             <circle cx="24" cy="24" r="23.5" fill="white" stroke="#E6E6E6"/>
@@ -700,8 +699,7 @@ export default function CheckoutPage() {
                             <path d="M24 12 L30 24 L24 27 L18 24 Z" fill="#FF6600"/>
                             <path d="M24 27 L30 24 L24 36 L18 24 Z" fill="#097969"/>
                           </svg>
-                        </div>
-                    </div>
+                        </div>                      </div>                    </div>
                     <Lock className="w-5 h-5 text-green-600" />
                   </label>
 
