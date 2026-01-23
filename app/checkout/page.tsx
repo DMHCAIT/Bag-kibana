@@ -708,10 +708,6 @@ export default function CheckoutPage() {
                         </div>
                       </div>
                     </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                     <Lock className="w-5 h-5 text-green-600" />
                   </label>
 
