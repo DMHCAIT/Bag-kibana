@@ -677,18 +677,30 @@ export default function CheckoutPage() {
                       <p className="font-medium">UPI/Cards/Partial COD</p>
                       <div className="flex items-center gap-2 mt-2">
                         <div className="flex items-center gap-1.5">
-                          {/* Paytm/Wallet */}
-                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#00B9F5] to-[#0095D5] flex items-center justify-center shadow-sm border border-blue-100">
-                            <Wallet className="w-6 h-6 text-white" strokeWidth={2.5} />
-                          </div>
-                          {/* PhonePe/Mobile Payment */}
-                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#5F259F] to-[#4A1C7D] flex items-center justify-center shadow-sm">
-                            <Smartphone className="w-6 h-6 text-white" strokeWidth={2.5} />
-                          </div>
-                          {/* Cards */}
-                          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-sm border border-blue-100">
-                            <CreditCard className="w-6 h-6 text-white" strokeWidth={2.5} />
-                          </div>
+                          {/* Paytm */}
+                          <Image
+                            src="/images/paytm.png"
+                            alt="Paytm"
+                            width={44}
+                            height={44}
+                            className="rounded-full object-contain"
+                          />
+                          {/* PhonePe */}
+                          <Image
+                            src="/images/phonepe.png"
+                            alt="PhonePe"
+                            width={44}
+                            height={44}
+                            className="rounded-full object-contain"
+                          />
+                          {/* Google Pay */}
+                          <Image
+                            src="/images/gpay.jpeg"
+                            alt="Google Pay"
+                            width={44}
+                            height={44}
+                            className="rounded-full object-contain"
+                          />
                           {/* UPI */}
                           <svg className="w-11 h-11" viewBox="0 0 48 48" fill="none">
                             <defs>
