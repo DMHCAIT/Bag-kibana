@@ -132,14 +132,14 @@ function ProductCard({ product }: { product: Product }) {
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
 // Filter Dropdown Component
 function FilterDropdown({ 
   label, 
-  opti
+  options,
   value, 
   onChange,
   isOpen,
