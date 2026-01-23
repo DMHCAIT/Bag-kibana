@@ -676,10 +676,39 @@ export default function CheckoutPage() {
                     <div className="flex-1">
                       <p className="font-medium">UPI/Cards/Partial COD</p>
                       <div className="flex items-center gap-2 mt-2">
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">Paytm</span>
-                          <span className="text-sm bg-purple-100 text-purple-800 px-2 py-1 rounded">PhonePe</span>
-                          <span className="text-sm bg-red-100 text-red-800 px-2 py-1 rounded">G Pay</span>
+                        <div className="flex items-center gap-1.5">
+                          {/* PhonePe */}
+                          <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center shadow-sm border border-gray-200">
+                            <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none">
+                              <rect width="24" height="24" rx="4" fill="#5F259F"/>
+                              <path d="M8 6h8v2.5h-3v9.5h-2V8.5H8V6z" fill="white"/>
+                            </svg>
+                          </div>
+                          {/* Google Pay */}
+                          <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center shadow-sm border border-gray-200">
+                            <svg className="w-6 h-6" viewBox="0 0 48 20" fill="none">
+                              <path d="M24 9.5V14h-2.5V4h6.6c1.6 0 3 .6 4 1.6 1 1 1.6 2.3 1.6 3.9s-.6 2.9-1.6 3.9c-1 1-2.4 1.6-4 1.6H24zm0-2.5h4.1c.8 0 1.6-.3 2.1-.9.6-.6.9-1.3.9-2.1s-.3-1.5-.9-2.1c-.6-.6-1.3-.9-2.1-.9H24v6z" fill="#5F6368"/>
+                              <path d="M44.5 8.3c1.2 0 2.1.3 2.9 1 .8.7 1.1 1.6 1.1 2.8V18h-2.4v-1.4h-.1c-.8 1.1-1.8 1.7-3 1.7-1.1 0-2-.3-2.7-1-.7-.6-1.1-1.5-1.1-2.5 0-1.1.4-1.9 1.2-2.6.8-.6 1.8-1 3.1-1 1 0 1.9.2 2.6.5v-.4c0-.6-.3-1.2-.7-1.6-.5-.4-1-.7-1.7-.7-.9 0-1.7.4-2.2 1.1l-2.2-1.4c.9-1.3 2.3-2 4.2-2zm-2.4 7.4c0 .5.2.9.6 1.2.4.3.8.5 1.4.5.7 0 1.4-.3 2-.8.6-.6.9-1.2.9-2-.6-.4-1.4-.6-2.3-.6-.7 0-1.3.2-1.8.5-.5.4-.8.8-.8 1.2z" fill="#5F6368"/>
+                              <path d="M7.7 10.8c0-.5 0-1 .1-1.4H4v2.7h2.1c-.1.5-.4 1-.8 1.3v1.8h1.3c.8-.7 1.1-1.8 1.1-3.4z" fill="#4285F4"/>
+                              <path d="M4 15.5c1.1 0 2-.4 2.7-1l-1.3-1c-.4.3-.9.4-1.4.4-1.1 0-2-.7-2.3-1.7H.3v1.9C1 14.9 2.4 15.5 4 15.5z" fill="#34A853"/>
+                              <path d="M1.7 12.2c-.2-.5-.2-1.1 0-1.6V8.7H.3c-.4.8-.4 1.7 0 2.5l1.4 1z" fill="#FBBC04"/>
+                              <path d="M4 8.8c.6 0 1.2.2 1.6.6l1.2-1.2C6.1 7.5 5.1 7 4 7c-1.6 0-3 .8-3.7 2.1l1.4 1.1c.3-1 1.2-1.7 2.3-1.7z" fill="#EA4335"/>
+                            </svg>
+                          </div>
+                          {/* Paytm */}
+                          <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center shadow-sm border border-gray-200">
+                            <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none">
+                              <defs>
+                                <linearGradient id="paytm-gradient-checkout" x1="0%" y1="0%" x2="100%" y2="100%">
+                                  <stop offset="0%" style={{stopColor: '#00BAF2'}}/>
+                                  <stop offset="100%" style={{stopColor: '#002970'}}/>
+                                </linearGradient>
+                              </defs>
+                              <rect width="24" height="24" rx="4" fill="url(#paytm-gradient-checkout)"/>
+                              <path d="M8 6h3c1.7 0 3 1.3 3 3s-1.3 3-3 3H9.5v4H8V6zm1.5 4.5h1.5c1 0 1.5-.5 1.5-1.5s-.5-1.5-1.5-1.5H9.5v3z" fill="white"/>
+                              <path d="M15 9h1.5v7H15V9zm.75-2.5c.5 0 .9.4.9.9s-.4.9-.9.9-.9-.4-.9-.9.4-.9.9-.9z" fill="white"/>
+                            </svg>
+                          </div>
                         </div>
                       </div>
                     </div>
