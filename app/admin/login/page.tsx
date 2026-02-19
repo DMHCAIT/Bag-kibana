@@ -14,18 +14,14 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
-  const { user, signIn } = useAuth();
+  const { user, signIn, isLoading: authLoading } = useAuth();
 
-  // Redirect if already logged in
+  // Don't show the form if user is already logged in as admin
   useEffect(() => {
-    if (user) {
-      if (user.role === 'admin') {
-        router.push("/admin");
-      } else {
-        router.push("/");
-      }
+    if (!authLoading && user?.role === 'admin') {
+      router.replace("/admin");
     }
-  }, [user, router]);
+  }, [user, authLoading, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,10 +37,9 @@ export default function AdminLoginPage() {
       const result = await signIn(email, password);
       
       if (result.success) {
-        // Small delay to ensure state updates
-        setTimeout(() => {
-          router.push("/admin");
-        }, 100);
+        // Wait a bit for state to update, then redirect
+        await new Promise(resolve => setTimeout(resolve, 200));
+        window.location.href = "/admin"; // Force full page reload
       } else {
         setError(result.error || "Invalid email or password");
       }
@@ -56,7 +51,15 @@ export default function AdminLoginPage() {
     }
   };
 
-  if (user) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+      </div>
+    );
+  }
+
+  if (user?.role === 'admin') {
     return null; // Will redirect
   }
 
