@@ -201,7 +201,7 @@ export default function WomenPage() {
       <Header />
       
       {/* Hero Section */}
-      <div className="relative w-full h-[50vh] md:h-[60vh] lg:h-[70vh] overflow-hidden">
+      <div className="relative w-full h-[35vh] md:h-[45vh] lg:h-[50vh] overflow-hidden">
         <Image
           src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Cover%20page%20.jpg%20(1).jpeg"
           alt="Women's Collection"
