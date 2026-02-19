@@ -78,21 +78,34 @@ function CollectionBanner({ collection }: { collection: CollectionItem }) {
 }
 
 export default function CollectionsInFocus() {
-  const { getValue, getJson } = useSiteContent(["collections_focus"]);
+  const { getValue } = useSiteContent(["collections_focus"]);
 
-  const sectionTitle = getValue("collections_focus", "section_title", "COLLECTIONS IN FOCUS");
-  const sectionSubtitle = getValue("collections_focus", "section_subtitle", "Curated selections for every occasion");
-  const collectionsData = getJson("collections_focus", "collections", null);
+  const sectionTitle = getValue("collections_focus", "title", "COLLECTIONS IN FOCUS");
+  const sectionSubtitle = getValue("collections_focus", "subtitle", "Curated selections for every occasion");
 
-  const collections: CollectionItem[] = collectionsData && Array.isArray(collectionsData)
-    ? collectionsData.map((c: any, i: number) => ({
-        id: i + 1,
-        title: c.title || DEFAULT_COLLECTIONS[i]?.title || `Collection ${i + 1}`,
-        subtitle: c.subtitle || DEFAULT_COLLECTIONS[i]?.subtitle || "",
-        image: c.image || DEFAULT_COLLECTIONS[i]?.image || "",
-        href: c.href || DEFAULT_COLLECTIONS[i]?.href || "/shop",
-      }))
-    : DEFAULT_COLLECTIONS;
+  const collections: CollectionItem[] = [
+    {
+      id: 1,
+      title: getValue("collections_focus", "collection_1_title", DEFAULT_COLLECTIONS[0].title),
+      subtitle: getValue("collections_focus", "collection_1_subtitle", DEFAULT_COLLECTIONS[0].subtitle),
+      image: getValue("collections_focus", "collection_1_image", DEFAULT_COLLECTIONS[0].image),
+      href: getValue("collections_focus", "collection_1_link", DEFAULT_COLLECTIONS[0].href),
+    },
+    {
+      id: 2,
+      title: getValue("collections_focus", "collection_2_title", DEFAULT_COLLECTIONS[1].title),
+      subtitle: getValue("collections_focus", "collection_2_subtitle", DEFAULT_COLLECTIONS[1].subtitle),
+      image: getValue("collections_focus", "collection_2_image", DEFAULT_COLLECTIONS[1].image),
+      href: getValue("collections_focus", "collection_2_link", DEFAULT_COLLECTIONS[1].href),
+    },
+    {
+      id: 3,
+      title: getValue("collections_focus", "collection_3_title", DEFAULT_COLLECTIONS[2].title),
+      subtitle: getValue("collections_focus", "collection_3_subtitle", DEFAULT_COLLECTIONS[2].subtitle),
+      image: getValue("collections_focus", "collection_3_image", DEFAULT_COLLECTIONS[2].image),
+      href: getValue("collections_focus", "collection_3_link", DEFAULT_COLLECTIONS[2].href),
+    },
+  ];
 
   return (
     <section className="py-16 md:py-24 bg-[#F8F8F8]">

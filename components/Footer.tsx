@@ -19,18 +19,17 @@ function ThreadsIcon({ className }: { className?: string }) {
 }
 
 export default function Footer() {
-  const { getValue } = useSiteContent(["footer"]);
+  const { getValue, getJson } = useSiteContent(["footer"]);
 
   const newsletterTitle = getValue("footer", "newsletter_title", "STAY CONNECTED");
   const newsletterSubtitle = getValue("footer", "newsletter_subtitle", "Subscribe for exclusive offers and updates");
-  const facebookUrl = getValue("footer", "facebook_url", "https://facebook.com");
-  const instagramUrl = getValue("footer", "instagram_url", "https://www.instagram.com/kibanalifeofficial/");
-  const threadsUrl = getValue("footer", "threads_url", "https://threads.net");
-  const phoneNumber = getValue("footer", "phone_number", "+91 97114 14110");
-  const copyrightText = getValue("footer", "copyright_text", `© KIBANA ${new Date().getFullYear()}. All Rights Reserved`);
-  const feature1 = getValue("footer", "feature_1", "Premium Quality");
-  const feature2 = getValue("footer", "feature_2", "Easy Returns");
-  const feature3 = getValue("footer", "feature_3", "COD Available");
+  const facebookUrl = getValue("footer", "social_facebook", "https://facebook.com");
+  const instagramUrl = getValue("footer", "social_instagram", "https://www.instagram.com/kibanalifeofficial/");
+  const threadsUrl = getValue("footer", "social_threads", "https://threads.net");
+  const phoneNumber = getValue("footer", "phone", "+91 97114 14110");
+  const rawCopyright = getValue("footer", "copyright", "© KIBANA {year}. All Rights Reserved");
+  const copyrightText = rawCopyright.replace("{year}", String(new Date().getFullYear()));
+  const features: string[] = getJson("footer", "features", ["Premium Quality", "Easy Returns", "COD Available"]);
 
   return (
     <footer className="bg-black text-white py-16 md:py-20">
@@ -228,21 +227,13 @@ export default function Footer() {
 
         {/* Features */}
         <div className="grid grid-cols-3 gap-6 mb-16 pb-16 border-b border-gray-800">
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              {feature1}
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              {feature2}
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              {feature3}
-            </p>
-          </div>
+          {features.map((feature, idx) => (
+            <div key={idx} className="text-center">
+              <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
+                {feature}
+              </p>
+            </div>
+          ))}
         </div>
 
         {/* Bottom Bar */}

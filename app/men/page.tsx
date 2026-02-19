@@ -147,9 +147,9 @@ export default function MenPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const { getValue } = useSiteContent(["hero_men"]);
 
-  const heroImage = getValue("hero_men", "image", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Men's%20page%20%20for%20kibana.jpg.jpeg");
-  const pageTitle = getValue("hero_men", "page_title", "MEN'S COLLECTION");
-  const pageDescription = getValue("hero_men", "page_description", "Discover our collection of premium bags designed for the modern gentleman");
+  const heroImage = getValue("hero_men", "image_url", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Men's%20page%20%20for%20kibana.jpg.jpeg");
+  const pageTitle = getValue("hero_men", "title", "MEN'S COLLECTION");
+  const pageDescription = getValue("hero_men", "subtitle", "Discover our collection of premium bags designed for the modern gentleman");
 
   // Fetch products from API
   useEffect(() => {

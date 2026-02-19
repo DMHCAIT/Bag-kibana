@@ -139,8 +139,8 @@ export default function NewCollectionCarousel() {
   const [loading, setLoading] = useState(true);
   const { getValue } = useSiteContent(["new_collection"]);
 
-  const sectionTitle = getValue("new_collection", "section_title", "NEW COLLECTION");
-  const sectionSubtitle = getValue("new_collection", "section_subtitle", "Discover our latest exclusive designs");
+  const sectionTitle = getValue("new_collection", "title", "NEW COLLECTION");
+  const sectionSubtitle = getValue("new_collection", "subtitle", "Discover our latest exclusive designs");
 
   useEffect(() => {
     let isMounted = true;

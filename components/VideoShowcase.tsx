@@ -23,8 +23,8 @@ export default function VideoShowcase() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { getValue } = useSiteContent(["video_showcase"]);
 
-  const sectionTitle = getValue("video_showcase", "section_title", "WATCH & EXPLORE");
-  const sectionSubtitle = getValue("video_showcase", "section_subtitle", "Discover our craftsmanship in motion");
+  const sectionTitle = getValue("video_showcase", "title", "WATCH & EXPLORE");
+  const sectionSubtitle = getValue("video_showcase", "subtitle", "Discover our craftsmanship in motion");
 
   useEffect(() => {
     fetchVideos();

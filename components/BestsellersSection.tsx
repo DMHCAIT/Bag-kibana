@@ -147,8 +147,8 @@ export default function BestsellersSection() {
   const [loading, setLoading] = useState(true);
   const { getValue, getNumber } = useSiteContent(["bestsellers"]);
 
-  const sectionTitle = getValue("bestsellers", "section_title", "BESTSELLERS");
-  const sectionSubtitle = getValue("bestsellers", "section_subtitle", "Our most loved bags");
+  const sectionTitle = getValue("bestsellers", "title", "BESTSELLERS");
+  const sectionSubtitle = getValue("bestsellers", "subtitle", "Our most loved bags");
   const discountPercent = getNumber("bestsellers", "discount_percent", 30);
   const womenTabLabel = getValue("bestsellers", "women_tab_label", "Women");
   const menTabLabel = getValue("bestsellers", "men_tab_label", "Men");
