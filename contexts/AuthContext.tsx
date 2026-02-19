@@ -8,6 +8,7 @@ export interface User {
   email: string;
   name: string;
   phone: string;
+  role: 'admin' | 'user';
   createdAt: string;
 }
 
@@ -22,6 +23,7 @@ interface AuthContextType {
   signUpWithOTP: (name: string, email: string, phone: string, otp: string) => Promise<{success: boolean; error?: string}>;
   signOut: () => void;
   isAuthenticated: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -52,6 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: session.user.email || '',
           name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
           phone: session.user.phone || '',
+          role: session.user.user_metadata?.role || 'user',
           createdAt: session.user.created_at,
         };
         
@@ -89,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         name,
         phone,
+        role: 'user',
         createdAt: new Date().toISOString(),
       };
 
@@ -217,6 +221,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           email: '',
           name: '',
           phone: phone.replace(/\s+/g, ''),
+          role: 'user',
           createdAt: new Date().toISOString(),
         };
         
@@ -273,6 +278,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email,
         name,
         phone: normalizedPhone,
+        role: 'user',
         createdAt: new Date().toISOString(),
       };
 
@@ -309,6 +315,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUpWithOTP,
       signOut,
       isAuthenticated: !!user,
+      isAdmin: user?.role === 'admin',
     }}>
       {children}
     </AuthContext.Provider>
