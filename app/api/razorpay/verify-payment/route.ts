@@ -13,6 +13,9 @@ export async function POST(request: NextRequest) {
       razorpay_signature,
       customerDetails,
       items,
+      discountedTotal,
+      discountAmount,
+      shippingAddress,
     } = body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -48,73 +51,83 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Payment is verified - Save order to database
+    // Payment is verified - use discounted prices sent from checkout
+    const subtotal = discountedTotal || items.reduce((sum: number, item: any) => sum + (Math.round(item.product.price * 0.7) * item.quantity), 0);
+    const discount = discountAmount || Math.round(items.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0) * 0.3);
+
+    const address = shippingAddress || {
+      full_name: `${customerDetails.firstName} ${customerDetails.lastName}`,
+      phone: customerDetails.phone,
+      address_line1: customerDetails.address,
+      city: customerDetails.city,
+      state: customerDetails.state,
+      postal_code: customerDetails.pincode,
+      country: 'India',
+    };
+
     const orderData = {
-      id: razorpay_order_id,
-      payment_id: razorpay_payment_id,
       customer_name: `${customerDetails.firstName} ${customerDetails.lastName}`,
       customer_email: customerDetails.email,
       customer_phone: customerDetails.phone,
-      shipping_address: {
-        full_name: `${customerDetails.firstName} ${customerDetails.lastName}`,
-        address_line1: customerDetails.address,
-        city: customerDetails.city,
-        state: customerDetails.state,
-        postal_code: customerDetails.pincode,
-        country: 'India',
-      },
+      shipping_address: address,
+      billing_address: address,
       items: items.map((item: any) => ({
         product_id: item.product.id,
         product_name: item.product.name,
+        name: `${item.product.name} - ${item.product.color}`,
+        color: item.product.color,
         quantity: item.quantity,
-        price: item.product.price,
+        price: Math.round(item.product.price * 0.7),
         image: item.product.images?.[0],
       })),
       payment_method: 'razorpay',
       payment_status: 'paid',
+      payment_id: razorpay_payment_id,
       order_status: 'confirmed',
-      subtotal: items.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0),
-      shipping: 0, // Free shipping
-      total: items.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0),
+      subtotal: subtotal,
+      shipping_fee: 0,
+      total: subtotal,
+      razorpay_payment_id: razorpay_payment_id,
       created_at: new Date().toISOString(),
     };
 
     // Save order to database
+    let savedOrderId = razorpay_order_id;
     try {
       const { data: savedOrder, error: dbError } = await supabaseAdmin
         .from('orders')
         .insert({
-          id: orderData.id,
           customer_name: orderData.customer_name,
           customer_email: orderData.customer_email,
           customer_phone: orderData.customer_phone,
           shipping_address: orderData.shipping_address,
+          billing_address: orderData.billing_address,
           items: orderData.items,
           payment_method: orderData.payment_method,
           payment_status: orderData.payment_status,
+          payment_id: orderData.payment_id,
           order_status: orderData.order_status,
           subtotal: orderData.subtotal,
-          shipping: orderData.shipping,
+          shipping_fee: 0,
           total: orderData.total,
-          razorpay_payment_id: orderData.payment_id,
         })
         .select()
         .single();
 
       if (dbError) {
         console.error('Database error saving order:', dbError);
-        // Continue even if database save fails (payment already captured)
-      } else {
-        console.log('Order saved to database:', savedOrder?.id);
+      } else if (savedOrder) {
+        savedOrderId = savedOrder.id;
+        console.log('Order saved to database:', savedOrder.id);
         
         // Send order confirmation email (async, don't wait)
         emailService.sendOrderConfirmation({
-          orderId: orderData.id,
+          orderId: savedOrder.id,
           customerName: orderData.customer_name,
           customerEmail: orderData.customer_email,
           items: orderData.items,
           subtotal: orderData.subtotal,
-          shipping: orderData.shipping,
+          shipping: 0,
           total: orderData.total,
           shippingAddress: orderData.shipping_address,
           orderStatus: orderData.order_status,
@@ -124,12 +137,12 @@ export async function POST(request: NextRequest) {
 
         // Send SMS and WhatsApp notifications (async, don't wait)
         sendOrderConfirmationNotifications({
-          orderId: orderData.id,
+          orderId: savedOrder.id,
           customerName: orderData.customer_name,
           customerPhone: orderData.customer_phone,
           totalAmount: orderData.total,
           items: orderData.items.map((item: any) => ({
-            name: item.product_name,
+            name: item.product_name || item.name,
             quantity: item.quantity,
             price: item.price
           })),
@@ -140,11 +153,9 @@ export async function POST(request: NextRequest) {
       console.error('Exception saving order to database:', dbError);
     }
 
-    console.log('Order verified and created:', orderData);
-
     return NextResponse.json({
       success: true,
-      order_id: razorpay_order_id,
+      order_id: savedOrderId,
       payment_id: razorpay_payment_id,
     });
   } catch (error: any) {

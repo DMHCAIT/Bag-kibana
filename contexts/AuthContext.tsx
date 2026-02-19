@@ -229,9 +229,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, error: verifyData.error || 'Invalid OTP' };
       }
 
-      // Check if user exists
+      const normalizedPhone = phone.replace(/\s+/g, '');
+
+      // Use server-returned user data if available (from Supabase users table)
+      if (verifyData.user) {
+        const serverUser: User = {
+          id: verifyData.user.id,
+          email: verifyData.user.email || '',
+          name: verifyData.user.full_name || '',
+          phone: verifyData.user.phone || normalizedPhone,
+          role: verifyData.user.role || 'user',
+          createdAt: new Date().toISOString(),
+        };
+        localStorage.setItem('kibana_user', JSON.stringify(serverUser));
+        setUser(serverUser);
+        return { success: true };
+      }
+
+      // Fallback: check localStorage for user
       const existingUsers = JSON.parse(localStorage.getItem('kibana_users') || '[]');
-      let user = existingUsers.find((u: any) => u.phone === phone.replace(/\s+/g, ''));
+      let user = existingUsers.find((u: any) => u.phone === normalizedPhone);
       
       // If user doesn't exist, create a new account automatically
       if (!user) {
@@ -239,7 +256,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           id: `USER-${Date.now()}`,
           email: '',
           name: '',
-          phone: phone.replace(/\s+/g, ''),
+          phone: normalizedPhone,
           role: 'user',
           createdAt: new Date().toISOString(),
         };

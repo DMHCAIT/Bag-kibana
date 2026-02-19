@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { formatPrice } from "@/lib/utils";
 import { Lock, Truck, CreditCard, Package, Smartphone, Wallet } from "lucide-react";
 import Image from "next/image";
 import Header from "@/components/Header";
@@ -222,29 +223,14 @@ export default function CheckoutPage() {
             return;
           } else {
             console.error("Order save failed:", savedOrder.error || "Unknown error");
-            // Store order data for Facebook Pixel tracking even if save failed
-            localStorage.setItem('kibana-order-tracking', JSON.stringify({
-              value: discountedSubtotal,
-              currency: 'INR',
-              orderId: `COD-${Date.now()}`
-            }));
-            setOrderPlaced(true);
-            clearCart();
-            router.push(`/order-success?orderId=COD-${Date.now()}&method=cod`);
+            alert("Failed to place order. Please try again or contact support.");
+            setLoading(false);
             return;
           }
         } catch (saveError) {
           console.error("Error saving COD order:", saveError);
-          // Store order data for Facebook Pixel tracking even if save failed
-          const orderId = `COD-${Date.now()}`;
-          localStorage.setItem('kibana-order-tracking', JSON.stringify({
-            value: cart.subtotal,
-            currency: 'INR',
-            orderId
-          }));
-          setOrderPlaced(true);
-          clearCart();
-          router.push(`/order-success?orderId=${orderId}&method=cod`);
+          alert("Something went wrong while placing your order. Please try again.");
+          setLoading(false);
           return;
         }
       } else {
@@ -275,7 +261,7 @@ export default function CheckoutPage() {
           description: "Purchase from KIBANA",
           order_id: data.id,
           handler: async function (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) {
-            // Verify payment and save order
+            // Verify payment and save order (verify-payment handles order creation)
             const verifyResponse = await fetch("/api/razorpay/verify-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -285,86 +271,49 @@ export default function CheckoutPage() {
                 razorpay_signature: response.razorpay_signature,
                 customerDetails: formData,
                 items: cart.items,
+                discountedTotal: finalTotal,
+                discountAmount: discountAmount,
+                shippingAddress: shippingAddress,
               }),
             });
 
-            await verifyResponse.json();
+            const verifyData = await verifyResponse.json();
 
-            if (verifyResponse.ok) {
-              // Save order to admin with proper address format
-              const orderData = {
-                user_id: user?.id || null,
-                customer_name: `${formData.firstName} ${formData.lastName}`,
-                customer_email: formData.email,
-                customer_phone: formData.phone,
-                shipping_address: shippingAddress,
-                billing_address: shippingAddress,
-                items: cart.items.map((item) => ({
-                  product_id: item.product.id,
-                  name: `${item.product.name} - ${item.product.color}`,
-                  color: item.product.color,
-                  quantity: item.quantity,
-                  price: Math.round(item.product.price * 0.7),
-                  image: item.product.images?.[0] || "",
-                })),
-                subtotal: discountedSubtotal,
-                discount: discountAmount,
-                discount_code: "AUTO30",
-                is_first_order: false,
-                shipping_fee: 0,
-                total: finalTotal,
-                payment_method: "razorpay",
-                payment_status: "paid",
-                order_status: "confirmed",
-                payment_id: response.razorpay_payment_id,
-              };
+            if (verifyResponse.ok && verifyData.success) {
+              const orderId = verifyData.order_id || response.razorpay_order_id;
 
+              // Send order confirmation notifications
               try {
-                const saveResponse = await fetch("/api/admin/orders", {
+                await fetch("/api/notifications/order-confirmation", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(orderData),
+                  body: JSON.stringify({
+                    orderId: orderId,
+                    customerName: `${formData.firstName} ${formData.lastName}`,
+                    customerPhone: formData.phone,
+                    orderTotal: finalTotal,
+                    items: cart.items.map(item => ({
+                      name: item.product.name,
+                      quantity: item.quantity,
+                    })),
+                    deliveryAddress: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
+                  }),
                 });
-                const savedOrder = await saveResponse.json();
-                console.log("Order saved:", savedOrder);
-
-                // Send order confirmation notifications
-                if (saveResponse.ok && savedOrder.success) {
-                  try {
-                    await fetch("/api/notifications/order-confirmation", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        orderId: savedOrder.order?.id || response.razorpay_order_id,
-                        customerName: `${formData.firstName} ${formData.lastName}`,
-                        customerPhone: formData.phone,
-                        orderTotal: finalTotal,
-                        items: cart.items.map(item => ({
-                          name: item.product.name,
-                          quantity: item.quantity,
-                        })),
-                        deliveryAddress: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
-                      }),
-                    });
-                  } catch (notifError) {
-                    console.error("Failed to send order confirmation:", notifError);
-                  }
-                }
-              } catch (saveError) {
-                console.error("Error saving order to admin:", saveError);
+              } catch (notifError) {
+                console.error("Failed to send order confirmation:", notifError);
               }
 
               // Store order data for Facebook Pixel tracking
               localStorage.setItem('kibana-order-tracking', JSON.stringify({
-                value: discountedSubtotal,
+                value: finalTotal,
                 currency: 'INR',
-                orderId: response.razorpay_order_id
+                orderId: orderId
               }));
 
-              setOrderPlaced(true); // Mark order as placed BEFORE clearing cart
+              setOrderPlaced(true);
               clearCart();
               router.push(
-                `/order-success?orderId=${response.razorpay_order_id}&paymentId=${response.razorpay_payment_id}`
+                `/order-success?orderId=${orderId}&paymentId=${response.razorpay_payment_id}`
               );
             } else {
               alert("Payment verification failed. Please contact support.");
@@ -377,6 +326,11 @@ export default function CheckoutPage() {
           },
           theme: {
             color: "#000000",
+          },
+          modal: {
+            ondismiss: function () {
+              setLoading(false);
+            },
           },
         };
 
@@ -582,10 +536,10 @@ export default function CheckoutPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-black">
-                          ₹{Math.round(item.product.price * 0.7 * item.quantity).toLocaleString()}
+                          {formatPrice(Math.round(item.product.price * 0.7 * item.quantity))}
                         </p>
                         <p className="text-xs text-gray-400 line-through">
-                          ₹{(item.product.price * item.quantity).toLocaleString()}
+                          {formatPrice(item.product.price * item.quantity)}
                         </p>
                       </div>
                     </div>
@@ -602,7 +556,7 @@ export default function CheckoutPage() {
                           30% OFF Applied Automatically!
                         </p>
                         <p className="text-xs text-gray-200">
-                          You&apos;re saving ₹{discountAmount.toLocaleString()} on this order
+                          You&apos;re saving {formatPrice(discountAmount)} on this order
                         </p>
                       </div>
                     </div>
@@ -612,15 +566,15 @@ export default function CheckoutPage() {
                 <div className="space-y-3 pt-4 border-t">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Original Price ({cart.totalItems} items)</span>
-                    <span className="line-through text-gray-400">₹{originalSubtotal.toLocaleString()}</span>
+                    <span className="line-through text-gray-400">{formatPrice(originalSubtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-black font-medium">
                     <span>Discount (30% OFF)</span>
-                    <span>-₹{discountAmount.toLocaleString()}</span>
+                    <span>-{formatPrice(discountAmount)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">₹{discountedSubtotal.toLocaleString()}</span>
+                    <span className="font-medium">{formatPrice(discountedSubtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Shipping</span>
@@ -631,7 +585,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between font-semibold text-lg pt-4 border-t">
                   <span>Total</span>
                   <span className="text-green-600">
-                    ₹{finalTotal.toLocaleString()}
+                    {formatPrice(finalTotal)}
                   </span>
                 </div>
 

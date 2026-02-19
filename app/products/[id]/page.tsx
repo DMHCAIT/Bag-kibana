@@ -10,6 +10,7 @@ import OptimizedImage from "@/components/OptimizedImage";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
+import { formatPrice } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
 function ProductCard({ product }: { product: Product }) {
@@ -62,8 +63,8 @@ function ProductCard({ product }: { product: Product }) {
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.7).toLocaleString()}</p>
-            <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+            <p className="text-sm font-semibold text-black">{formatPrice(Math.round(product.price * 0.7))}</p>
+            <p className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</p>
             <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">30% OFF</span>
           </div>
           <Button
@@ -505,8 +506,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Price */}
               <div className="py-3 md:py-4 border-y">
                 <div className="flex items-center flex-wrap gap-2 md:gap-3">
-                  <p className="text-2xl md:text-3xl font-medium text-black">₹{Math.round(product.price * 0.7).toLocaleString()}</p>
-                  <p className="text-base text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+                  <p className="text-2xl md:text-3xl font-medium text-black">{formatPrice(Math.round(product.price * 0.7))}</p>
+                  <p className="text-base text-gray-400 line-through">{formatPrice(product.price)}</p>
                   <span className="bg-black text-white px-2 py-1 rounded text-xs md:text-sm font-semibold">30% OFF</span>
                 </div>
                 <p className="text-xs md:text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>

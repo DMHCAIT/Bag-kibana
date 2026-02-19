@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
+import { formatPrice } from "@/lib/utils";
 
 function ProductCard({ product, index }: { product: Product; index: number }) {
   const { addToCart } = useCart();
@@ -81,8 +82,8 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </div>
           
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-black">₹{Math.round(product.price * 0.7).toLocaleString()}</p>
-            <p className="text-xs text-gray-400 line-through">₹{product.price.toLocaleString()}</p>
+            <p className="text-sm font-semibold text-black">{formatPrice(Math.round(product.price * 0.7))}</p>
+            <p className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</p>
             <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">30% OFF</span>
           </div>
           <p className="text-xs text-gray-500">{product.category}</p>

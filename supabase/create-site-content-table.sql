@@ -27,11 +27,13 @@ CREATE INDEX IF NOT EXISTS idx_site_content_section_key ON site_content(section,
 ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
 
 -- Allow public read access (website needs to read content)
+DROP POLICY IF EXISTS "Allow public read access on site_content" ON site_content;
 CREATE POLICY "Allow public read access on site_content"
   ON site_content FOR SELECT
   USING (true);
 
 -- Allow all operations for authenticated users (admin)
+DROP POLICY IF EXISTS "Allow all operations for admin on site_content" ON site_content;
 CREATE POLICY "Allow all operations for admin on site_content"
   ON site_content FOR ALL
   USING (true)

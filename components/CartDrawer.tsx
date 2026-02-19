@@ -5,6 +5,7 @@ import { X, ShoppingBag, Minus, Plus, Trash2, Smartphone, Wallet, CreditCard } f
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
+import { formatPrice } from "@/lib/utils";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -128,10 +129,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-black">
-                            ₹{Math.round(item.product.price * 0.7 * item.quantity).toLocaleString()}
+                            {formatPrice(Math.round(item.product.price * 0.7 * item.quantity))}
                           </p>
                           <p className="text-xs text-gray-400 line-through">
-                            ₹{(item.product.price * item.quantity).toLocaleString()}
+                            {formatPrice(item.product.price * item.quantity)}
                           </p>
                         </div>
                       </div>
@@ -154,7 +155,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       30% OFF Applied Automatically!
                     </p>
                     <p className="text-xs text-gray-200">
-                      You're saving ₹{Math.round(cart.subtotal * 0.3).toLocaleString()}
+                      You're saving {formatPrice(Math.round(cart.subtotal * 0.3))}
                     </p>
                   </div>
                 </div>
@@ -164,7 +165,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-lg font-medium text-gray-900">Estimated Total:</span>
-                  <span className="text-2xl font-bold text-black">₹{Math.round(cart.subtotal * 0.7).toLocaleString()}</span>
+                  <span className="text-2xl font-bold text-black">{formatPrice(Math.round(cart.subtotal * 0.7))}</span>
                 </div>
                 <p className="text-sm text-gray-600">
                   Inclusive of all taxes. Discounts & Coupons applicable at checkout.

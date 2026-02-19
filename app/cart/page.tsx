@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/contexts/CartContext";
+import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
@@ -89,10 +90,10 @@ export default function CartPage() {
                       )}
                       <div className="flex items-center gap-2 mb-2">
                         <p className="font-medium text-lg">
-                          ₹{Math.round(item.product.price * 0.7).toLocaleString()}
+                          {formatPrice(Math.round(item.product.price * 0.7))}
                         </p>
                         <p className="text-sm text-gray-400 line-through">
-                          ₹{item.product.price.toLocaleString()}
+                          {formatPrice(item.product.price)}
                         </p>
                         <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">30% OFF</span>
                       </div>
@@ -136,10 +137,10 @@ export default function CartPage() {
                     {/* Item Total (Desktop) */}
                     <div className="hidden md:block text-right">
                       <p className="font-medium text-lg">
-                        ₹{Math.round(item.product.price * 0.7 * item.quantity).toLocaleString()}
+                        {formatPrice(Math.round(item.product.price * 0.7 * item.quantity))}
                       </p>
                       <p className="text-sm text-gray-400 line-through">
-                        ₹{(item.product.price * item.quantity).toLocaleString()}
+                        {formatPrice(item.product.price * item.quantity)}
                       </p>
                     </div>
                   </div>
@@ -148,10 +149,10 @@ export default function CartPage() {
                   <div className="md:hidden mt-4 pt-4 border-t text-right">
                     <p className="text-sm text-gray-600">Subtotal:</p>
                     <p className="font-medium text-lg">
-                      ₹{Math.round(item.product.price * 0.7 * item.quantity).toLocaleString()}
+                      {formatPrice(Math.round(item.product.price * 0.7 * item.quantity))}
                     </p>
                     <p className="text-sm text-gray-400 line-through">
-                      ₹{(item.product.price * item.quantity).toLocaleString()}
+                      {formatPrice(item.product.price * item.quantity)}
                     </p>
                   </div>
                 </CardContent>
@@ -170,15 +171,15 @@ export default function CartPage() {
                 <div className="space-y-3 pt-4 border-t">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Original Subtotal</span>
-                    <span className="line-through text-gray-400">₹{cart.subtotal.toLocaleString()}</span>
+                    <span className="line-through text-gray-400">{formatPrice(cart.subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Discount (30% OFF)</span>
-                    <span className="text-green-600">-₹{Math.round(cart.subtotal * 0.3).toLocaleString()}</span>
+                    <span className="text-green-600">-{formatPrice(Math.round(cart.subtotal * 0.3))}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal After Discount</span>
-                    <span className="font-medium">₹{Math.round(cart.subtotal * 0.7).toLocaleString()}</span>
+                    <span className="font-medium">{formatPrice(Math.round(cart.subtotal * 0.7))}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Shipping</span>
@@ -188,12 +189,12 @@ export default function CartPage() {
 
                 <div className="flex justify-between font-medium text-lg pt-4 border-t">
                   <span>Total</span>
-                  <span>₹{Math.round(cart.subtotal * 0.7).toLocaleString()}</span>
+                  <span>{formatPrice(Math.round(cart.subtotal * 0.7))}</span>
                 </div>
                 
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                   <p className="text-xs text-green-800 text-center font-medium">
-                    🎉 You're saving ₹{Math.round(cart.subtotal * 0.3).toLocaleString()} on this order!
+                    🎉 You're saving {formatPrice(Math.round(cart.subtotal * 0.3))} on this order!
                   </p>
                 </div>
 
