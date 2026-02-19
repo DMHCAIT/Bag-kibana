@@ -41,7 +41,10 @@ export default function AdminLoginPage() {
       const result = await signIn(email, password);
       
       if (result.success) {
-        // Will redirect via useEffect when user state updates
+        // Small delay to ensure state updates
+        setTimeout(() => {
+          router.push("/admin");
+        }, 100);
       } else {
         setError(result.error || "Invalid email or password");
       }
@@ -152,7 +155,7 @@ export default function AdminLoginPage() {
             </p>
             <p className="text-xs text-gray-400 mt-1">
               Email: admin@kibanalife.com<br />
-              Password: admin123!@#
+              Password: kibana@admin2024
             </p>
           </div>
 
