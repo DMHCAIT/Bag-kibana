@@ -200,21 +200,17 @@ export default function WomenPage() {
     <div className="min-h-screen bg-white">
       <Header />
       
-      {/* Premium Brands Banner - Hero Section */}
-      {!loading && !error && (
-        <div className="w-full bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50">
-          <div className="relative w-full" style={{ aspectRatio: '2000/446' }}>
-            <Image
-              src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/NEW%20PREMIUM%20BRANDS.jpg"
-              alt="New Premium Brands"
-              fill
-              className="object-contain object-center"
-              sizes="100vw"
-              priority={true}
-            />
-          </div>
-        </div>
-      )}
+      {/* Hero Section */}
+      <div className="relative w-full h-[50vh] md:h-[60vh] lg:h-[70vh] overflow-hidden">
+        <Image
+          src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Cover%20page%20.jpg%20(1).jpeg"
+          alt="Women's Collection"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+      </div>
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Category Cards */}
