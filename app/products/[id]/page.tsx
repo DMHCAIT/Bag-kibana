@@ -12,6 +12,7 @@ import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
 import { formatPrice } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import QuickCheckoutModal from "@/components/QuickCheckoutModal";
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -31,7 +32,7 @@ function ProductCard({ product }: { product: Product }) {
     <Card className="border-0 shadow-none group">
       <CardContent className="p-0 space-y-3">
         <Link href={`/products/${product.slug || product.id}`}>
-          <div className="relative aspect-[3/4] rounded-sm overflow-hidden cursor-pointer">
+          <div className="relative aspect-3/4 rounded-sm overflow-hidden cursor-pointer">
             <OptimizedImage
               src={product.images[0]}
               alt={`${product.name} - ${product.color}`}
@@ -129,6 +130,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
+  const [quickCheckoutOpen, setQuickCheckoutOpen] = useState(false);
 
   // Accordion states
   const [openSection, setOpenSection] = useState<string | null>("features");
@@ -291,9 +293,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   const handleBuyNow = () => {
     if (!product) return;
-    
-    addToCart(product, quantity);
-    router.push("/checkout");
+    setQuickCheckoutOpen(true);
   };
 
   const toggleSection = (section: string) => {
@@ -388,7 +388,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     {images.map((image, index) => (
                       <div
                         key={index}
-                        className="relative w-full rounded-lg overflow-hidden cursor-zoom-in flex-shrink-0 snap-center"
+                        className="relative w-full rounded-lg overflow-hidden cursor-zoom-in shrink-0 snap-center"
                         style={{ aspectRatio: '3/4' }}
                         onClick={() => {
                           setSelectedImage(index);
@@ -455,7 +455,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             });
                           }
                         }}
-                        className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all flex-shrink-0 ${
+                        className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all shrink-0 ${
                           selectedImage === index
                             ? "border-black w-14 h-14 md:w-20 md:h-20"
                             : "border-transparent hover:border-gray-300 w-14 h-14 md:w-20 md:h-20"
@@ -478,7 +478,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Product Info - Right Sidebar (Sticky) */}
             <div className="lg:sticky lg:top-8 lg:self-start space-y-4 md:space-y-5 lg:max-h-[calc(100vh-4rem)] lg:overflow-y-auto lg:pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
             <div>
-                <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-[0.1em] mb-2" style={{fontFamily: 'var(--font-abhaya)'}}>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl tracking-widest mb-2" style={{fontFamily: 'var(--font-abhaya)'}}>
                   {product.name}
               </h1>
                 <p className="text-base md:text-lg text-gray-600">Color: {product.color}</p>
@@ -514,7 +514,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
               {/* Offer Banner - Single Line */}
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-2.5 md:p-3">
+              <div className="bg-linear-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-2.5 md:p-3">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center flex-wrap gap-1 md:gap-1.5 text-[10px] md:text-xs">
                     <span className="font-semibold text-gray-900">Special Offers</span>
@@ -546,7 +546,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                         <Link
                           key={index}
                           href={productLink}
-                          className={`group relative rounded-full overflow-hidden transition-all flex-shrink-0 hover:shadow-md ${
+                          className={`group relative rounded-full overflow-hidden transition-all shrink-0 hover:shadow-md ${
                             isCurrentColor 
                               ? 'ring-2 ring-offset-2 ring-gray-900' 
                               : 'ring-1 ring-gray-200 hover:ring-gray-400'
@@ -731,7 +731,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     <ul className="space-y-2">
                       {product.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-green-600 mt-1 flex-shrink-0" />
+                          <Check className="w-4 h-4 text-green-600 mt-1 shrink-0" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -783,7 +783,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           {/* Related Products */}
           {relatedProducts.length > 0 && (
             <div className="mt-16 md:mt-24">
-              <h2 className="text-3xl md:text-4xl tracking-[0.1em] mb-8 text-center" style={{fontFamily: 'var(--font-abhaya)'}}>
+              <h2 className="text-3xl md:text-4xl tracking-widest mb-8 text-center" style={{fontFamily: 'var(--font-abhaya)'}}>
                 You May Also Like
             </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -823,6 +823,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       )}
+
+      {/* Quick Checkout Modal */}
+      <QuickCheckoutModal
+        isOpen={quickCheckoutOpen}
+        onClose={() => setQuickCheckoutOpen(false)}
+        buyNowProduct={product}
+        buyNowQuantity={quantity}
+      />
     </div>
   );
 }

@@ -1,11 +1,12 @@
 "use client";
 
-import { Fragment } from "react";
-import { X, ShoppingBag, Minus, Plus, Trash2, Smartphone, Wallet, CreditCard } from "lucide-react";
+import { Fragment, useState } from "react";
+import { X, ShoppingBag, Minus, Plus, Trash2, Smartphone, Wallet, CreditCard, Lock, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/contexts/CartContext";
 import { formatPrice } from "@/lib/utils";
+import QuickCheckoutModal from "@/components/QuickCheckoutModal";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface CartDrawerProps {
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { cart, updateQuantity, removeFromCart } = useCart();
+  const [quickCheckoutOpen, setQuickCheckoutOpen] = useState(false);
 
   return (
     <>
@@ -172,60 +174,36 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 </p>
               </div>
 
-              {/* Payment Button */}
-              <Link
-                href="/checkout"
-                onClick={onClose}
-                className="block w-full py-4 bg-[#0A2540] text-white text-center rounded-lg hover:bg-[#0d3052] transition-colors font-medium relative overflow-hidden group"
+              {/* Quick Checkout Button */}
+              <button
+                onClick={() => {
+                  onClose();
+                  setTimeout(() => setQuickCheckoutOpen(true), 300);
+                }}
+                className="block w-full py-4 bg-black text-white text-center rounded-lg hover:bg-gray-800 transition-colors font-medium"
               >
                 <div className="flex items-center justify-center gap-3">
-                  <span className="text-base font-semibold">UPI/Cards/COD</span>
-                  <div className="flex items-center gap-1.5">
-                    {/* Paytm */}
-                    <Image
-                      src="/images/paytm.png"
-                      alt="Paytm"
-                      width={44}
-                      height={44}
-                      className="rounded-full object-contain"
-                    />
-                    {/* PhonePe */}
-                    <Image
-                      src="/images/phonepe.png"
-                      alt="PhonePe"
-                      width={44}
-                      height={44}
-                      className="rounded-full object-contain"
-                    />
-                    {/* Google Pay */}
-                    <Image
-                      src="/images/gpay.jpeg"
-                      alt="Google Pay"
-                      width={44}
-                      height={44}
-                      className="rounded-full object-contain"
-                    />
-                    {/* UPI */}
-                    <svg className="w-11 h-11" viewBox="0 0 48 48" fill="none">
-                      <defs>
-                        <linearGradient id="upiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stopColor="#FF6F00" />
-                          <stop offset="100%" stopColor="#FF9800" />
-                        </linearGradient>
-                      </defs>
-                      <circle cx="24" cy="24" r="23" fill="white" stroke="#E8E8E8" strokeWidth="1.5"/>
-                      <path d="M24 14l6 9-6 3-6-9z" fill="url(#upiGradient)" opacity="0.95"/>
-                      <path d="M24 26l6-3-6 11-6-11z" fill="#097B3E" opacity="0.95"/>
-                      <path d="M24 23l4-6-4 9-4-9z" fill="#FFA726" opacity="0.7"/>
-                    </svg>
-                  </div>
-                  <span className="text-xl">›</span>
+                  <Lock className="w-4 h-4" />
+                  <span className="text-base font-semibold uppercase tracking-wider">Checkout</span>
+                  <span className="text-sm font-bold">{formatPrice(Math.round(cart.subtotal * 0.7))}</span>
                 </div>
-              </Link>
+                <div className="flex items-center justify-center gap-2 mt-1.5">
+                  <Image src="/images/paytm.png" alt="Paytm" width={22} height={22} className="rounded-full object-contain" />
+                  <Image src="/images/phonepe.png" alt="PhonePe" width={22} height={22} className="rounded-full object-contain" />
+                  <Image src="/images/gpay.jpeg" alt="GPay" width={22} height={22} className="rounded-full object-contain" />
+                  <span className="text-xs text-gray-300 ml-1">UPI / Cards / COD</span>
+                </div>
+              </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* Quick Checkout Modal */}
+      <QuickCheckoutModal
+        isOpen={quickCheckoutOpen}
+        onClose={() => setQuickCheckoutOpen(false)}
+      />
     </>
   );
 }
