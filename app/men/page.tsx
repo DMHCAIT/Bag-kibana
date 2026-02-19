@@ -186,6 +186,18 @@ export default function MenPage() {
     <div className="min-h-screen bg-white">
       <Header />
       
+      {/* Hero Section */}
+      <div className="relative w-full h-[50vh] md:h-[60vh] lg:h-[70vh] overflow-hidden">
+        <Image
+          src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Men's%20page%20%20for%20kibana.jpg.jpeg"
+          alt="Men's Collection"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+      </div>
+      
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Page Header */}
         <div className="text-center mb-8">
