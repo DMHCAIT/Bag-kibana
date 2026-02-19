@@ -154,9 +154,23 @@ export default function WomenPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { getValue } = useSiteContent(["hero_women"]);
+  const { getValue } = useSiteContent(["hero_women", "women_categories"]);
 
   const heroImage = getValue("hero_women", "image_url", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Cover%20page%20.jpg%20(1).jpeg");
+
+  // Build custom category cards from admin settings
+  const useCustomCategories = getValue("women_categories", "enabled", "false") === "true";
+  const customCategories = [];
+  for (let i = 1; i <= 6; i++) {
+    const label = getValue("women_categories", `cat_${i}_label`, "");
+    if (label) {
+      customCategories.push({
+        label,
+        image: getValue("women_categories", `cat_${i}_image`, ""),
+        link: getValue("women_categories", `cat_${i}_link`, `/collections/${label.toLowerCase().replace(/\s+/g, '-')}`),
+      });
+    }
+  }
 
   // Fetch products from API with timeout and fallback
   useEffect(() => {
@@ -220,20 +234,50 @@ export default function WomenPage() {
 
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         {/* Category Cards */}
-        {!loading && !error && (
+        {useCustomCategories && customCategories.length > 0 ? (
           <div className="overflow-x-auto mb-12 -mx-4 px-4 md:mx-0 md:px-0">
             <div className="flex md:flex-wrap md:justify-center gap-4 md:gap-6 min-w-max md:min-w-0">
-              {Array.from(new Set(products.map(p => p.category)))
-                .filter(category => category.toLowerCase() !== 'wallet')
+              {customCategories.map((cat, idx) => (
+                <Link
+                  key={idx}
+                  href={cat.link}
+                  className="group flex flex-col items-center flex-shrink-0"
+                >
+                  <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden bg-gray-100 hover:shadow-xl transition-all duration-300 ring-2 ring-gray-200 hover:ring-black">
+                    {cat.image ? (
+                      <Image
+                        src={cat.image}
+                        alt={cat.label}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                        sizes="(max-width: 768px) 64px, 80px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-lg font-semibold">
+                        {cat.label.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <p className="mt-2 text-[10px] md:text-xs font-medium uppercase tracking-wider text-gray-800 group-hover:text-black transition-colors max-w-[64px] md:max-w-[80px] text-center leading-tight">
+                    {cat.label}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : !loading && !error && (
+          <div className="overflow-x-auto mb-12 -mx-4 px-4 md:mx-0 md:px-0">
+            <div className="flex md:flex-wrap md:justify-center gap-4 md:gap-6 min-w-max md:min-w-0">
+              {(Array.from(new Set(products.map(p => p.category))) as string[])
+                .filter((category: string) => category.toLowerCase() !== 'wallet')
                 .sort()
-                .map((category) => (
+                .map((category: string) => (
                 <Link 
                   key={category} 
                   href={`/collections/${category.toLowerCase().replace(/\s+/g, '-')}`}
                   className="group flex flex-col items-center flex-shrink-0"
                 >
                   <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden bg-gray-100 hover:shadow-xl transition-all duration-300 ring-2 ring-gray-200 hover:ring-black">
-                    {/* Category Image - using first product image from that category */}
                     {products.find(p => p.category === category)?.images[0] && (
                       <Image
                         src={products.find(p => p.category === category)!.images[0]}

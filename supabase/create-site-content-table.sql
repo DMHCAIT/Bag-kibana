@@ -139,6 +139,29 @@ INSERT INTO site_content (section, content_key, content_value, content_type, met
 ('footer', 'policy_links', '[{"label":"Privacy Policy","url":"/privacy"},{"label":"Terms of Service","url":"/terms"},{"label":"Shipping Policy","url":"/shipping-policy"}]', 'json', '{}')
 ON CONFLICT (section, content_key) DO NOTHING;
 
+-- WOMEN'S PAGE CATEGORY CIRCLE CARDS
+INSERT INTO site_content (section, content_key, content_value, content_type, metadata) VALUES
+('women_categories', 'enabled', 'true', 'boolean', '{"note": "Set to false to auto-generate from products"}'),
+('women_categories', 'cat_1_label', 'Tote', 'text', '{}'),
+('women_categories', 'cat_1_image', '', 'image', '{"alt": "Tote"}'),
+('women_categories', 'cat_1_link', '/collections/tote', 'url', '{}'),
+('women_categories', 'cat_2_label', 'Sling', 'text', '{}'),
+('women_categories', 'cat_2_image', '', 'image', '{"alt": "Sling"}'),
+('women_categories', 'cat_2_link', '/collections/sling', 'url', '{}'),
+('women_categories', 'cat_3_label', 'Clutch', 'text', '{}'),
+('women_categories', 'cat_3_image', '', 'image', '{"alt": "Clutch"}'),
+('women_categories', 'cat_3_link', '/collections/clutch', 'url', '{}'),
+('women_categories', 'cat_4_label', 'Handbag', 'text', '{}'),
+('women_categories', 'cat_4_image', '', 'image', '{"alt": "Handbag"}'),
+('women_categories', 'cat_4_link', '/collections/handbag', 'url', '{}'),
+('women_categories', 'cat_5_label', '', 'text', '{}'),
+('women_categories', 'cat_5_image', '', 'image', '{}'),
+('women_categories', 'cat_5_link', '', 'url', '{}'),
+('women_categories', 'cat_6_label', '', 'text', '{}'),
+('women_categories', 'cat_6_image', '', 'image', '{}'),
+('women_categories', 'cat_6_link', '', 'url', '{}')
+ON CONFLICT (section, content_key) DO NOTHING;
+
 -- GLOBAL SETTINGS
 INSERT INTO site_content (section, content_key, content_value, content_type, metadata) VALUES
 ('global', 'brand_name', 'KIBANA', 'text', '{}'),
