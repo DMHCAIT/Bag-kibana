@@ -11,8 +11,27 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Plus, MoveUp, MoveDown, Eye, EyeOff } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import {
+  Trash2,
+  Plus,
+  MoveUp,
+  MoveDown,
+  Eye,
+  EyeOff,
+  Search,
+  GripVertical,
+  ExternalLink,
+  RefreshCw,
+  Check,
+  AlertCircle,
+  LayoutGrid,
+  List,
+  CheckSquare,
+  Square,
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Product {
   id: string | number;
@@ -22,6 +41,7 @@ interface Product {
   color: string;
   price: number;
   images: string[];
+  category?: string;
 }
 
 interface Placement {
@@ -34,19 +54,21 @@ interface Placement {
 }
 
 const SECTIONS = [
-  { value: "bestsellers", label: "Homepage - Bestsellers Section" },
-  { value: "new-collection", label: "Homepage - New Collection Carousel" },
-  { value: "featured", label: "Homepage - Featured Products" },
-  { value: "hero-products", label: "Homepage - Hero Products" },
-  { value: "women-featured", label: "Women's Page - Featured Products" },
-  { value: "women-trending", label: "Women's Page - Trending" },
-  { value: "men-featured", label: "Men's Page - Featured Products" },
-  { value: "men-trending", label: "Men's Page - Trending" },
-  { value: "shop-featured", label: "Shop Page - Featured" },
-  { value: "shop-new-arrivals", label: "Shop Page - New Arrivals" },
-  { value: "collections-featured", label: "Collections Page - Featured" },
-  { value: "all-products-top", label: "All Products - Top Picks" },
+  { value: "bestsellers", label: "Homepage - Bestsellers Section", page: "Homepage", icon: "🏠" },
+  { value: "new-collection", label: "Homepage - New Collection Carousel", page: "Homepage", icon: "🏠" },
+  { value: "featured", label: "Homepage - Featured Products", page: "Homepage", icon: "🏠" },
+  { value: "hero-products", label: "Homepage - Hero Products", page: "Homepage", icon: "🏠" },
+  { value: "women-featured", label: "Women's Page - Featured Products", page: "Women", icon: "👜" },
+  { value: "women-trending", label: "Women's Page - Trending", page: "Women", icon: "👜" },
+  { value: "men-featured", label: "Men's Page - Featured Products", page: "Men", icon: "💼" },
+  { value: "men-trending", label: "Men's Page - Trending", page: "Men", icon: "💼" },
+  { value: "shop-featured", label: "Shop Page - Featured", page: "Shop", icon: "🛍️" },
+  { value: "shop-new-arrivals", label: "Shop Page - New Arrivals", page: "Shop", icon: "🛍️" },
+  { value: "collections-featured", label: "Collections Page - Featured", page: "Collections", icon: "📚" },
+  { value: "all-products-top", label: "All Products - Top Picks", page: "All Products", icon: "📦" },
 ];
+
+const PAGE_GROUPS = [...new Set(SECTIONS.map((s) => s.page))];
 
 export default function PlacementsPage() {
   const [placements, setPlacements] = useState<Placement[]>([]);
@@ -56,7 +78,13 @@ export default function PlacementsPage() {
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [selectedPosition, setSelectedPosition] = useState<string>("end");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [productSearch, setProductSearch] = useState("");
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+  const [filterPage, setFilterPage] = useState<string>("all");
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     fetchPlacements();
@@ -67,11 +95,12 @@ export default function PlacementsPage() {
   const fetchAllPlacementsCounts = async () => {
     try {
       const counts: Record<string, number> = {};
-      for (const section of SECTIONS) {
+      const promises = SECTIONS.map(async (section) => {
         const response = await fetch(`/api/admin/placements?section=${section.value}`);
         const data = await response.json();
         counts[section.value] = Array.isArray(data) ? data.length : 0;
-      }
+      });
+      await Promise.all(promises);
       setAllPlacementsCounts(counts);
     } catch (error) {
       console.error("Error fetching placement counts:", error);
@@ -80,16 +109,11 @@ export default function PlacementsPage() {
 
   const fetchPlacements = async () => {
     try {
-      const response = await fetch(
-        `/api/admin/placements?section=${selectedSection}`
-      );
+      const response = await fetch(`/api/admin/placements?section=${selectedSection}`);
       const data = await response.json();
-      console.log("Fetched placements:", data);
-      console.log("Placements count:", Array.isArray(data) ? data.length : 0);
-      
-      // Ensure data is an array
       const placementsArray = Array.isArray(data) ? data : [];
       setPlacements(placementsArray);
+      setSelectedItems(new Set());
     } catch (error) {
       console.error("Error fetching placements:", error);
       showMessage("Error loading placements", "error");
@@ -101,13 +125,7 @@ export default function PlacementsPage() {
     try {
       const response = await fetch("/api/products");
       const data = await response.json();
-      console.log("Fetched products data:", data);
-      
-      // The API returns { products: [...] } structure
       const productsArray = data.products || [];
-      console.log("Products count:", productsArray.length);
-      console.log("Sample product:", productsArray[0]);
-      
       setProducts(productsArray);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -123,12 +141,10 @@ export default function PlacementsPage() {
 
     setLoading(true);
     try {
-      // Calculate display order based on selected position
-      let displayOrder = placements.length; // Default: add at end
-      
+      let displayOrder = placements.length;
+
       if (selectedPosition === "start") {
         displayOrder = 0;
-        // Shift all existing placements down by 1
         await Promise.all(
           placements.map((p, index) =>
             fetch(`/api/admin/placements/${p.id}`, {
@@ -139,9 +155,7 @@ export default function PlacementsPage() {
           )
         );
       } else if (selectedPosition !== "end") {
-        // Specific position selected (1, 2, 3, etc.)
         displayOrder = parseInt(selectedPosition);
-        // Shift placements at and after this position down by 1
         await Promise.all(
           placements
             .filter((p) => p.display_order >= displayOrder)
@@ -167,8 +181,9 @@ export default function PlacementsPage() {
       });
 
       if (response.ok) {
-        showMessage("Product added successfully", "success");
+        showMessage("Product added successfully!", "success");
         fetchPlacements();
+        fetchAllPlacementsCounts();
         setSelectedProduct("");
         setSelectedPosition("end");
       } else {
@@ -187,25 +202,65 @@ export default function PlacementsPage() {
 
     setLoading(true);
     try {
-      const response = await fetch(`/api/admin/placements/${id}`, {
-        method: "DELETE",
-      });
-
+      const response = await fetch(`/api/admin/placements/${id}`, { method: "DELETE" });
       if (response.ok) {
-        showMessage("Product removed successfully", "success");
+        showMessage("Product removed", "success");
         fetchPlacements();
+        fetchAllPlacementsCounts();
       } else {
         showMessage("Error removing product", "error");
       }
-    } catch (error) {
-      console.error("Error removing placement:", error);
+    } catch {
       showMessage("Error removing product", "error");
     }
     setLoading(false);
   };
 
+  const bulkRemove = async () => {
+    if (selectedItems.size === 0) return;
+    if (!confirm(`Remove ${selectedItems.size} products from this section?`)) return;
+
+    setLoading(true);
+    try {
+      await Promise.all(
+        [...selectedItems].map((id) =>
+          fetch(`/api/admin/placements/${id}`, { method: "DELETE" })
+        )
+      );
+      showMessage(`Removed ${selectedItems.size} products`, "success");
+      setSelectedItems(new Set());
+      fetchPlacements();
+      fetchAllPlacementsCounts();
+    } catch {
+      showMessage("Error removing products", "error");
+    }
+    setLoading(false);
+  };
+
+  const bulkToggleActive = async (active: boolean) => {
+    if (selectedItems.size === 0) return;
+
+    setLoading(true);
+    try {
+      await Promise.all(
+        [...selectedItems].map((id) =>
+          fetch(`/api/admin/placements/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ is_active: active }),
+          })
+        )
+      );
+      showMessage(`Updated ${selectedItems.size} products`, "success");
+      setSelectedItems(new Set());
+      fetchPlacements();
+    } catch {
+      showMessage("Error updating products", "error");
+    }
+    setLoading(false);
+  };
+
   const toggleActive = async (id: number, currentStatus: boolean) => {
-    console.log("Toggling active for placement:", id, "Current status:", currentStatus, "New status:", !currentStatus);
     setLoading(true);
     try {
       const response = await fetch(`/api/admin/placements/${id}`, {
@@ -213,19 +268,13 @@ export default function PlacementsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_active: !currentStatus }),
       });
-
       if (response.ok) {
-        const data = await response.json();
-        console.log("Toggle response:", data);
-        showMessage("Status updated successfully", "success");
+        showMessage("Status updated", "success");
         fetchPlacements();
       } else {
-        const error = await response.json();
-        console.error("Toggle failed:", error);
         showMessage("Error updating status", "error");
       }
-    } catch (error) {
-      console.error("Error toggling active:", error);
+    } catch {
       showMessage("Error updating status", "error");
     }
     setLoading(false);
@@ -246,7 +295,6 @@ export default function PlacementsPage() {
 
     setLoading(true);
     try {
-      // Update both placements
       await Promise.all([
         fetch(`/api/admin/placements/${currentPlacement.id}`, {
           method: "PUT",
@@ -259,417 +307,519 @@ export default function PlacementsPage() {
           body: JSON.stringify({ display_order: currentIndex }),
         }),
       ]);
-
-      showMessage("Order updated successfully", "success");
+      showMessage("Order updated", "success");
       fetchPlacements();
-    } catch (error) {
-      console.error("Error moving product:", error);
+    } catch {
       showMessage("Error updating order", "error");
     }
     setLoading(false);
   };
 
+  const handleDragStart = (index: number) => {
+    setDragIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDrop = async (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === dropIndex) {
+      setDragIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const reordered = [...placements];
+    const [moved] = reordered.splice(dragIndex, 1);
+    reordered.splice(dropIndex, 0, moved);
+
+    setLoading(true);
+    try {
+      await Promise.all(
+        reordered.map((p, index) =>
+          fetch(`/api/admin/placements/${p.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ display_order: index }),
+          })
+        )
+      );
+      showMessage("Order updated", "success");
+      fetchPlacements();
+    } catch {
+      showMessage("Error updating order", "error");
+    }
+    setDragIndex(null);
+    setDragOverIndex(null);
+    setLoading(false);
+  };
+
+  const toggleSelectItem = (id: number) => {
+    setSelectedItems((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItems.size === placements.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(placements.map((p) => p.id)));
+    }
+  };
+
+  const duplicateToSection = async (targetSection: string) => {
+    if (selectedItems.size === 0) return;
+
+    setLoading(true);
+    try {
+      const selectedPlacements = placements.filter((p) => selectedItems.has(p.id));
+      await Promise.all(
+        selectedPlacements.map((p, index) =>
+          fetch("/api/admin/placements", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              product_id: p.product_id,
+              section: targetSection,
+              display_order: index,
+              is_active: true,
+            }),
+          })
+        )
+      );
+      showMessage(
+        `Copied ${selectedItems.size} products to ${SECTIONS.find((s) => s.value === targetSection)?.label}`,
+        "success"
+      );
+      setSelectedItems(new Set());
+      fetchAllPlacementsCounts();
+    } catch {
+      showMessage("Error copying products", "error");
+    }
+    setLoading(false);
+  };
+
   const showMessage = (text: string, type: "success" | "error") => {
-    setMessage(text);
-    setTimeout(() => setMessage(""), 3000);
+    setMessage({ text, type });
+    setTimeout(() => setMessage(null), 3000);
+  };
+
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch =
+      !productSearch ||
+      p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+      p.color?.toLowerCase().includes(productSearch.toLowerCase());
+    const placedProductIds = placements.map((pl) => pl.product_id);
+    const productId = p.dbId || p.id;
+    const isNotPlaced = !placedProductIds.includes(Number(productId));
+    return matchesSearch && isNotPlaced;
+  });
+
+  const filteredSections =
+    filterPage === "all" ? SECTIONS : SECTIONS.filter((s) => s.page === filterPage);
+
+  const currentSection = SECTIONS.find((s) => s.value === selectedSection);
+
+  const getPreviewLink = (section: string) => {
+    if (section.startsWith("women")) return "/women";
+    if (section.startsWith("men")) return "/men";
+    if (section.startsWith("shop")) return "/shop";
+    if (section.startsWith("collections")) return "/collections";
+    if (section.startsWith("all-products")) return "/all-products";
+    return "/";
   };
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Product Placements Manager</h1>
-        <p className="text-gray-600">
-          Control which products appear on different pages and sections of your website
-        </p>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-3xl font-bold">Product Placements</h1>
+          <p className="text-gray-600 mt-1">
+            Control which products appear on different pages and sections
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => { fetchPlacements(); fetchAllPlacementsCounts(); }} className="gap-1">
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
+          <Link href={getPreviewLink(selectedSection)} target="_blank">
+            <Button variant="outline" size="sm" className="gap-1">
+              <ExternalLink className="w-4 h-4" />
+              Preview Page
+            </Button>
+          </Link>
+        </div>
       </div>
 
+      {/* Message */}
       {message && (
         <div
-          className={`mb-4 p-4 rounded ${
-            message.includes("Error") || message.includes("error")
-              ? "bg-red-100 text-red-800"
-              : "bg-green-100 text-green-800"
+          className={`mb-4 p-4 rounded-lg flex items-center gap-2 ${
+            message.type === "success"
+              ? "bg-green-50 text-green-800 border border-green-200"
+              : "bg-red-50 text-red-800 border border-red-200"
           }`}
         >
-          {message}
+          {message.type === "success" ? <Check className="w-5 h-5" /> : <AlertCircle className="w-5 h-5" />}
+          {message.text}
         </div>
       )}
 
-      {/* Overview Section */}
+      {/* Overview Grid */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Placements Overview</CardTitle>
-          <p className="text-sm text-gray-600">Quick view of product placements across all pages</p>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Sections Overview</CardTitle>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Filter:</span>
+              <Select value={filterPage} onValueChange={setFilterPage}>
+                <SelectTrigger className="w-36 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Pages</SelectItem>
+                  {PAGE_GROUPS.map((page) => (
+                    <SelectItem key={page} value={page}>
+                      {page}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Homepage */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <span>🏠</span> Homepage
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Bestsellers:</span>
-                  <span className="font-medium">{allPlacementsCounts["bestsellers"] || 0} products</span>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {filteredSections.map((section) => (
+              <button
+                key={section.value}
+                onClick={() => setSelectedSection(section.value)}
+                className={`p-3 rounded-lg border text-left transition-all hover:shadow-md ${
+                  selectedSection === section.value
+                    ? "border-blue-500 bg-blue-50 ring-2 ring-blue-200"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-lg">{section.icon}</span>
+                  <Badge
+                    variant={allPlacementsCounts[section.value] > 0 ? "default" : "secondary"}
+                    className="text-xs"
+                  >
+                    {allPlacementsCounts[section.value] || 0}
+                  </Badge>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">New Collection:</span>
-                  <span className="font-medium">{allPlacementsCounts["new-collection"] || 0} products</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Featured:</span>
-                  <span className="font-medium">{allPlacementsCounts["featured"] || 0} products</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Hero:</span>
-                  <span className="font-medium">{allPlacementsCounts["hero-products"] || 0} products</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Women's Page */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <span>👜</span> Women&apos;s Page
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Featured:</span>
-                  <span className="font-medium">{allPlacementsCounts["women-featured"] || 0} products</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Trending:</span>
-                  <span className="font-medium">{allPlacementsCounts["women-trending"] || 0} products</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Men's Page */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <span>💼</span> Men&apos;s Page
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Featured:</span>
-                  <span className="font-medium">{allPlacementsCounts["men-featured"] || 0} products</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Trending:</span>
-                  <span className="font-medium">{allPlacementsCounts["men-trending"] || 0} products</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Shop Page */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <span>🛍️</span> Shop Page
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Featured:</span>
-                  <span className="font-medium">{allPlacementsCounts["shop-featured"] || 0} products</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">New Arrivals:</span>
-                  <span className="font-medium">{allPlacementsCounts["shop-new-arrivals"] || 0} products</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Collections Page */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <span>📚</span> Collections
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Featured:</span>
-                  <span className="font-medium">{allPlacementsCounts["collections-featured"] || 0} products</span>
-                </div>
-              </div>
-            </div>
-
-            {/* All Products Page */}
-            <div className="border rounded-lg p-4">
-              <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <span>📦</span> All Products
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Top Picks:</span>
-                  <span className="font-medium">{allPlacementsCounts["all-products-top"] || 0} products</span>
-                </div>
-              </div>
-            </div>
+                <p className="text-xs font-medium truncate">
+                  {section.label.split(" - ")[1] || section.label}
+                </p>
+                <p className="text-xs text-gray-500">{section.page}</p>
+              </button>
+            ))}
           </div>
         </CardContent>
       </Card>
 
-      {/* Section Selector with Page Grouping */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Select Page & Section</CardTitle>
-          <p className="text-sm text-gray-600 mt-2">
-            Choose which page and section you want to manage product placements for
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Select value={selectedSection} onValueChange={setSelectedSection}>
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="max-h-[400px]">
-              {/* Homepage Sections */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100">
-                🏠 HOMEPAGE
-              </div>
-              <SelectItem value="bestsellers">Bestsellers Section</SelectItem>
-              <SelectItem value="new-collection">New Collection Carousel</SelectItem>
-              <SelectItem value="featured">Featured Products</SelectItem>
-              <SelectItem value="hero-products">Hero Products</SelectItem>
-              
-              {/* Women's Page */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
-                👜 WOMEN&apos;S PAGE
-              </div>
-              <SelectItem value="women-featured">Featured Products</SelectItem>
-              <SelectItem value="women-trending">Trending Now</SelectItem>
-              
-              {/* Men's Page */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
-                💼 MEN&apos;S PAGE
-              </div>
-              <SelectItem value="men-featured">Featured Products</SelectItem>
-              <SelectItem value="men-trending">Trending Now</SelectItem>
-              
-              {/* Shop Page */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
-                🛍️ SHOP PAGE
-              </div>
-              <SelectItem value="shop-featured">Featured</SelectItem>
-              <SelectItem value="shop-new-arrivals">New Arrivals</SelectItem>
-              
-              {/* Collections Page */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
-                📚 COLLECTIONS PAGE
-              </div>
-              <SelectItem value="collections-featured">Featured Collections</SelectItem>
-              
-              {/* All Products Page */}
-              <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 mt-2">
-                📦 ALL PRODUCTS PAGE
-              </div>
-              <SelectItem value="all-products-top">Top Picks</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          {/* Current selection info */}
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <strong>Currently managing:</strong> {SECTIONS.find(s => s.value === selectedSection)?.label}
-            </p>
+      {/* Active Section Indicator */}
+      <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{currentSection?.icon}</span>
+          <div>
+            <p className="font-medium text-blue-900">{currentSection?.label}</p>
+            <p className="text-xs text-blue-600">{placements.length} products placed</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <Link
+          href={getPreviewLink(selectedSection)}
+          target="_blank"
+          className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1"
+        >
+          View on site <ExternalLink className="w-3 h-3" />
+        </Link>
+      </div>
 
       {/* Add Product */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>Add Product to {SECTIONS.find(s => s.value === selectedSection)?.label}</CardTitle>
+          <CardTitle className="text-lg">Add Product</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                placeholder="Search products by name or color..."
+                className="pl-9"
+              />
+            </div>
+
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="text-sm font-medium mb-2 block">Select Product</label>
-                {products.length === 0 ? (
-                  <div className="border rounded-md p-3 text-sm text-gray-500">
-                    Loading products...
-                  </div>
-                ) : (
-                  <>
-                    <Select value={selectedProduct} onValueChange={setSelectedProduct}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a product" />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[300px]">
-                        {(() => {
-                          // Get list of placed product IDs in current section
-                          const placedProductIds = placements.map(pl => pl.product_id);
-                          
-                          // Filter out already placed products
-                          const availableProducts = products.filter((p) => {
-                            const productId = p.dbId || p.id;
-                            const isPlaced = placedProductIds.includes(Number(productId));
-                            return !isPlaced;
-                          });
-                          
-                          console.log("=== PRODUCT SELECTOR DEBUG ===");
-                          console.log("Total products fetched:", products.length);
-                          console.log("Placed product IDs:", placedProductIds);
-                          console.log("Available products:", availableProducts.length);
-                          console.log("First 3 products:", products.slice(0, 3).map(p => ({
-                            id: p.id,
-                            dbId: p.dbId,
-                            name: p.name,
-                            color: p.color
-                          })));
-                          
-                          if (availableProducts.length === 0) {
-                            return (
-                              <div className="p-4 text-sm text-gray-500 text-center">
-                                {products.length === 0 
-                                  ? "No products found in database" 
-                                  : "All products are already placed in this section"}
-                              </div>
-                            );
-                          }
-                          
-                          return availableProducts.map((product) => (
-                            <SelectItem 
-                              key={product.id} 
-                              value={(product.dbId || product.id).toString()}
-                            >
-                              {product.name} - {product.color}
-                            </SelectItem>
-                          ));
-                        })()}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {products.filter(p => !placements.some(pl => pl.product_id === p.dbId)).length} products available
-                    </p>
-                  </>
-                )}
+                <Select value={selectedProduct} onValueChange={setSelectedProduct}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a product" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {filteredProducts.length === 0 ? (
+                      <div className="p-4 text-sm text-gray-500 text-center">
+                        {products.length === 0
+                          ? "No products found"
+                          : productSearch
+                          ? "No matching products"
+                          : "All products placed already"}
+                      </div>
+                    ) : (
+                      filteredProducts.map((product) => (
+                        <SelectItem
+                          key={product.id}
+                          value={(product.dbId || product.id).toString()}
+                        >
+                          {product.name}
+                          {product.color ? ` - ${product.color}` : ""}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500 mt-1">{filteredProducts.length} available</p>
               </div>
-              
+
               <div className="w-48">
-                <label className="text-sm font-medium mb-2 block">Position</label>
                 <Select value={selectedPosition} onValueChange={setSelectedPosition}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="start">At Start (Position 1)</SelectItem>
+                    <SelectItem value="start">Position 1 (Start)</SelectItem>
                     {placements.map((_, index) => (
                       <SelectItem key={index} value={index.toString()}>
                         Position {index + 1}
                       </SelectItem>
                     ))}
-                    <SelectItem value="end">At End (Position {placements.length + 1})</SelectItem>
+                    <SelectItem value="end">Position {placements.length + 1} (End)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            
-            <Button
-              onClick={addPlacement}
-              disabled={loading || !selectedProduct}
-              className="w-full"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Product at Selected Position
+
+            <Button onClick={addPlacement} disabled={loading || !selectedProduct} className="w-full gap-2">
+              <Plus className="w-4 h-4" />
+              Add Product
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Current Placements */}
+      {/* Bulk Actions */}
+      {selectedItems.size > 0 && (
+        <div className="mb-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg flex items-center justify-between flex-wrap gap-2">
+          <span className="text-sm font-medium text-indigo-800">
+            {selectedItems.size} items selected
+          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button size="sm" variant="outline" onClick={() => bulkToggleActive(true)} className="text-xs gap-1">
+              <Eye className="w-3 h-3" /> Show All
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkToggleActive(false)} className="text-xs gap-1">
+              <EyeOff className="w-3 h-3" /> Hide All
+            </Button>
+            <Select onValueChange={duplicateToSection}>
+              <SelectTrigger className="w-44 h-8 text-xs">
+                <SelectValue placeholder="Copy to section..." />
+              </SelectTrigger>
+              <SelectContent>
+                {SECTIONS.filter((s) => s.value !== selectedSection).map((s) => (
+                  <SelectItem key={s.value} value={s.value} className="text-xs">
+                    {s.icon} {s.label.split(" - ")[1] || s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button size="sm" variant="destructive" onClick={bulkRemove} className="text-xs gap-1">
+              <Trash2 className="w-3 h-3" /> Remove
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Products List */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            Current Products ({placements.length})
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Current Products ({placements.length})</CardTitle>
+            <div className="flex items-center gap-2">
+              {placements.length > 0 && (
+                <Button size="sm" variant="ghost" onClick={toggleSelectAll} className="text-xs gap-1">
+                  {selectedItems.size === placements.length ? (
+                    <CheckSquare className="w-4 h-4" />
+                  ) : (
+                    <Square className="w-4 h-4" />
+                  )}
+                  {selectedItems.size === placements.length ? "Deselect" : "Select All"}
+                </Button>
+              )}
+              <div className="flex border rounded-md">
+                <Button
+                  size="sm"
+                  variant={viewMode === "list" ? "default" : "ghost"}
+                  onClick={() => setViewMode("list")}
+                  className="rounded-r-none px-2"
+                >
+                  <List className="w-4 h-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  onClick={() => setViewMode("grid")}
+                  className="rounded-l-none px-2"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {placements.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
-              No products in this section yet. Add some above!
-            </p>
-          ) : (
-            <div className="space-y-4">
+            <div className="text-center py-12">
+              <div className="text-4xl mb-3">📦</div>
+              <p className="text-gray-500 font-medium">No products in this section yet</p>
+              <p className="text-gray-400 text-sm mt-1">Add products using the form above</p>
+            </div>
+          ) : viewMode === "list" ? (
+            <div className="space-y-2">
               {placements.map((placement, index) => (
                 <div
                   key={placement.id}
-                  className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50"
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={() => {
+                    setDragIndex(null);
+                    setDragOverIndex(null);
+                  }}
+                  className={`flex items-center gap-3 p-3 border rounded-lg transition-all cursor-move
+                    ${selectedItems.has(placement.id) ? "bg-indigo-50 border-indigo-300" : "hover:bg-gray-50 border-gray-200"}
+                    ${dragOverIndex === index ? "border-blue-500 border-2 bg-blue-50" : ""}
+                    ${dragIndex === index ? "opacity-50" : ""}
+                  `}
                 >
-                  {/* Product Image */}
-                  <div className="relative w-20 h-20 flex-shrink-0">
+                  <GripVertical className="w-4 h-4 text-gray-400 flex-shrink-0" />
+
+                  <button onClick={(e) => { e.stopPropagation(); toggleSelectItem(placement.id); }} className="flex-shrink-0">
+                    {selectedItems.has(placement.id) ? (
+                      <CheckSquare className="w-5 h-5 text-indigo-600" />
+                    ) : (
+                      <Square className="w-5 h-5 text-gray-300" />
+                    )}
+                  </button>
+
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-600 flex-shrink-0">
+                    {index + 1}
+                  </div>
+
+                  <div className="relative w-14 h-14 flex-shrink-0">
                     <Image
-                      src={placement.products.images[0] || "/placeholder.png"}
-                      alt={placement.products.name}
+                      src={placement.products?.images?.[0] || "/placeholder.png"}
+                      alt={placement.products?.name || "Product"}
                       fill
                       className="object-cover rounded"
+                      unoptimized
                     />
                   </div>
 
-                  {/* Product Info */}
-                  <div className="flex-1">
-                    <h3 className="font-semibold">
-                      {placement.products.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {placement.products.color}
-                    </p>
-                    <p className="text-sm font-medium">
-                      ${placement.products.price}
-                    </p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-sm truncate">{placement.products?.name || "Unknown Product"}</h3>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-gray-500">{placement.products?.color}</span>
+                      {placement.products?.price && (
+                        <span className="text-xs font-medium">₹{placement.products.price}</span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Order Number */}
-                  <div className="text-center px-4">
-                    <div className="text-xs text-gray-500">Position</div>
-                    <div className="text-lg font-bold">{index + 1}</div>
-                  </div>
-
-                  {/* Status Badge */}
-                  <Badge variant={placement.is_active ? "default" : "secondary"}>
-                    {placement.is_active ? "Active" : "Inactive"}
+                  <Badge
+                    variant={placement.is_active ? "default" : "secondary"}
+                    className={`text-xs ${placement.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
+                  >
+                    {placement.is_active ? "Active" : "Hidden"}
                   </Badge>
 
-                  {/* Actions */}
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => moveProduct(placement.id, "up")}
-                      disabled={index === 0 || loading}
-                    >
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button size="sm" variant="ghost" onClick={() => moveProduct(placement.id, "up")} disabled={index === 0 || loading} className="h-8 w-8 p-0">
                       <MoveUp className="w-4 h-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => moveProduct(placement.id, "down")}
-                      disabled={index === placements.length - 1 || loading}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => moveProduct(placement.id, "down")} disabled={index === placements.length - 1 || loading} className="h-8 w-8 p-0">
                       <MoveDown className="w-4 h-4" />
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() =>
-                        toggleActive(placement.id, placement.is_active)
-                      }
-                      disabled={loading}
-                    >
-                      {placement.is_active ? (
-                        <EyeOff className="w-4 h-4" />
-                      ) : (
-                        <Eye className="w-4 h-4" />
-                      )}
+                    <Button size="sm" variant="ghost" onClick={() => toggleActive(placement.id, placement.is_active)} disabled={loading} className="h-8 w-8 p-0">
+                      {placement.is_active ? <EyeOff className="w-4 h-4 text-gray-500" /> : <Eye className="w-4 h-4 text-green-600" />}
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => removePlacement(placement.id)}
-                      disabled={loading}
-                    >
+                    <Button size="sm" variant="ghost" onClick={() => removePlacement(placement.id)} disabled={loading} className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50">
                       <Trash2 className="w-4 h-4" />
                     </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {placements.map((placement, index) => (
+                <div
+                  key={placement.id}
+                  className={`border rounded-lg overflow-hidden transition-all hover:shadow-md ${
+                    selectedItems.has(placement.id) ? "ring-2 ring-indigo-400" : ""
+                  }`}
+                >
+                  <div className="relative aspect-square bg-gray-100">
+                    <Image
+                      src={placement.products?.images?.[0] || "/placeholder.png"}
+                      alt={placement.products?.name || "Product"}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                    <div className="absolute top-2 left-2 w-7 h-7 rounded-full bg-white/90 flex items-center justify-center text-xs font-bold shadow">
+                      {index + 1}
+                    </div>
+                    <button onClick={() => toggleSelectItem(placement.id)} className="absolute top-2 right-2">
+                      {selectedItems.has(placement.id) ? (
+                        <CheckSquare className="w-5 h-5 text-indigo-600 bg-white rounded" />
+                      ) : (
+                        <Square className="w-5 h-5 text-gray-400 bg-white/80 rounded" />
+                      )}
+                    </button>
+                    {!placement.is_active && (
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <Badge variant="secondary">Hidden</Badge>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h3 className="font-medium text-sm truncate">{placement.products?.name}</h3>
+                    <p className="text-xs text-gray-500">{placement.products?.color}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm font-medium">₹{placement.products?.price}</span>
+                      <div className="flex items-center gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => toggleActive(placement.id, placement.is_active)} className="h-7 w-7 p-0">
+                          {placement.is_active ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => removePlacement(placement.id)} className="h-7 w-7 p-0 text-red-500">
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -678,18 +828,17 @@ export default function PlacementsPage() {
         </CardContent>
       </Card>
 
-      {/* Instructions */}
-      <Card className="mt-6 bg-blue-50">
+      {/* Help */}
+      <Card className="mt-6 bg-blue-50 border-blue-200">
         <CardHeader>
-          <CardTitle className="text-lg">How to Use</CardTitle>
+          <CardTitle className="text-lg">Tips</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm space-y-2">
-          <p>• <strong>Select Section:</strong> Choose which homepage section to manage</p>
-          <p>• <strong>Add Products:</strong> Select a product and choose where to place it (start, middle, or end)</p>
-          <p>• <strong>Position Control:</strong> New products can be inserted at any position - existing products automatically shift</p>
-          <p>• <strong>Reorder:</strong> Use arrow buttons to move products up/down one position at a time</p>
-          <p>• <strong>Toggle Visibility:</strong> Eye icon to show/hide without removing</p>
-          <p>• <strong>Remove:</strong> Trash icon to permanently remove from section</p>
+        <CardContent className="text-sm space-y-1.5">
+          <p>• <strong>Drag &amp; drop</strong> items to reorder them (list view)</p>
+          <p>• <strong>Select multiple</strong> items for bulk show/hide, copy, or remove</p>
+          <p>• <strong>Copy to section</strong> to place the same products in another section</p>
+          <p>• <strong>Search products</strong> by name or color when adding</p>
+          <p>• <strong>Preview</strong> the page to see changes live</p>
         </CardContent>
       </Card>
     </div>

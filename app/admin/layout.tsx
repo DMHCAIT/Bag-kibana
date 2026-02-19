@@ -18,6 +18,7 @@ import {
   FileText,
   Image,
   Video,
+  Globe,
 } from "lucide-react";
 import { useState } from "react";
 import { AdminAuthWrapper } from "@/components/admin/AdminAuthWrapper";
@@ -29,6 +30,7 @@ const navigation = [
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Category View", href: "/admin/category-products", icon: Layout },
   { name: "Color Management", href: "/admin/color-management", icon: Palette },
+  { name: "Site Settings", href: "/admin/site-settings", icon: Globe },
   { name: "Content Management", href: "/admin/content", icon: FileText },
   { name: "Videos", href: "/admin/videos", icon: Video },
   { name: "Media Library", href: "/admin/media", icon: Image },

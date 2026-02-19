@@ -15,6 +15,7 @@ import OptimizedImage from "@/components/OptimizedImage";
 import { useCart } from "@/contexts/CartContext";
 import { useState, useEffect } from "react";
 import { ShoppingCart } from "lucide-react";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 const makeSlug = (name: string, color: string) =>
   `${name}-${color}`
@@ -136,6 +137,10 @@ function ProductCard({ product }: { product: Product }) {
 export default function NewCollectionCarousel() {
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { getValue } = useSiteContent(["new_collection"]);
+
+  const sectionTitle = getValue("new_collection", "section_title", "NEW COLLECTION");
+  const sectionSubtitle = getValue("new_collection", "section_subtitle", "Discover our latest exclusive designs");
 
   useEffect(() => {
     let isMounted = true;
@@ -193,10 +198,10 @@ export default function NewCollectionCarousel() {
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-4xl md:text-5xl tracking-[0.15em] mb-4 font-semibold" style={{fontFamily: 'var(--font-abhaya)'}}>
-            NEW COLLECTION
+            {sectionTitle}
           </h2>
           <p className="text-sm md:text-base text-[#111111] tracking-wide" style={{fontFamily: 'var(--font-abhaya)'}}>
-            Discover our latest exclusive designs
+            {sectionSubtitle}
           </p>
         </div>
 

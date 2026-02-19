@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -153,6 +154,9 @@ export default function WomenPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { getValue } = useSiteContent(["hero_women"]);
+
+  const heroImage = getValue("hero_women", "image", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Cover%20page%20.jpg%20(1).jpeg");
 
   // Fetch products from API with timeout and fallback
   useEffect(() => {
@@ -204,7 +208,7 @@ export default function WomenPage() {
       <div className="relative w-full overflow-hidden">
         <div className="relative w-full" style={{ aspectRatio: '1916/420' }}>
           <Image
-            src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Cover%20page%20.jpg%20(1).jpeg"
+            src={heroImage}
             alt="Women's Collection"
             fill
             priority

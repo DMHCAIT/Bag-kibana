@@ -10,6 +10,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -144,6 +145,11 @@ export default function MenPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const { getValue } = useSiteContent(["hero_men"]);
+
+  const heroImage = getValue("hero_men", "image", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Men's%20page%20%20for%20kibana.jpg.jpeg");
+  const pageTitle = getValue("hero_men", "page_title", "MEN'S COLLECTION");
+  const pageDescription = getValue("hero_men", "page_description", "Discover our collection of premium bags designed for the modern gentleman");
 
   // Fetch products from API
   useEffect(() => {
@@ -190,8 +196,8 @@ export default function MenPage() {
       <div className="relative w-full overflow-hidden">
         <div className="relative w-full" style={{ aspectRatio: '1916/420' }}>
           <Image
-            src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Men's%20page%20%20for%20kibana.jpg.jpeg"
-            alt="Men's Collection"
+            src={heroImage}
+            alt={pageTitle}
             fill
             priority
             className="object-cover object-center"
@@ -204,10 +210,10 @@ export default function MenPage() {
         {/* Page Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl md:text-5xl font-serif tracking-[0.15em] mb-4">
-            MEN'S COLLECTION
+            {pageTitle}
           </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Discover our collection of premium bags designed for the modern gentleman
+            {pageDescription}
           </p>
         </div>
 

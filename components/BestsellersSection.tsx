@@ -9,6 +9,7 @@ import OptimizedImage from "@/components/OptimizedImage";
 import { Product } from "@/lib/products-data";
 import { useCart } from "@/contexts/CartContext";
 import { useState, useEffect } from "react";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 const makeSlug = (name: string, color: string) =>
   `${name}-${color}`
@@ -144,6 +145,13 @@ function ProductCard({ product, priority = false }: { product: Product; priority
 export default function BestsellersSection() {
   const [bestsellers, setBestsellers] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { getValue, getNumber } = useSiteContent(["bestsellers"]);
+
+  const sectionTitle = getValue("bestsellers", "section_title", "BESTSELLERS");
+  const sectionSubtitle = getValue("bestsellers", "section_subtitle", "Our most loved bags");
+  const discountPercent = getNumber("bestsellers", "discount_percent", 30);
+  const womenTabLabel = getValue("bestsellers", "women_tab_label", "Women");
+  const menTabLabel = getValue("bestsellers", "men_tab_label", "Men");
 
   useEffect(() => {
     let isMounted = true;
@@ -205,10 +213,10 @@ export default function BestsellersSection() {
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-4xl md:text-5xl tracking-[0.15em] mb-4 font-semibold" style={{fontFamily: 'var(--font-abhaya)'}}>
-            BESTSELLERS
+            {sectionTitle}
           </h2>
           <p className="text-sm md:text-base text-[#111111] tracking-wide" style={{fontFamily: 'var(--font-abhaya)'}}>
-            Our most loved bags
+            {sectionSubtitle}
           </p>
         </div>
 
@@ -231,13 +239,13 @@ export default function BestsellersSection() {
               value="women"
               className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
             >
-              Women
+              {womenTabLabel}
             </TabsTrigger>
             <TabsTrigger
               value="men"
               className="uppercase tracking-wider text-sm data-[state=active]:bg-black data-[state=active]:text-white"
             >
-              Men
+              {menTabLabel}
             </TabsTrigger>
           </TabsList>
 

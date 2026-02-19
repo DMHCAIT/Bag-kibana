@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Play, Pause, Volume2, VolumeX, ChevronLeft, ChevronRight } from "lucide-react";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 interface Video {
   id: string;
@@ -20,6 +21,10 @@ export default function VideoShowcase() {
   const [isMuted, setIsMuted] = useState<Record<string, boolean>>({});
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { getValue } = useSiteContent(["video_showcase"]);
+
+  const sectionTitle = getValue("video_showcase", "section_title", "WATCH & EXPLORE");
+  const sectionSubtitle = getValue("video_showcase", "section_subtitle", "Discover our craftsmanship in motion");
 
   useEffect(() => {
     fetchVideos();
@@ -112,13 +117,13 @@ export default function VideoShowcase() {
             className="text-4xl md:text-5xl tracking-[0.15em] mb-4"
             style={{ fontFamily: "var(--font-abhaya)" }}
           >
-            WATCH & EXPLORE
+            {sectionTitle}
           </h2>
           <p
             className="text-sm md:text-base text-[#111111] tracking-wide"
             style={{ fontFamily: "var(--font-abhaya)" }}
           >
-            Discover our craftsmanship in motion
+            {sectionSubtitle}
           </p>
         </div>
 

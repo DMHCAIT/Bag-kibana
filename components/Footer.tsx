@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Facebook, Instagram } from "lucide-react";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 // Custom Threads icon component
 function ThreadsIcon({ className }: { className?: string }) {
@@ -16,16 +19,29 @@ function ThreadsIcon({ className }: { className?: string }) {
 }
 
 export default function Footer() {
+  const { getValue } = useSiteContent(["footer"]);
+
+  const newsletterTitle = getValue("footer", "newsletter_title", "STAY CONNECTED");
+  const newsletterSubtitle = getValue("footer", "newsletter_subtitle", "Subscribe for exclusive offers and updates");
+  const facebookUrl = getValue("footer", "facebook_url", "https://facebook.com");
+  const instagramUrl = getValue("footer", "instagram_url", "https://www.instagram.com/kibanalifeofficial/");
+  const threadsUrl = getValue("footer", "threads_url", "https://threads.net");
+  const phoneNumber = getValue("footer", "phone_number", "+91 97114 14110");
+  const copyrightText = getValue("footer", "copyright_text", `© KIBANA ${new Date().getFullYear()}. All Rights Reserved`);
+  const feature1 = getValue("footer", "feature_1", "Premium Quality");
+  const feature2 = getValue("footer", "feature_2", "Easy Returns");
+  const feature3 = getValue("footer", "feature_3", "COD Available");
+
   return (
     <footer className="bg-black text-white py-16 md:py-20">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Newsletter Section */}
         <div className="text-center mb-16 pb-16 border-b border-gray-800">
           <h3 className="font-serif text-2xl md:text-3xl tracking-[0.15em] mb-4">
-            STAY CONNECTED
+            {newsletterTitle}
           </h3>
           <p className="text-sm md:text-base text-gray-400 mb-6 tracking-wide">
-            Subscribe for exclusive offers and updates
+            {newsletterSubtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
             <input
@@ -171,7 +187,7 @@ export default function Footer() {
             </h4>
             <div className="flex gap-4 mb-6">
               <a
-                href="https://facebook.com"
+                href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -180,7 +196,7 @@ export default function Footer() {
                 <Facebook className="w-5 h-5" />
               </a>
               <a
-                href="https://www.instagram.com/kibanalifeofficial/"
+                href={instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -189,7 +205,7 @@ export default function Footer() {
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="https://threads.net"
+                href={threadsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -201,10 +217,10 @@ export default function Footer() {
             <div className="text-sm text-gray-400">
               <p className="mb-2">Call/WhatsApp:</p>
               <a
-                href="tel:+919711414110"
+                href={`tel:${phoneNumber.replace(/\s/g, '')}`}
                 className="hover:text-white transition-colors"
               >
-                +91 97114 14110
+                {phoneNumber}
               </a>
             </div>
           </div>
@@ -214,24 +230,24 @@ export default function Footer() {
         <div className="grid grid-cols-3 gap-6 mb-16 pb-16 border-b border-gray-800">
           <div className="text-center">
             <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              Premium Quality
+              {feature1}
             </p>
           </div>
           <div className="text-center">
             <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              Easy Returns
+              {feature2}
             </p>
           </div>
           <div className="text-center">
             <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
-              COD Available
+              {feature3}
             </p>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
-          <p>© KIBANA 2024. All Rights Reserved</p>
+          <p>{copyrightText}</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-white transition-colors">
               Privacy Policy

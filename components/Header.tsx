@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -16,6 +17,10 @@ export default function Header() {
   const { user, signOut, isLoading } = useAuth();
   const router = useRouter();
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const { getValue } = useSiteContent(["header"]);
+
+  const logoUrl = getValue("header", "logo_url", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/KIBANA%20copy.png");
+  const logoAlt = getValue("header", "logo_alt", "KIBANA Logo");
 
   // Handle hydration
   useEffect(() => {
@@ -91,8 +96,8 @@ export default function Header() {
           >
             <div className="relative w-28 h-10 md:w-36 md:h-12">
               <Image
-                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/KIBANA%20copy.png"
-                alt="KIBANA Logo"
+                src={logoUrl}
+                alt={logoAlt}
                 fill
                 className="object-contain"
                 priority
