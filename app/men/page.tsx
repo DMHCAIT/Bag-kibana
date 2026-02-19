@@ -187,15 +187,17 @@ export default function MenPage() {
       <Header />
       
       {/* Hero Section */}
-      <div className="relative w-full h-[35vh] md:h-[45vh] lg:h-[50vh] overflow-hidden">
-        <Image
-          src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Men's%20page%20%20for%20kibana.jpg.jpeg"
-          alt="Men's Collection"
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="100vw"
-        />
+      <div className="relative w-full overflow-hidden">
+        <div className="relative w-full" style={{ aspectRatio: '1916/420' }}>
+          <Image
+            src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Men's%20page%20%20for%20kibana.jpg.jpeg"
+            alt="Men's Collection"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+        </div>
       </div>
       
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
