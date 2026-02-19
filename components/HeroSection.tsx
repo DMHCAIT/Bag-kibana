@@ -30,7 +30,7 @@ export default function HeroSection() {
       {/* Hero Image */}
       <div className={`relative w-full ${getHeight()}`}>
         <OptimizedImage
-          src="/KIBANA HOME PAGE.jpg (1).jpeg"
+          src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/KIBANA%20HOME%20PAGE.jpg%20(1).jpeg"
           alt="KibanaLife Collection"
           fill
           priority
