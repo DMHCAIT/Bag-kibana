@@ -15,8 +15,13 @@ import {
   Layout,
   Palette,
   Activity,
+  FileText,
+  Image,
+  Video,
 } from "lucide-react";
 import { useState } from "react";
+import { AdminAuthWrapper } from "@/components/admin/AdminAuthWrapper";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -24,6 +29,9 @@ const navigation = [
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Category View", href: "/admin/category-products", icon: Layout },
   { name: "Color Management", href: "/admin/color-management", icon: Palette },
+  { name: "Content Management", href: "/admin/content", icon: FileText },
+  { name: "Videos", href: "/admin/videos", icon: Video },
+  { name: "Media Library", href: "/admin/media", icon: Image },
   { name: "Placements", href: "/admin/placements", icon: Layout },
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Login History", href: "/admin/login-history", icon: Activity },
@@ -31,13 +39,14 @@ const navigation = [
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -106,13 +115,13 @@ export default function AdminLayout({
                 </p>
               </div>
             </div>
-            <Link
-              href="/shop"
+            <button
+              onClick={handleSignOut}
               className="flex items-center w-full px-4 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors"
             >
               <LogOut className="w-5 h-5 mr-3" />
-              Back to Shop
-            </Link>
+              Sign Out
+            </button>
           </div>
         </div>
       </div>
@@ -147,5 +156,27 @@ export default function AdminLayout({
         <main className="p-6">{children}</main>
       </div>
     </div>
+  );
+}
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  
+  // Pages that don't require authentication
+  const publicAdminPages = ['/admin/login', '/admin/setup'];
+  const isPublicPage = publicAdminPages.includes(pathname);
+  
+  if (isPublicPage) {
+    // Render without auth wrapper for login and setup pages
+    return <div className="min-h-screen bg-gray-50">{children}</div>;
+  }
+  
+  return (
+    <AdminAuthWrapper>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </AdminAuthWrapper>
   );
 }

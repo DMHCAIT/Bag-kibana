@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Playfair_Display, Inter, Outfit, Abhaya_Libre } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -10,6 +10,7 @@ import CartDrawerWrapper from "@/components/CartDrawerWrapper";
 import CartReminderProvider from "@/components/CartReminderProvider";
 import WhatsAppWidget from "@/components/WhatsAppWidget";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import PerformanceMonitor from "@/components/PerformanceMonitor";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -37,15 +38,16 @@ const abhayaLibre = Abhaya_Libre({
   weight: ['400', '500', '600', '700', '800'],
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
 export const metadata: Metadata = {
   title: "KIBANA - Luxury Handbags",
   description: "Premium luxury handbag collection for women and men",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
 };
 
 export default function RootLayout({
@@ -127,6 +129,7 @@ export default function RootLayout({
             <AuthProvider>
               <CartProvider>
                 <CartReminderProvider />
+                <PerformanceMonitor />
                 {children}
                 <CartDrawerWrapper />
                 <WhatsAppWidget />
