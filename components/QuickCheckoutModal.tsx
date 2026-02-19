@@ -413,7 +413,7 @@ export default function QuickCheckoutModal({
           {/* ─── Header ─── */}
           <div className="flex items-center justify-between px-5 py-4 border-b bg-white sticky top-0 z-10">
             <div className="flex items-center gap-3">
-              {step !== "login" && !(!isAuthenticated && step === "login") && (
+              {step !== "login" && (
                 <button
                   onClick={() => {
                     if (step === "payment") setStep("address");
