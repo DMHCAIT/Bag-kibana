@@ -114,6 +114,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
+      // Check for admin credentials first
+      const ADMIN_EMAIL = 'admin@kibanalife.com';
+      const ADMIN_PASSWORD = 'kibana@admin2024';
+      
+      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        const adminUser: User = {
+          id: 'ADMIN-001',
+          email: ADMIN_EMAIL,
+          name: 'Admin',
+          phone: '',
+          role: 'admin',
+          createdAt: new Date().toISOString(),
+        };
+        
+        localStorage.setItem('kibana_user', JSON.stringify(adminUser));
+        setUser(adminUser);
+        return { success: true };
+      }
+      
       // Get existing users from localStorage
       const existingUsers = JSON.parse(localStorage.getItem('kibana_users') || '[]');
       
