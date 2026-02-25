@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Search, User, ShoppingBag, Menu, X, LogOut, Package } from "lucide-react";
+import { User, ShoppingBag, Menu, X, LogOut, Package } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import SearchBar from "@/components/SearchBar";
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -109,9 +110,7 @@ export default function Header() {
           <div className="flex items-center justify-end gap-4 md:gap-6 flex-1">
             {/* Desktop Icons */}
             <div className="hidden md:flex items-center gap-6">
-              <button className="hover:opacity-60 transition-opacity" aria-label="Search">
-                <Search className="w-5 h-5" />
-              </button>
+              <SearchBar />
               
               {/* User Menu */}
               {isClient && (

@@ -2,7 +2,7 @@
 
 import { useState, use, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Star, ChevronDown, ChevronUp, X, Check } from "lucide-react";
+import { Star, ChevronDown, ChevronUp, X, Check, Share2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -129,6 +129,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [quickCheckoutOpen, setQuickCheckoutOpen] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
 
   // Accordion states
   const [openSection, setOpenSection] = useState<string | null>("features");
@@ -298,6 +299,30 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     setOpenSection(openSection === section ? null : section);
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: `${product?.name} - ${product?.color}`,
+      text: `Check out ${product?.name} at KIBANA`,
+      url: window.location.href,
+    };
+
+    if (navigator.share && /iPhone|iPad|Android/i.test(navigator.userAgent)) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // User cancelled or error — just close the menu
+      }
+    } else {
+      setShowShareMenu(!showShareMenu);
+    }
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied to clipboard!");
+    setShowShareMenu(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex flex-col">
@@ -336,8 +361,39 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const images = product.images || [];
   const currentImage = images[selectedImage] || images[0] || '';
 
+  // Product JSON-LD structured data
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images || [],
+    "description": product.description || `${product.name} in ${product.color} by KIBANA`,
+    "sku": product.slug,
+    "brand": {
+      "@type": "Brand",
+      "name": "KIBANA"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": product.price,
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock",
+      "url": `https://kibanalife.com/products/${product.slug}`,
+      "seller": {
+        "@type": "Organization",
+        "name": "KIBANA"
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white flex flex-col">
+      {/* Product Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
+      
       <Header />
       
       <div className="flex-1">
@@ -624,21 +680,56 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
               {/* Actions */}
               <div className="space-y-3">
-              <Button
-                onClick={handleAddToCart}
-                disabled={isAdding}
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={isAdding}
                   className="w-full uppercase tracking-wider py-6 bg-black text-white hover:bg-gray-800"
-              >
+                >
                   {isAdding ? "Added to Cart!" : "Add to Cart"}
-              </Button>
-              <Button
-                onClick={handleBuyNow}
+                </Button>
+                <Button
+                  onClick={handleBuyNow}
                   variant="outline"
                   className="w-full uppercase tracking-wider py-6"
-              >
-                Buy It Now
-              </Button>
-            </div>
+                >
+                  Buy It Now
+                </Button>
+
+                {/* Share Button */}
+                <div className="relative">
+                  <button
+                    onClick={handleShare}
+                    className="w-full py-3 flex items-center justify-center gap-2 text-sm text-gray-600 hover:text-black border border-gray-200 rounded-lg hover:border-gray-400 transition-colors"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share
+                  </button>
+
+                  {/* Share Menu (Desktop) */}
+                  {showShareMenu && (
+                    <div className="absolute bottom-full left-0 right-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-xl p-4 z-10">
+                      <p className="text-xs text-gray-500 mb-2">Share this product</p>
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => {
+                            window.open(`https://wa.me/?text=${encodeURIComponent(window.location.href)}`, '_blank');
+                            setShowShareMenu(false);
+                          }}
+                          className="text-sm text-left px-3 py-2 hover:bg-gray-50 rounded"
+                        >
+                          WhatsApp
+                        </button>
+                        <button
+                          onClick={copyLink}
+                          className="text-sm text-left px-3 py-2 hover:bg-gray-50 rounded"
+                        >
+                          Copy Link
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
 
             {/* Description */}
                 <div>
@@ -784,6 +875,32 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                 {relatedProducts.map((relatedProduct) => (
                   <ProductCard key={relatedProduct.id} product={relatedProduct} />
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Sticky Mobile Buy Bar */}
+        {product && (
+          <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40 px-4 py-3 safe-area-inset-bottom">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{product.name}</p>
+                <p className="text-xs text-gray-600">{formatPrice(product.price)}</p>
+              </div>
+              <Button 
+                onClick={handleAddToCart} 
+                disabled={isAdding}
+                className="px-6 py-2.5 text-sm bg-black text-white hover:bg-gray-800 min-w-[90px]"
+              >
+                {isAdding ? "Added!" : "Add"}
+              </Button>
+              <Button 
+                onClick={handleBuyNow}
+                variant="outline"
+                className="px-6 py-2.5 text-sm min-w-[90px]"
+              >
+                Buy Now
+              </Button>
             </div>
           </div>
         )}

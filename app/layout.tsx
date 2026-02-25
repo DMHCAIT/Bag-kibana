@@ -46,8 +46,70 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "KIBANA - Luxury Handbags",
-  description: "Premium luxury handbag collection for women and men",
+  metadataBase: new URL("https://kibanalife.com"),
+  title: {
+    default: "KIBANA — Luxury Leather Handbags & Bags",
+    template: "%s | KIBANA",
+  },
+  description:
+    "Explore KIBANA's premium luxury handbag collection — handcrafted leather totes, slings, crossbody bags and clutches for women. Free shipping above ₹999.",
+  keywords: [
+    "luxury handbags India",
+    "leather bags women",
+    "premium tote bag",
+    "sling bag India",
+    "KIBANA bags",
+    "handcrafted bags",
+    "designer handbags",
+    "women bags online",
+    "buy handbags India",
+  ],
+  authors: [{ name: "KIBANA", url: "https://kibanalife.com" }],
+  creator: "KIBANA",
+  publisher: "KIBANA",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://kibanalife.com",
+    siteName: "KIBANA",
+    title: "KIBANA — Luxury Leather Handbags & Bags",
+    description:
+      "Handcrafted luxury leather handbags, totes, slings and clutches. Shop the new collection at KIBANA.",
+    images: [
+      {
+        url: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/KIBANA%20copy.png",
+        width: 1200,
+        height: 630,
+        alt: "KIBANA Luxury Handbags",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KIBANA — Luxury Leather Handbags & Bags",
+    description:
+      "Handcrafted luxury leather handbags, totes, slings and clutches. Shop the new collection.",
+    images: [
+      "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/KIBANA%20copy.png",
+    ],
+  },
+  alternates: {
+    canonical: "https://kibanalife.com",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -106,6 +168,30 @@ export default function RootLayout({
           />
         </noscript>
         {/* End Meta Pixel Code */}
+
+        {/* JSON-LD Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "KIBANA",
+              url: "https://kibanalife.com",
+              logo: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/KIBANA%20copy.png",
+              sameAs: [
+                "https://www.instagram.com/kibanalifeofficial/",
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                telephone: "+91-97114-14110",
+                contactType: "customer service",
+                areaServed: "IN",
+                availableLanguage: "English",
+              },
+            }),
+          }}
+        />
         
         {/* Razorpay Checkout */}
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />

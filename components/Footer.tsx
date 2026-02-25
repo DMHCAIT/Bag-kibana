@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Facebook, Instagram } from "lucide-react";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { useState } from "react";
 
 // Custom Threads icon component
 function ThreadsIcon({ className }: { className?: string }) {
@@ -20,6 +21,9 @@ function ThreadsIcon({ className }: { className?: string }) {
 
 export default function Footer() {
   const { getValue, getJson } = useSiteContent(["footer"]);
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const newsletterTitle = getValue("footer", "newsletter_title", "STAY CONNECTED");
   const newsletterSubtitle = getValue("footer", "newsletter_subtitle", "Subscribe for exclusive offers and updates");
@@ -30,6 +34,33 @@ export default function Footer() {
   const rawCopyright = getValue("footer", "copyright", "© KIBANA {year}. All Rights Reserved");
   const copyrightText = rawCopyright.replace("{year}", String(new Date().getFullYear()));
   const features: string[] = getJson("footer", "features", ["Premium Quality", "Easy Returns", "COD Available"]);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage(null);
+
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage({ type: "success", text: "Thanks for subscribing!" });
+        setEmail("");
+      } else {
+        setMessage({ type: "error", text: data.error || "Something went wrong" });
+      }
+    } catch (error) {
+      setMessage({ type: "error", text: "Failed to subscribe. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <footer className="bg-black text-white py-16 md:py-20">
@@ -42,16 +73,31 @@ export default function Footer() {
           <p className="text-sm md:text-base text-gray-400 mb-6 tracking-wide">
             {newsletterSubtitle}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-4 py-3 bg-transparent border border-gray-700 focus:border-white outline-none text-sm tracking-wide transition-colors"
-            />
-            <button className="px-8 py-3 bg-white text-black hover:bg-gray-200 transition-colors uppercase tracking-wider text-sm font-medium">
-              Subscribe
-            </button>
-          </div>
+          <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+                className="flex-1 px-4 py-3 bg-transparent border border-gray-700 focus:border-white outline-none text-sm tracking-wide transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-8 py-3 bg-white text-black hover:bg-gray-200 transition-colors uppercase tracking-wider text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Subscribing..." : "Subscribe"}
+              </button>
+            </div>
+            {message && (
+              <p className={`mt-3 text-sm ${message.type === "success" ? "text-green-400" : "text-red-400"}`}>
+                {message.text}
+              </p>
+            )}
+          </form>
         </div>
 
         {/* Main Footer Content */}
