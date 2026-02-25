@@ -37,7 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .not("slug", "is", null);
 
     if (products) {
-      productPages = products.map((p) => ({
+      productPages = products.map((p: { slug: string; updated_at?: string }) => ({
         url: `${base}/products/${p.slug}`,
         lastModified: new Date(p.updated_at || new Date()),
         changeFrequency: "weekly" as const,
