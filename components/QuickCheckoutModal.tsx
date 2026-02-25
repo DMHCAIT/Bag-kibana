@@ -327,7 +327,7 @@ export default function QuickCheckoutModal({
                 customerDetails: addressData,
                 items: checkoutItems,
                 discountedTotal: finalTotal,
-                discountAmount,
+                discountAmount: 0,
                 shippingAddress,
               }),
             });
