@@ -30,7 +30,10 @@ export async function GET(request: Request) {
           images,
           description,
           category,
-          colors
+          colors,
+          color_image,
+          rating,
+          reviews
         )
       `)
       .eq("section", section)
@@ -43,9 +46,53 @@ export async function GET(request: Request) {
     }
 
     // Extract products from the nested structure
-    const products = data?.map((item: any) => item.products) || [];
+    const products: any[] = data?.map((item: any) => item.products).filter(Boolean) || [];
 
-    return NextResponse.json(products);
+    if (products.length === 0) {
+      return NextResponse.json([]);
+    }
+
+    // Get all unique product names to fetch all color variants
+    const productNames = [...new Set(products.map((p: any) => p.name))];
+
+    // Fetch all variants for these product names to build colors array
+    const { data: allVariants } = await supabase
+      .from("products")
+      .select("id, name, color, color_image, images, slug")
+      .in("name", productNames);
+
+    // Group variants by name
+    const variantsByName: { [name: string]: any[] } = {};
+    (allVariants || []).forEach((v: any) => {
+      if (!variantsByName[v.name]) variantsByName[v.name] = [];
+      variantsByName[v.name].push(v);
+    });
+
+    // Enrich each product with full colors array
+    const enriched = products.map((product: any) => {
+      const variants = variantsByName[product.name] || [product];
+      const colors = variants.map((variant: any) => ({
+        name: variant.color,
+        value: "#000000",
+        available: true,
+        image: variant.color_image || (variant.images && variant.images[0]) || null,
+      }));
+      return {
+        id: product.slug || product.id?.toString(),
+        dbId: product.id,
+        slug: product.slug,
+        name: product.name,
+        color: product.color,
+        price: product.price,
+        images: product.images || [],
+        category: product.category,
+        rating: product.rating || 4.5,
+        reviews: product.reviews || 0,
+        colors,
+      };
+    });
+
+    return NextResponse.json(enriched);
   } catch (error) {
     console.error("Error in GET /api/placements:", error);
     return NextResponse.json(
