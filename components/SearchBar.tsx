@@ -24,7 +24,7 @@ export default function SearchBar() {
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const search = useCallback(async (q: string) => {
     if (q.trim().length < 2) {
