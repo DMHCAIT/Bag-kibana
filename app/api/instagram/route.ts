@@ -27,9 +27,7 @@ export async function GET(request: NextRequest) {
       { posts: data || [] },
       {
         headers: {
-          "Cache-Control": all
-            ? "no-store"
-            : "public, s-maxage=300, stale-while-revalidate=600",
+          "Cache-Control": "no-store",
         },
       }
     );

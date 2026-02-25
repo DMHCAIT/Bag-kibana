@@ -14,6 +14,7 @@ interface InstagramPost {
 export default function InstagramFeed() {
   const [posts, setPosts] = useState<InstagramPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -24,13 +25,17 @@ export default function InstagramFeed() {
 
   const fetchPosts = async () => {
     try {
-      const res = await fetch("/api/instagram");
+      const res = await fetch("/api/instagram", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setPosts(data.posts || []);
+      } else {
+        console.error("Instagram API error:", res.status, res.statusText);
+        setFetchError(true);
       }
     } catch (e) {
       console.error("Error fetching instagram posts:", e);
+      setFetchError(true);
     } finally {
       setLoading(false);
     }
@@ -62,8 +67,8 @@ export default function InstagramFeed() {
     el.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
   };
 
-  // Don't render if no posts and not loading
-  if (!loading && posts.length === 0) return null;
+  // Don't render if loading is done, no error, and truly no posts in DB
+  if (!loading && !fetchError && posts.length === 0) return null;
 
   return (
     <section className="py-14 bg-white">
