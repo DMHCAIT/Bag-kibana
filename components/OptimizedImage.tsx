@@ -20,17 +20,6 @@ interface OptimizedImageProps {
   blurDataURL?: string;
 }
 
-/**
- * Optimized image component with:
- * - WebP/AVIF format support (configured in next.config.ts)
- * - Instant blur placeholder with animation
- * - 75% quality reduction (saves 65-80% bandwidth)
- * - Smooth loading transitions
- * - Error handling with fallback
- * - Priority loading support
- * - Lazy loading for below-the-fold images
- * - Responsive sizes for different breakpoints
- */
 export default function OptimizedImage({
   src,
   alt,
@@ -40,60 +29,53 @@ export default function OptimizedImage({
   className = "",
   sizes,
   priority = false,
-  quality = 75, // Reduced from 85 to 75 for better performance
+  quality = 85,
   onLoad,
   style,
-  useBlur = true,
+  useBlur = false,
   blurDataURL,
 }: OptimizedImageProps) {
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  const handleLoad = () => {
-    setImageLoaded(true);
-    onLoad?.();
-  };
-
-  const handleError = () => {
-    setImageError(true);
-    setImageLoaded(true);
-  };
-
+  const handleError = () => setImageError(true);
   const imageSrc = imageError ? getFallbackImage() : src;
 
-  return (
-    <div className={`relative ${fill ? 'w-full h-full' : ''}`} style={style}>
-      {/* Blur placeholder - shows instantly and fades out */}
-      {!imageLoaded && useBlur && (
-        <div 
-          className="absolute inset-0 bg-linear-to-br from-gray-100 to-gray-200 animate-pulse z-10"
-          style={{
-            backgroundImage: blurDataURL ? `url(${blurDataURL})` : undefined,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-      )}
-      
+  if (fill) {
+    return (
       <Image
         src={imageSrc}
         alt={alt}
-        fill={fill}
-        width={!fill ? width : undefined}
-        height={!fill ? height : undefined}
-        className={`${className} transition-opacity duration-300 ${
-          imageLoaded ? 'opacity-100' : 'opacity-0'
-        }`}
-        sizes={sizes || (fill ? '100vw' : undefined)}
+        fill
+        className={className}
+        sizes={sizes || "100vw"}
         priority={priority}
         quality={quality}
-        onLoad={handleLoad}
+        onLoad={onLoad}
         onError={handleError}
-        loading={priority ? 'eager' : 'lazy'}
-        // Use placeholder blur for even faster perceived load
-        placeholder={blurDataURL ? 'blur' : 'empty'}
+        loading={priority ? "eager" : "lazy"}
+        style={style}
+        placeholder={blurDataURL ? "blur" : "empty"}
         blurDataURL={blurDataURL}
       />
-    </div>
+    );
+  }
+
+  return (
+    <Image
+      src={imageSrc}
+      alt={alt}
+      width={width}
+      height={height}
+      className={className}
+      sizes={sizes}
+      priority={priority}
+      quality={quality}
+      onLoad={onLoad}
+      onError={handleError}
+      loading={priority ? "eager" : "lazy"}
+      style={style}
+      placeholder={blurDataURL ? "blur" : "empty"}
+      blurDataURL={blurDataURL}
+    />
   );
 }

@@ -70,7 +70,6 @@ ON CONFLICT (section, content_key) DO NOTHING;
 INSERT INTO site_content (section, content_key, content_value, content_type, metadata) VALUES
 ('bestsellers', 'title', 'BESTSELLERS', 'text', '{}'),
 ('bestsellers', 'subtitle', 'Our most loved bags', 'text', '{}'),
-('bestsellers', 'discount_percent', '30', 'number', '{}'),
 ('bestsellers', 'view_all_link', '/shop', 'url', '{}')
 ON CONFLICT (section, content_key) DO NOTHING;
 
@@ -78,7 +77,6 @@ ON CONFLICT (section, content_key) DO NOTHING;
 INSERT INTO site_content (section, content_key, content_value, content_type, metadata) VALUES
 ('new_collection', 'title', 'NEW COLLECTION', 'text', '{}'),
 ('new_collection', 'subtitle', 'Discover our latest exclusive designs', 'text', '{}'),
-('new_collection', 'discount_percent', '30', 'number', '{}'),
 ('new_collection', 'view_all_link', '/shop', 'url', '{}')
 ON CONFLICT (section, content_key) DO NOTHING;
 
@@ -167,7 +165,6 @@ ON CONFLICT (section, content_key) DO NOTHING;
 -- GLOBAL SETTINGS
 INSERT INTO site_content (section, content_key, content_value, content_type, metadata) VALUES
 ('global', 'brand_name', 'KIBANA', 'text', '{}'),
-('global', 'default_discount_percent', '30', 'number', '{}'),
 ('global', 'currency_symbol', '₹', 'text', '{}'),
 ('global', 'whatsapp_number', '+919711414110', 'text', '{}')
 ON CONFLICT (section, content_key) DO NOTHING;

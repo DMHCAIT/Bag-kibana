@@ -32,12 +32,12 @@ function ProductCard({ product }: { product: Product }) {
     <Card className="border-0 shadow-none group">
       <CardContent className="p-0 space-y-3">
         <Link href={`/products/${product.slug || product.id}`}>
-          <div className="relative aspect-3/4 rounded-sm overflow-hidden cursor-pointer">
+          <div className="relative aspect-[3/4] bg-[#F5F4F0] rounded-sm overflow-hidden cursor-pointer">
             <OptimizedImage
               src={product.images[0]}
               alt={`${product.name} - ${product.color}`}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-contain p-3 transition-opacity duration-300 group-hover:opacity-80"
               sizes="(max-width: 768px) 50vw, 25vw"
             />
           </div>
@@ -64,9 +64,7 @@ function ProductCard({ product }: { product: Product }) {
             <span className="text-xs text-gray-500">({product.reviews})</span>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-black">{formatPrice(Math.round(product.price * 0.7))}</p>
-            <p className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</p>
-            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">30% OFF</span>
+            <p className="text-sm font-semibold text-black">{formatPrice(product.price)}</p>
           </div>
           <Button
             onClick={handleAddToCart}
@@ -388,7 +386,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                     {images.map((image, index) => (
                       <div
                         key={index}
-                        className="relative w-full rounded-lg overflow-hidden cursor-zoom-in shrink-0 snap-center"
+                        className="relative w-full rounded-lg overflow-hidden cursor-zoom-in shrink-0 snap-center bg-[#F5F4F0]"
                         style={{ aspectRatio: '3/4' }}
                         onClick={() => {
                           setSelectedImage(index);
@@ -400,7 +398,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           alt={`${product.name} - ${product.color} - View ${index + 1}`}
                           fill
                           priority={index === 0}
-                          className="object-cover"
+                          className="object-contain p-4"
                           sizes="(max-width: 1024px) 100vw, 50vw"
                         />
                       </div>
@@ -455,7 +453,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                             });
                           }
                         }}
-                        className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all shrink-0 ${
+                        className={`relative aspect-square rounded-md overflow-hidden border-2 transition-all shrink-0 bg-[#F5F4F0] ${
                           selectedImage === index
                             ? "border-black w-14 h-14 md:w-20 md:h-20"
                             : "border-transparent hover:border-gray-300 w-14 h-14 md:w-20 md:h-20"
@@ -465,7 +463,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                           src={image}
                           alt={`Thumbnail ${index + 1}`}
                         fill
-                          className="object-cover"
+                          className="object-contain p-1"
                           sizes="(max-width: 768px) 56px, 80px"
                       />
                     </button>
@@ -506,9 +504,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             {/* Price */}
               <div className="py-3 md:py-4 border-y">
                 <div className="flex items-center flex-wrap gap-2 md:gap-3">
-                  <p className="text-2xl md:text-3xl font-medium text-black">{formatPrice(Math.round(product.price * 0.7))}</p>
-                  <p className="text-base text-gray-400 line-through">{formatPrice(product.price)}</p>
-                  <span className="bg-black text-white px-2 py-1 rounded text-xs md:text-sm font-semibold">30% OFF</span>
+                  <p className="text-2xl md:text-3xl font-medium text-black">{formatPrice(product.price)}</p>
                 </div>
                 <p className="text-xs md:text-sm text-gray-500 mt-1">Tax included. Shipping calculated at checkout.</p>
             </div>
@@ -517,9 +513,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               <div className="bg-linear-to-r from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-2.5 md:p-3">
                 <div className="flex items-center gap-2">
                   <div className="flex items-center flex-wrap gap-1 md:gap-1.5 text-[10px] md:text-xs">
-                    <span className="font-semibold text-gray-900">Special Offers</span>
-                    <span className="text-gray-400">|</span>
-                    <span><strong className="text-black">30% OFF</strong> - Already applied!</span>
+                    <span className="font-semibold text-gray-900">Special Offer</span>
                     <span className="text-gray-400">|</span>
                     <span><strong>Free Shipping</strong> across India</span>
                   </div>

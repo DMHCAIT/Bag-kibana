@@ -44,17 +44,15 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
     <Card ref={cardRef} className="border-0 shadow-sm hover:shadow-md transition-shadow group h-full flex flex-col">
       <CardContent className="p-4 space-y-3 flex flex-col h-full">
         <Link href={`/products/${product.id}`}>
-          <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden cursor-pointer">
-            {isVisible && (
-              <OptimizedImage
-                src={product.images[0]}
-                alt={`${product.name} - ${product.color}`}
-                fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
-                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-                priority={index < 4}
-              />
-            )}
+          <div className="relative w-full aspect-[3/4] bg-[#F5F4F0] rounded-sm overflow-hidden cursor-pointer">
+            <OptimizedImage
+              src={product.images[0]}
+              alt={`${product.name} - ${product.color}`}
+              fill
+              className="object-contain p-3 transition-opacity duration-300 group-hover:opacity-80"
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+              priority={index < 4}
+            />
           </div>
         </Link>
         
@@ -82,9 +80,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </div>
           
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-black">{formatPrice(Math.round(product.price * 0.7))}</p>
-            <p className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</p>
-            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">30% OFF</span>
+            <p className="text-sm font-semibold text-black">{formatPrice(product.price)}</p>
           </div>
           <p className="text-xs text-gray-500">{product.category}</p>
           

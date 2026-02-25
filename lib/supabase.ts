@@ -50,26 +50,25 @@ export const supabase = (() => {
 })();
 
 // Admin client with service role key (for server-side operations only)
+// Always create a fresh instance so env changes take effect immediately
 export const supabaseAdmin = (() => {
   if (typeof window !== 'undefined') {
     // Return regular client for client-side to avoid warnings
     return supabase;
   }
   
-  if (!globalThis.__supabaseAdminInstance) {
-    globalThis.__supabaseAdminInstance = createClient(
-      supabaseUrl,
-      supabaseServiceRoleKey || supabaseAnonKey,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false
-        }
+  // Always use the current env variable value — no globalThis caching
+  return createClient(
+    supabaseUrl,
+    supabaseServiceRoleKey || supabaseAnonKey,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
       }
-    );
-  }
-  return globalThis.__supabaseAdminInstance;
+    }
+  );
 })();
 
 // Type definitions for address and order items

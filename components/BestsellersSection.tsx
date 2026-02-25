@@ -35,24 +35,24 @@ function ProductCard({ product, priority = false }: { product: Product; priority
         <CardContent className="p-0 space-y-3 flex flex-col h-full">
           {/* Product Image */}
           <Link href={`/products/${product.slug || product.id}`}>
-            <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden cursor-pointer bg-gray-100">
-              {/* First Image - base layer (fades out on hover) */}
+            <div className="relative w-full aspect-[3/4] rounded-sm overflow-hidden cursor-pointer bg-[#F5F4F0]">
+              {/* First Image */}
               <OptimizedImage
                 src={product.images[0]}
                 alt={`${product.name} - ${product.color}`}
                 fill
-                className="object-cover transition-opacity duration-300 group-hover:opacity-0"
+                className="object-contain p-3 transition-opacity duration-300 group-hover:opacity-0"
                 sizes="(max-width: 768px) 50vw, 25vw"
                 priority={priority}
               />
-              {/* Second Image - hover layer (overlays on hover) */}
+              {/* Second Image - hover layer */}
               {product.images[1] && (
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
                   <OptimizedImage
                     src={product.images[1]}
                     alt={`${product.name} - ${product.color} hover`}
                     fill
-                    className="object-cover"
+                    className="object-contain p-3"
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />
                 </div>
@@ -81,9 +81,7 @@ function ProductCard({ product, priority = false }: { product: Product; priority
             </div>
 
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-black">{formatPrice(Math.round(product.price * 0.7))}</p>
-              <p className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</p>
-              <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">30% OFF</span>
+              <p className="text-sm font-semibold text-black">{formatPrice(product.price)}</p>
             </div>
 
             {/* Color Swatches */}

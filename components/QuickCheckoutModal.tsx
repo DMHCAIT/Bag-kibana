@@ -79,13 +79,11 @@ export default function QuickCheckoutModal({
     : cart.items;
 
   // Calculate totals
-  const originalSubtotal = checkoutItems.reduce(
+  const subtotal = checkoutItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
-  const discountedSubtotal = Math.round(originalSubtotal * 0.7);
-  const discountAmount = originalSubtotal - discountedSubtotal;
-  const finalTotal = discountedSubtotal;
+  const finalTotal = subtotal;
   const totalItems = checkoutItems.reduce((sum, item) => sum + item.quantity, 0);
 
   // Set initial step based on auth state
@@ -222,7 +220,7 @@ export default function QuickCheckoutModal({
       name: `${item.product.name} - ${item.product.color}`,
       color: item.product.color,
       quantity: item.quantity,
-      price: Math.round(item.product.price * 0.7),
+      price: item.product.price,
       image: item.product.images?.[0] || "",
     }));
 
@@ -237,9 +235,9 @@ export default function QuickCheckoutModal({
           shipping_address: shippingAddress,
           billing_address: shippingAddress,
           items: orderItems,
-          subtotal: discountedSubtotal,
-          discount: discountAmount,
-          discount_code: "AUTO30",
+          subtotal: subtotal,
+          discount: 0,
+          discount_code: null,
           is_first_order: false,
           shipping_fee: 0,
           total: finalTotal,
@@ -748,9 +746,6 @@ export default function QuickCheckoutModal({
                           </div>
                           <div className="text-right flex-shrink-0">
                             <p className="text-sm font-semibold">
-                              {formatPrice(Math.round(item.product.price * 0.7 * item.quantity))}
-                            </p>
-                            <p className="text-xs text-gray-400 line-through">
                               {formatPrice(item.product.price * item.quantity)}
                             </p>
                           </div>
@@ -760,12 +755,8 @@ export default function QuickCheckoutModal({
                       {/* Price Breakdown */}
                       <div className="border-t border-gray-200 pt-3 space-y-1.5">
                         <div className="flex justify-between text-xs text-gray-500">
-                          <span>Original Price</span>
-                          <span className="line-through">{formatPrice(originalSubtotal)}</span>
-                        </div>
-                        <div className="flex justify-between text-xs text-green-600 font-medium">
-                          <span>Discount (30% OFF)</span>
-                          <span>-{formatPrice(discountAmount)}</span>
+                          <span>Subtotal</span>
+                          <span>{formatPrice(subtotal)}</span>
                         </div>
                         <div className="flex justify-between text-xs text-gray-500">
                           <span>Shipping</span>
@@ -773,7 +764,7 @@ export default function QuickCheckoutModal({
                         </div>
                         <div className="flex justify-between text-sm font-bold pt-1 border-t border-gray-200">
                           <span>Total</span>
-                          <span className="text-green-700">{formatPrice(finalTotal)}</span>
+                          <span className="text-black">{formatPrice(finalTotal)}</span>
                         </div>
                       </div>
                     </div>

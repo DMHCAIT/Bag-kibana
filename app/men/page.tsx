@@ -28,15 +28,14 @@ function ProductCard({ product }: { product: Product }) {
       <CardContent className="p-0 space-y-3 flex flex-col h-full">
         {/* Product Image */}
         <Link href={`/products/${product.slug || product.id}`}>
-          <div className="relative w-full aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden cursor-pointer">
+          <div className="relative w-full aspect-[3/4] bg-[#F5F4F0] rounded-sm overflow-hidden cursor-pointer">
             <Image
               src={product.images[0]}
               alt={`${product.name} - ${product.color}`}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-contain p-3 transition-opacity duration-300 group-hover:opacity-80"
               sizes="(max-width: 768px) 50vw, 25vw"
             />
-            <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
           </div>
         </Link>
 
@@ -66,9 +65,7 @@ function ProductCard({ product }: { product: Product }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-black">{formatPrice(Math.round(product.price * 0.7))}</p>
-            <p className="text-xs text-gray-400 line-through">{formatPrice(product.price)}</p>
-            <span className="text-[10px] bg-black text-white px-1.5 py-0.5 rounded font-semibold">30% OFF</span>
+            <p className="text-sm font-semibold text-black">{formatPrice(product.price)}</p>
           </div>
 
           {/* Color Swatches */}

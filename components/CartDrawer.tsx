@@ -131,9 +131,6 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         </div>
                         <div className="text-right">
                           <p className="font-semibold text-black">
-                            {formatPrice(Math.round(item.product.price * 0.7 * item.quantity))}
-                          </p>
-                          <p className="text-xs text-gray-400 line-through">
                             {formatPrice(item.product.price * item.quantity)}
                           </p>
                         </div>
@@ -148,29 +145,14 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           {/* Footer */}
           {!cart.isEmpty && (
             <div className="border-t border-gray-200 p-6 space-y-4">
-              {/* Discount Banner */}
-              <div className="bg-black p-3 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg">🎉</span>
-                  <div>
-                    <p className="text-sm font-medium text-white">
-                      30% OFF Applied Automatically!
-                    </p>
-                    <p className="text-xs text-gray-200">
-                      You're saving {formatPrice(Math.round(cart.subtotal * 0.3))}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               {/* Pricing Breakdown */}
               <div className="border-t border-gray-200 pt-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-lg font-medium text-gray-900">Estimated Total:</span>
-                  <span className="text-2xl font-bold text-black">{formatPrice(Math.round(cart.subtotal * 0.7))}</span>
+                  <span className="text-2xl font-bold text-black">{formatPrice(cart.subtotal)}</span>
                 </div>
                 <p className="text-sm text-gray-600">
-                  Inclusive of all taxes. Discounts & Coupons applicable at checkout.
+                  Inclusive of all taxes. Free shipping across India.
                 </p>
               </div>
 
@@ -185,7 +167,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <div className="flex items-center justify-center gap-3">
                   <Lock className="w-4 h-4" />
                   <span className="text-base font-semibold uppercase tracking-wider">Checkout</span>
-                  <span className="text-sm font-bold">{formatPrice(Math.round(cart.subtotal * 0.7))}</span>
+                  <span className="text-sm font-bold">{formatPrice(cart.subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-center gap-2 mt-1.5">
                   <Image src="/images/paytm.png" alt="Paytm" width={22} height={22} className="rounded-full object-contain" />

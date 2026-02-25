@@ -76,11 +76,9 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  // Calculate automatic 30% discount
-  const originalSubtotal = cart.subtotal;
-  const discountedSubtotal = Math.round(cart.subtotal * 0.7);
-  const discountAmount = originalSubtotal - discountedSubtotal;
-  const finalTotal = discountedSubtotal;
+  // Calculate totals
+  const subtotal = cart.subtotal;
+  const finalTotal = subtotal;
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -162,12 +160,12 @@ export default function CheckoutPage() {
             name: `${item.product.name} - ${item.product.color}`,
             color: item.product.color,
             quantity: item.quantity,
-            price: Math.round(item.product.price * 0.7),
+            price: item.product.price,
             image: item.product.images?.[0] || "",
           })),
-          subtotal: discountedSubtotal,
-          discount: discountAmount,
-          discount_code: "AUTO30",
+          subtotal: subtotal,
+          discount: 0,
+          discount_code: null,
           is_first_order: false,
           shipping_fee: 0,
           total: finalTotal,
@@ -213,7 +211,7 @@ export default function CheckoutPage() {
 
             // Store order data for Facebook Pixel tracking
             localStorage.setItem('kibana-order-tracking', JSON.stringify({
-              value: discountedSubtotal,
+              value: subtotal,
               currency: 'INR',
               orderId: savedOrder.order.id
             }));
@@ -272,7 +270,7 @@ export default function CheckoutPage() {
                 customerDetails: formData,
                 items: cart.items,
                 discountedTotal: finalTotal,
-                discountAmount: discountAmount,
+                discountAmount: 0,
                 shippingAddress: shippingAddress,
               }),
             });
@@ -536,9 +534,6 @@ export default function CheckoutPage() {
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-black">
-                          {formatPrice(Math.round(item.product.price * 0.7 * item.quantity))}
-                        </p>
-                        <p className="text-xs text-gray-400 line-through">
                           {formatPrice(item.product.price * item.quantity)}
                         </p>
                       </div>
@@ -546,35 +541,10 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
-                {/* Automatic Discount Banner */}
-                <div className="pt-4 border-t">
-                  <div className="bg-black p-3 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">🎉</span>
-                      <div>
-                        <p className="text-sm font-medium text-white">
-                          30% OFF Applied Automatically!
-                        </p>
-                        <p className="text-xs text-gray-200">
-                          You&apos;re saving {formatPrice(discountAmount)} on this order
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 <div className="space-y-3 pt-4 border-t">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Original Price ({cart.totalItems} items)</span>
-                    <span className="line-through text-gray-400">{formatPrice(originalSubtotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm text-black font-medium">
-                    <span>Discount (30% OFF)</span>
-                    <span>-{formatPrice(discountAmount)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium">{formatPrice(discountedSubtotal)}</span>
+                    <span className="text-gray-600">Subtotal ({cart.totalItems} items)</span>
+                    <span className="font-medium">{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Shipping</span>
@@ -584,7 +554,7 @@ export default function CheckoutPage() {
 
                 <div className="flex justify-between font-semibold text-lg pt-4 border-t">
                   <span>Total</span>
-                  <span className="text-green-600">
+                  <span className="text-black">
                     {formatPrice(finalTotal)}
                   </span>
                 </div>
