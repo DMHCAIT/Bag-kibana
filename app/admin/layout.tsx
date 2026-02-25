@@ -19,6 +19,7 @@ import {
   Image,
   Video,
   Globe,
+  Instagram,
 } from "lucide-react";
 import { useState } from "react";
 import { AdminAuthWrapper } from "@/components/admin/AdminAuthWrapper";
@@ -33,6 +34,7 @@ const navigation = [
   { name: "Site Settings", href: "/admin/site-settings", icon: Globe },
   { name: "Content Management", href: "/admin/content", icon: FileText },
   { name: "Videos", href: "/admin/videos", icon: Video },
+  { name: "Instagram Feed", href: "/admin/instagram", icon: Instagram },
   { name: "Media Library", href: "/admin/media", icon: Image },
   { name: "Placements", href: "/admin/placements", icon: Layout },
   { name: "Customers", href: "/admin/customers", icon: Users },

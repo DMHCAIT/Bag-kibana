@@ -5,6 +5,7 @@ import BestsellersSection from "@/components/BestsellersSection";
 import SplitBannerSection from "@/components/SplitBannerSection";
 import CollectionsInFocus from "@/components/CollectionsInFocus";
 import VideoShowcase from "@/components/VideoShowcase";
+import InstagramFeed from "@/components/InstagramFeed";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
         <SplitBannerSection />
         <CollectionsInFocus />
         <VideoShowcase />
+        <InstagramFeed />
       </main>
       <Footer />
     </div>
