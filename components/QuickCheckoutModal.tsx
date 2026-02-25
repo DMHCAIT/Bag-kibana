@@ -278,7 +278,7 @@ export default function QuickCheckoutModal({
           localStorage.setItem(
             "kibana-order-tracking",
             JSON.stringify({
-              value: discountedSubtotal,
+              value: subtotal,
               currency: "INR",
               orderId: savedOrder.order.id,
             })
