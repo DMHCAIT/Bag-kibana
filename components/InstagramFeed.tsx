@@ -93,61 +93,31 @@ export default function InstagramFeed() {
         </a>
       </div>
 
-      {/* Carousel wrapper */}
-      <div className="relative group">
-        {/* Left arrow */}
-        {canScrollLeft && (
-          <button
-            onClick={() => scroll("left")}
-            aria-label="Scroll left"
-            className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
-          >
-            <ChevronLeft className="w-5 h-5 text-[#2C2C2C]" />
-          </button>
-        )}
+      {/* Carousel wrapper — scrollable when many photos, full-width grid when few */}
+      {(() => {
+        // "Few" = 6 or fewer photos → spread across full width with grid
+        const isFew = !loading && posts.length <= 6;
 
-        {/* Right arrow */}
-        {canScrollRight && (
-          <button
-            onClick={() => scroll("right")}
-            aria-label="Scroll right"
-            className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
-          >
-            <ChevronRight className="w-5 h-5 text-[#2C2C2C]" />
-          </button>
-        )}
-
-        {/* Scrollable row */}
-        <div
-          ref={scrollRef}
-          className="flex gap-1 overflow-x-auto scroll-smooth"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {loading
-            ? // Skeleton placeholders
-              Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex-none w-[45vw] sm:w-[30vw] md:w-[22vw] lg:w-[16.66vw] aspect-square bg-gray-100 animate-pulse"
-                />
-              ))
-            : posts.map((post) => (
+        if (isFew) {
+          return (
+            <div
+              className="grid gap-1"
+              style={{ gridTemplateColumns: `repeat(${posts.length || 3}, 1fr)` }}
+            >
+              {posts.map((post) => (
                 <a
                   key={post.id}
                   href={post.post_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-none w-[45vw] sm:w-[30vw] md:w-[22vw] lg:w-[16.66vw] aspect-square relative overflow-hidden group/tile"
+                  className="aspect-square relative overflow-hidden group/tile"
                 >
-                  {/* Image */}
                   <img
                     src={post.image_url}
                     alt={post.caption || "KIBANA on Instagram"}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover/tile:scale-105"
                     loading="lazy"
                   />
-
-                  {/* Hover overlay */}
                   <div className="absolute inset-0 bg-black/0 group-hover/tile:bg-black/30 transition-colors duration-300 flex flex-col items-center justify-center">
                     <Instagram
                       className="w-7 h-7 text-white opacity-0 group-hover/tile:opacity-100 transition-opacity duration-300"
@@ -161,8 +131,74 @@ export default function InstagramFeed() {
                   </div>
                 </a>
               ))}
-        </div>
-      </div>
+            </div>
+          );
+        }
+
+        // Many photos → horizontal scrollable carousel with arrows
+        return (
+          <div className="relative group">
+            {canScrollLeft && (
+              <button
+                onClick={() => scroll("left")}
+                aria-label="Scroll left"
+                className="absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+              >
+                <ChevronLeft className="w-5 h-5 text-[#2C2C2C]" />
+              </button>
+            )}
+            {canScrollRight && (
+              <button
+                onClick={() => scroll("right")}
+                aria-label="Scroll right"
+                className="absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+              >
+                <ChevronRight className="w-5 h-5 text-[#2C2C2C]" />
+              </button>
+            )}
+            <div
+              ref={scrollRef}
+              className="flex gap-1 overflow-x-auto scroll-smooth"
+              style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            >
+              {loading
+                ? Array.from({ length: 6 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex-none w-[45vw] sm:w-[30vw] md:w-[22vw] lg:w-[16.66vw] aspect-square bg-gray-100 animate-pulse"
+                    />
+                  ))
+                : posts.map((post) => (
+                    <a
+                      key={post.id}
+                      href={post.post_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-none w-[45vw] sm:w-[30vw] md:w-[22vw] lg:w-[16.66vw] aspect-square relative overflow-hidden group/tile"
+                    >
+                      <img
+                        src={post.image_url}
+                        alt={post.caption || "KIBANA on Instagram"}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover/tile:scale-105"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover/tile:bg-black/30 transition-colors duration-300 flex flex-col items-center justify-center">
+                        <Instagram
+                          className="w-7 h-7 text-white opacity-0 group-hover/tile:opacity-100 transition-opacity duration-300"
+                          strokeWidth={1.5}
+                        />
+                        {post.caption && (
+                          <p className="text-white text-xs text-center mt-2 px-4 opacity-0 group-hover/tile:opacity-100 transition-opacity duration-300 line-clamp-3">
+                            {post.caption}
+                          </p>
+                        )}
+                      </div>
+                    </a>
+                  ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Follow link below */}
       <div className="text-center mt-8">
