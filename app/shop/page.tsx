@@ -374,7 +374,7 @@ export default function ShopPage() {
             <button className="flex flex-col items-center gap-2 group">
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
                 <Image
-                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/women-icon.jpg"
+                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia%20Bag/Cordia%20Bag%20-%20Purple/04-02-2026-product%20shoot0172.jpg"
                   alt="Women's Collection"
                   fill
                   className="object-cover"
@@ -388,7 +388,7 @@ export default function ShopPage() {
             <button className="flex flex-col items-center gap-2 group">
               <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
                 <Image
-                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/men-icon.jpg"
+                  src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Laptop%20Bag/Laptop%20Bag%20-%20Brown/04-02-2026-product%20shoot0308.jpg"
                   alt="Men's Collection"
                   fill
                   className="object-cover"
