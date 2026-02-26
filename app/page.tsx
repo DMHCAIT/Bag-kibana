@@ -1,12 +1,27 @@
+import dynamic from "next/dynamic";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import NewCollectionCarousel from "@/components/NewCollectionCarousel";
 import BestsellersSection from "@/components/BestsellersSection";
-import SplitBannerSection from "@/components/SplitBannerSection";
-import CollectionsInFocus from "@/components/CollectionsInFocus";
-import VideoShowcase from "@/components/VideoShowcase";
-import InstagramFeed from "@/components/InstagramFeed";
-import Footer from "@/components/Footer";
+
+// Lazy load below-the-fold components for faster initial load
+const SplitBannerSection = dynamic(() => import("@/components/SplitBannerSection"), {
+  loading: () => <div className="h-96 bg-gray-50 animate-pulse" />,
+});
+
+const CollectionsInFocus = dynamic(() => import("@/components/CollectionsInFocus"), {
+  loading: () => <div className="h-96 bg-gray-50 animate-pulse" />,
+});
+
+const VideoShowcase = dynamic(() => import("@/components/VideoShowcase"), {
+  loading: () => <div className="h-96 bg-gray-50 animate-pulse" />,
+});
+
+const InstagramFeed = dynamic(() => import("@/components/InstagramFeed"), {
+  loading: () => <div className="h-96 bg-gray-50 animate-pulse" />,
+});
+
+const Footer = dynamic(() => import("@/components/Footer"));
 
 export default function Home() {
   return (

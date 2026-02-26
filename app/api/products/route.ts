@@ -28,8 +28,7 @@ function formatDbProduct(dbProduct: any) {
   };
 }
 
-export const revalidate = 300; // Cache for 5 minutes
-export const dynamic = 'force-dynamic';
+export const revalidate = 600; // Cache for 10 minutes
 
 export async function GET(request: NextRequest) {
   try {

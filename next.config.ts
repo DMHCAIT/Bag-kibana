@@ -41,9 +41,17 @@ const nextConfig: NextConfig = {
   
   // Experimental features for performance
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: ['lucide-react', '@/components/ui'],
     optimizeCss: true,
   },
+  
+  // Compiler optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
+  },
+  
+  // Reduce page data size
+  output: 'standalone',
   
   // Headers for security and performance
   async headers() {
