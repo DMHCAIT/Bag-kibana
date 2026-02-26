@@ -1,6 +1,9 @@
 import { supabaseAdmin } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
+// Cache for 5 minutes
+export const revalidate = 300;
+
 // GET - Fetch products for a specific section (public endpoint)
 export async function GET(request: Request) {
   try {

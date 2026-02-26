@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
   // Experimental features for performance
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    optimizeCss: true,
   },
   
   // Headers for security and performance

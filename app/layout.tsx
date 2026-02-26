@@ -16,18 +16,24 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
   weight: ['400', '500', '600', '700'],
 });
 
@@ -35,6 +41,8 @@ const abhayaLibre = Abhaya_Libre({
   variable: "--font-abhaya",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
   weight: ['400', '500', '600', '700', '800'],
 });
 

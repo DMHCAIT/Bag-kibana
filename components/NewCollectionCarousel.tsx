@@ -218,15 +218,13 @@ export default function NewCollectionCarousel() {
           </div>
         ) : (
           <>
-            {/* Mobile: 2-row horizontal scroll */}
-            <div className="lg:hidden overflow-x-auto scrollbar-hide pb-4">
-              <div className="grid grid-rows-2 grid-flow-col gap-4 auto-cols-[180px]">
-                {newProducts.map((product, idx) => (
-                  <div key={product.id} className="w-[180px]">
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-              </div>
+            {/* Mobile: 2-column Grid */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:hidden">
+              {newProducts.slice(0, 8).map((product) => (
+                <div key={product.id}>
+                  <ProductCard product={product} />
+                </div>
+              ))}
             </div>
             
             {/* Desktop: Carousel with 4 items */}
