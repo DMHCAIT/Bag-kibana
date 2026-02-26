@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import OptimizedImage from "@/components/OptimizedImage";
 import { useSiteContent } from "@/hooks/useSiteContent";
 
 const DEFAULT_COLLECTIONS = [
@@ -12,21 +12,21 @@ const DEFAULT_COLLECTIONS = [
     title: "TOTE",
     subtitle: "Elegant & Spacious",
     image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/09-10-2025--livia00489-Photoroom.png",
-    href: "/collections/tote",
+    href: "/shop?category=tote",
   },
   {
     id: 2,
     title: "CLUTCH",
     subtitle: "Compact & Chic",
     image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/lekha%20wallet%20(%20clutch)%20/LEKHA%20WALLET%20-%20Mocha%20Tan/09-10-2025--livia00932-Photoroom.png",
-    href: "/collections/clutch",
+    href: "/shop?category=clutch",
   },
   {
     id: 3,
     title: "SLING",
     subtitle: "Stylish & Versatile",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/collections/sling-collection-mocha.jpg",
-    href: "/collections/sling",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/09-10-2025--livia00489-Photoroom.png",
+    href: "/shop?category=sling",
   },
 ];
 
@@ -41,14 +41,15 @@ interface CollectionItem {
 function CollectionBanner({ collection }: { collection: CollectionItem }) {
   return (
     <Link href={collection.href} className="block">
-      <div className="relative h-[600px] md:h-[800px] bg-linear-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden group cursor-pointer">
+      <div className="relative h-[600px] md:h-[800px] bg-gradient-to-br from-gray-100 to-gray-200 rounded-sm overflow-hidden group cursor-pointer">
         {/* Actual Image */}
-        <Image
+        <OptimizedImage
           src={collection.image}
           alt={`${collection.title} Collection`}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, 33vw"
+          quality={85}
         />
 
         {/* Overlay */}
