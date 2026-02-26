@@ -446,7 +446,25 @@ export default function ProductForm({ productId }: ProductFormProps) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price (₹) *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) =>
+                        setFormData({ ...formData, price: e.target.value })
+                      }
+                      placeholder="2499.00"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Stock Quantity *
@@ -480,7 +498,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Lower numbers appear first. Use this to arrange products by color or preference.
+                      Lower numbers appear first
                     </p>
                   </div>
                 </div>
