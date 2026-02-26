@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
-import { getFallbackImage } from "@/lib/image-utils";
+import { useState, useEffect } from "react";
+import { getFallbackImage, encodeSupabaseUrl } from "@/lib/image-utils";
 
 interface OptimizedImageProps {
   src: string;
@@ -36,9 +36,32 @@ export default function OptimizedImage({
   blurDataURL,
 }: OptimizedImageProps) {
   const [imageError, setImageError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [currentSrc, setCurrentSrc] = useState(src);
+  
+  // Encode URL properly when component mounts or src changes
+  useEffect(() => {
+    if (src) {
+      const encodedSrc = encodeSupabaseUrl(src);
+      setCurrentSrc(encodedSrc);
+      setImageError(false);
+      setRetryCount(0);
+    }
+  }, [src]);
 
-  const handleError = () => setImageError(true);
-  const imageSrc = imageError ? getFallbackImage() : src;
+  const handleError = () => {
+    // Retry once with a delay before showing fallback
+    if (retryCount < 1) {
+      setTimeout(() => {
+        setRetryCount(retryCount + 1);
+        setCurrentSrc(encodeSupabaseUrl(src) + '?retry=' + (retryCount + 1));
+      }, 1000);
+    } else {
+      setImageError(true);
+    }
+  };
+  
+  const imageSrc = imageError ? getFallbackImage() : currentSrc;
 
   if (fill) {
     return (
@@ -56,6 +79,7 @@ export default function OptimizedImage({
         style={style}
         placeholder={blurDataURL ? "blur" : "empty"}
         blurDataURL={blurDataURL}
+        unoptimized={imageError}
       />
     );
   }
@@ -76,6 +100,7 @@ export default function OptimizedImage({
       style={style}
       placeholder={blurDataURL ? "blur" : "empty"}
       blurDataURL={blurDataURL}
+      unoptimized={imageError}
     />
   );
 }
