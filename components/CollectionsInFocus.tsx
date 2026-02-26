@@ -11,7 +11,7 @@ const DEFAULT_COLLECTIONS = [
     id: 1,
     title: "TOTE",
     subtitle: "Elegant & Spacious",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA TOTE ( png )/VISTARA TOTE - Mocha Tan/09-10-2025--livia00489-Photoroom.png",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia Bag/Cordia Bag - Purple/02-04-2026--paulina06371.jpg",
     href: "/shop?category=tote",
   },
   {
@@ -25,7 +25,7 @@ const DEFAULT_COLLECTIONS = [
     id: 3,
     title: "SLING",
     subtitle: "Stylish & Versatile",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA SLING ( png )/PRIZMA SLING - Butter Rum/09-10-2025--livia00179-Photoroom.png",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Halo Mini/Halo Mini - Green/02-04-2026--paulina05791.jpg",
     href: "/shop?category=sling",
   },
 ];
