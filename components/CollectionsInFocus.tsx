@@ -9,7 +9,7 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 const DEFAULT_COLLECTIONS = [
   {
     id: 1,
-    title: "TOTE",
+    title: "SHOULDER",
     subtitle: "Elegant & Spacious",
     image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia Bag/Cordia Bag - Purple/02-04-2026--paulina06371.jpg",
     href: "/shop?category=tote",
