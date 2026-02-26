@@ -128,6 +128,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Preconnect to external domains for faster loading */}
+        <link rel="preconnect" href="https://hrahjiccbwvhtocabxja.supabase.co" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://connect.facebook.net" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+        
         {/* Google Site Verification */}
         <meta name="google-site-verification" content="LQ3U2aQ8AkdDAeHDzrkraDym6EhCvRT_VAKHVqkYVMo" />
         

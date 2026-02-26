@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getCached, setCached } from '@/lib/redis';
+
+// Run on edge network for faster global response
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const revalidate = 600; // Cache for 10 minutes
 
 // Helper function to format database product for frontend
 function formatDbProduct(dbProduct: any) {
@@ -37,6 +43,20 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search');
     const limit = searchParams.get('limit');
     const section = searchParams.get('section');
+
+    // Create cache key based on query parameters
+    const cacheKey = `products:${category || 'all'}:${search || 'none'}:${limit || 'all'}:${section || 'all'}`;
+    
+    // Try to get from Redis cache first
+    const cached = await getCached(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached, {
+        headers: {
+          'X-Cache': 'HIT',
+          'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1800',
+        },
+      });
+    }
 
     // Fetch from database
     let query = supabaseAdmin
@@ -174,19 +194,22 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    return NextResponse.json(
-      {
-        products: formattedProducts,
-        total: formattedProducts.length,
-        source: 'database',
-        status: 'success'
+    const response = {
+      products: formattedProducts,
+      total: formattedProducts.length,
+      source: 'database',
+      status: 'success'
+    };
+
+    // Cache the response in Redis (15 minutes)
+    await setCached(cacheKey, response, 900);
+
+    return NextResponse.json(response, {
+      headers: {
+        'X-Cache': 'MISS',
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1800',
       },
-      {
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-        },
-      }
-    );
+    });
   } catch (error: any) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
