@@ -154,7 +154,7 @@ export default function WomenPage() {
   const [error, setError] = useState<string | null>(null);
   const { getValue } = useSiteContent(["hero_women", "women_categories"]);
 
-  const heroImage = getValue("hero_women", "image_url", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/HERO%20SECTION/Cover%20page%20.jpg%20(1).jpeg");
+  const heroImage = getValue("hero_women", "image_url", "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/KIBANA%20Women%20Section%20banner.jpg.jpeg");
 
   // Build custom category cards from admin settings
   const useCustomCategories = getValue("women_categories", "enabled", "false") === "true";
