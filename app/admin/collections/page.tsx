@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,8 +24,6 @@ export default function CollectionsPage() {
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadedUrls, setUploadedUrls] = useState<{ [key: string]: string }>({});
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
-
-  const supabase = createClient();
 
   const handleImageUpload = async (collectionId: string, file: File) => {
     try {
