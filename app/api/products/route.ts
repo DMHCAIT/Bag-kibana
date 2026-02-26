@@ -34,8 +34,6 @@ function formatDbProduct(dbProduct: any) {
   };
 }
 
-export const revalidate = 600; // Cache for 10 minutes
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
