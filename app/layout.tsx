@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Inter, Outfit, Abhaya_Libre } from "next/font/google";
+import { Playfair_Display, Inter, Outfit, Abhaya_Libre, Abril_Fatface } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/contexts/CartContext";
@@ -44,6 +44,15 @@ const abhayaLibre = Abhaya_Libre({
   preload: true,
   adjustFontFallback: true,
   weight: ['400', '500', '600', '700', '800'],
+});
+
+const abrilDisplay = Abril_Fatface({
+  variable: "--font-abril",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+  weight: '400',
 });
 
 export const viewport: Viewport = {
@@ -211,8 +220,8 @@ export default function RootLayout({
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       </head>
       <body
-        className={`${playfair.variable} ${inter.variable} ${outfit.variable} ${abhayaLibre.variable} antialiased`}
-        style={{ fontFamily: 'var(--font-abhaya)' }}
+        className={`${playfair.variable} ${inter.variable} ${outfit.variable} ${abhayaLibre.variable} ${abrilDisplay.variable} antialiased`}
+        style={{ fontFamily: 'var(--font-abril)' }}
       >
         {/* Google Tag Manager (noscript) */}
         <noscript>

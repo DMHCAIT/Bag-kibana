@@ -21,9 +21,10 @@ const config: Config = {
         playfair: ['var(--font-playfair)', 'serif'],
         outfit: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
         abhaya: ['var(--font-abhaya)', 'serif'],
-        sans: ['var(--font-abhaya)', 'system-ui', 'sans-serif'], // Default to Abhaya Libre
-        serif: ['var(--font-playfair)', 'serif'],
-        display: ['var(--font-abhaya)', 'serif'],
+        abril: ['var(--font-abril)', 'serif'],
+        sans: ['var(--font-abril)', 'system-ui', 'sans-serif'], // Default to Abril Display
+        serif: ['var(--font-abril)', 'serif'],
+        display: ['var(--font-abril)', 'serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
