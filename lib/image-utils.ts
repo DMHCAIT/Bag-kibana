@@ -16,9 +16,15 @@ export function encodeSupabaseUrl(url: string): string {
       const parts = url.split('/storage/v1/object/public/');
       if (parts.length === 2) {
         const [base, path] = parts;
-        // Decode any existing encoding, then properly encode each segment
-        const decodedPath = decodeURIComponent(path);
-        const segments = decodedPath.split('/');
+        
+        // Check if URL is already encoded by looking for %20 or other encoded chars
+        if (path.includes('%20') || path.includes('%28') || path.includes('%29')) {
+          // Already encoded, return as-is
+          return url;
+        }
+        
+        // Not encoded, encode each segment
+        const segments = path.split('/');
         const encodedSegments = segments.map(segment => 
           encodeURIComponent(segment)
         );
