@@ -18,7 +18,7 @@ const DEFAULT_COLLECTIONS = [
     id: 2,
     title: "CLUTCH",
     subtitle: "Compact & Chic",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/lekha%20wallet%20(%20clutch)%20/LEKHA%20WALLET%20-%20Mocha%20Tan/09-10-2025--livia00932-Photoroom.png",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Mocha%20Tan/09-10-2025--livia00776.jpg",
     href: "/collections/clutch",
   },
   {

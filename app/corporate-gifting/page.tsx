@@ -208,7 +208,7 @@ export default function CorporateGiftingPage() {
           <div className="group">
             <div className="relative aspect-square mb-4 overflow-hidden rounded-xl">
               <Image
-                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(png)/VISTARA%20TOTE%20-%20Black/01.png"
+                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Teal%20Blue/09-10-2025--livia00539.jpg"
                 alt="Tote Bags"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -221,7 +221,7 @@ export default function CorporateGiftingPage() {
           <div className="group">
             <div className="relative aspect-square mb-4 overflow-hidden rounded-xl">
               <Image
-                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20TOTE%20(%20png%20)/SANDESH%20TOTE%20-%20Black/01.png"
+                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/SANDESH%20LAPTOP%20BAG%20(%20png%20)%202/SANDESH%20LAPTOP%20BAG%20-%20Teal%20Blue/09-10-2025--livia00630.jpg"
                 alt="Laptop Bags"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -234,7 +234,7 @@ export default function CorporateGiftingPage() {
           <div className="group">
             <div className="relative aspect-square mb-4 overflow-hidden rounded-xl">
               <Image
-                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(png)/VISTARA%20TOTE%20-%20Tan/01.png"
+                src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/09-10-2025--livia00473.jpg"
                 alt="Executive Bags"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-300"

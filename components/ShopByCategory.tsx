@@ -13,17 +13,17 @@ const categories: Category[] = [
   {
     name: "TOTES",
     slug: "/collections/tote",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia%20Bag/Cordia%20Bag%20-%20Black/02-04-2026--paulina05541.jpg",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Teal%20Blue/09-10-2025--livia00539.jpg",
   },
   {
     name: "CROSS BODY",
     slug: "/collections/sling",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Crescent%20Sling%20Bag/Crescent%20Sling%20Bag%20-%20Milky%20Blue/09-10-2025--livia00182.jpg",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/PRIZMA%20SLING(%20png%20)/PRIZMA%20SLING%20-%20Teal%20Blue/09-10-2025--livia00834.jpg",
   },
   {
     name: "TOP HANDLES",
     slug: "/collections/handbags",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Valera%20Dome/Valera%20Dome%20-%20Milky%20Blue/12-02-2026--olivia00811.jpg",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Milky%20Blue/09-10-2025--livia00507.jpg",
   },
   {
     name: "MINI BAGS",
