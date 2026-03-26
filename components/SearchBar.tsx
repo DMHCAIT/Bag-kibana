@@ -104,10 +104,10 @@ export default function SearchBar() {
       {/* Search Icon Trigger */}
       <button
         onClick={handleOpen}
-        className="hover:opacity-60 transition-opacity"
+        className="hover:bg-gray-100 p-2 rounded-full transition-all duration-200"
         aria-label="Search products"
       >
-        <Search className="w-5 h-5" />
+        <Search className="w-5 h-5 text-gray-700" />
       </button>
 
       {/* Overlay */}

@@ -14,137 +14,161 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 import { formatPrice } from "@/lib/utils";
 
 function ProductCard({ product }: { product: Product }) {
-  const { addToCart } = useCart();
-  const [isAdded, setIsAdded] = useState(false);
-
-  const handleAddToCart = () => {
-    addToCart(product, 1);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
-  };
-
   return (
-    <Card className="border-0 shadow-none group h-full flex flex-col">
-      <CardContent className="p-0 space-y-3 flex flex-col h-full">
-        {/* Product Image */}
-        <Link href={`/products/${product.slug || product.id}`}>
-          <div className="relative w-full aspect-[3/4] bg-[#F5F4F0] rounded-sm overflow-hidden cursor-pointer">
-            <Image
-              src={product.images[0]}
-              alt={`${product.name} - ${product.color}`}
-              fill
-              className="object-contain p-3 transition-opacity duration-300 group-hover:opacity-80"
-              sizes="(max-width: 768px) 50vw, 25vw"
-            />
-          </div>
-        </Link>
+    <div className="group h-full">
+      <Card className="border-0 shadow-md hover:shadow-2xl group h-full flex flex-col transition-all duration-500 rounded-xl overflow-hidden bg-white transform hover:-translate-y-2">
+        <CardContent className="p-0 flex flex-col h-full">
+          {/* Product Image - Shorter aspect ratio */}
+          <Link href={`/products/${product.slug || product.id}`} className="relative">
+            <div className="relative w-full aspect-square bg-gradient-to-br from-gray-50 via-white to-gray-100 overflow-hidden cursor-pointer">
+              <Image
+                src={product.images[0]}
+                alt={`${product.name} - ${product.color}`}
+                fill
+                className="object-cover p-4 transition-all duration-700 group-hover:scale-110"
+                sizes="(max-width: 768px) 50vw, 25vw"
+              />
+              {/* Premium gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              {/* Eye-catching badges */}
+              {product.sections?.includes('bestsellers') && (
+                <div className="absolute top-3 right-3 bg-gray-900 text-white px-3 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider shadow-lg" style={{fontFamily: 'var(--font-abhaya)'}}>
+                  Best Seller
+                </div>
+              )}
+              {product.sections?.includes('new-arrivals') && (
+                <div className="absolute top-3 right-3 bg-gray-200 text-gray-900 px-3 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider shadow-lg" style={{fontFamily: 'var(--font-abhaya)'}}>
+                  New
+                </div>
+              )}
 
-        {/* Product Info */}
-        <div className="space-y-2 flex-1 flex flex-col">
-          <Link href={`/products/${product.slug || product.id}`}>
-            <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity line-clamp-2">
-              {product.name} - {product.color}
-            </h3>
+              {/* Quick View overlay - appears on hover */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span className="text-white text-sm font-medium uppercase tracking-widest" style={{fontFamily: 'var(--font-abhaya)', letterSpacing: '0.15em'}}>
+                  Quick View →
+                </span>
+              </div>
+            </div>
           </Link>
 
-          {/* Rating */}
-          <div className="flex items-center gap-2">
-            <div className="flex gap-0.5">
-              {[...Array(5)].map((_, idx) => (
-                <Star
-                  key={idx}
-                  className={`w-3 h-3 ${
-                    idx < Math.floor(product.rating)
-                      ? "fill-black stroke-black"
-                      : "fill-none stroke-gray-300"
-                  }`}
-                />
-              ))}
+          {/* Product Info - Compact */}
+          <div className="space-y-2 flex-1 flex flex-col p-4 bg-white">
+            {/* Product Name and Rating */}
+            <div className="flex items-start justify-between gap-2">
+              <Link href={`/products/${product.slug || product.id}`} className="flex-1 space-y-1">
+                <h3 className="text-sm font-normal tracking-wider hover:text-gray-700 transition-colors line-clamp-2 uppercase leading-snug" style={{fontFamily: 'var(--font-abhaya)', letterSpacing: '0.08em', fontWeight: 400}}>
+                  {product.name}
+                </h3>
+                <p className="text-xs text-gray-500 font-light" style={{fontFamily: 'var(--font-abhaya)'}}>
+                  {product.color}
+                </p>
+              </Link>
+
+              {/* Rating with stars - right side */}
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, idx) => (
+                    <Star
+                      key={idx}
+                      className={`w-3 h-3 ${
+                        idx < Math.floor(product.rating)
+                          ? "fill-black stroke-black"
+                          : "fill-none stroke-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs text-gray-600 font-medium" style={{fontFamily: 'var(--font-abhaya)'}}>
+                  {product.rating} ({product.reviews})
+                </span>
+              </div>
             </div>
-            <span className="text-xs text-gray-500">({product.reviews})</span>
-          </div>
 
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-black">{formatPrice(product.price)}</p>
-          </div>
+            {/* Price - More prominent */}
+            <div className="flex items-center justify-between pt-1">
+              <p className="text-2xl font-medium text-black" style={{fontFamily: 'var(--font-abhaya)', fontWeight: 500}}>
+                {formatPrice(product.price)}
+              </p>
+            </div>
 
-          {/* Color Swatches */}
-          {product.colors && product.colors.length > 0 && (
-            <div className="flex gap-1.5 items-center">
-              {product.colors.map((colorOption, idx) => {
-                // Generate product ID for this color variant
-                const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
-                const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
-                const colorVariantId = `${productNameSlug}-${colorSlug}`;
-                const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
-                
-                return (
-                  <Link
-                    key={idx}
-                    href={`/products/${colorVariantId}`}
-                    className="group relative"
-                  >
-                    {colorOption.image ? (
-                      // Display color image
-                      <div
-                        className={`relative rounded-full overflow-hidden transition-all ${
-                          isCurrentColor
-                            ? 'ring-2 ring-black ring-offset-1'
-                            : 'ring-1 ring-gray-300 hover:ring-2 hover:ring-gray-400'
-                        }`}
-                        style={{
-                          width: '24px',
-                          height: '24px',
-                          minWidth: '24px',
-                          minHeight: '24px',
-                        }}
-                      >
-                        <Image
-                          src={colorOption.image}
-                          alt={colorOption.name}
-                          fill
-                          className="object-cover"
-                          sizes="24px"
+            {/* Color Swatches - Compact */}
+            {product.colors && product.colors.length > 1 && (
+              <div className="flex gap-1.5 items-center pt-1">
+                {product.colors.slice(0, 4).map((colorOption, idx) => {
+                  const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
+                  const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
+                  const colorVariantId = `${productNameSlug}-${colorSlug}`;
+                  const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
+                  
+                  return (
+                    <Link
+                      key={idx}
+                      href={`/products/${colorVariantId}`}
+                      className="group/color relative"
+                      title={colorOption.name}
+                    >
+                      {colorOption.image ? (
+                        <div
+                          className={`relative rounded-full overflow-hidden transition-all duration-300 hover:scale-110 ${
+                            isCurrentColor
+                              ? 'ring-2 ring-black ring-offset-1 scale-110'
+                              : 'ring-1 ring-gray-200 hover:ring-2 hover:ring-black'
+                          }`}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                          }}
+                        >
+                          <Image
+                            src={colorOption.image}
+                            alt={colorOption.name}
+                            fill
+                            className="object-cover"
+                            sizes="18px"
+                          />
+                        </div>
+                      ) : (
+                        <div
+                          style={{ 
+                            backgroundColor: colorOption.value,
+                            width: '18px',
+                            height: '18px',
+                          }}
+                          className={`rounded-full ${
+                            isCurrentColor
+                              ? 'ring-2 ring-black ring-offset-1 scale-110'
+                              : 'ring-1 ring-gray-200 hover:ring-2 hover:ring-black'
+                          } transition-all duration-300 hover:scale-110`}
                         />
-                      </div>
-                    ) : (
-                      // Fallback to color circle
-                      <div
-                        style={{ 
-                          backgroundColor: colorOption.value.replace('.jpg', ''),
-                          width: '16px',
-                          height: '16px',
-                          minWidth: '16px',
-                          minHeight: '16px',
-                          borderRadius: '50%',
-                        }}
-                        className={`${
-                          isCurrentColor
-                            ? 'ring-2 ring-black ring-offset-1'
-                            : 'ring-1 ring-gray-300 hover:ring-2 hover:ring-gray-400'
-                        } transition-all`}
-                        aria-label={`View ${colorOption.name} variant`}
-                        title={colorOption.name}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+                      )}
+                    </Link>
+                  );
+                })}
+                {product.colors.length > 4 && (
+                  <span className="text-xs text-gray-400 ml-1" style={{fontFamily: 'var(--font-abhaya)'}}>
+                    +{product.colors.length - 4}
+                  </span>
+                )}
+              </div>
+            )}
 
-          {/* Add to Cart */}
-          <Button
-            variant="outline"
-            onClick={handleAddToCart}
-            className="w-full uppercase tracking-wider text-xs py-4 hover:bg-black hover:text-white transition-all duration-300 mt-auto"
-          >
-            <ShoppingCart className="w-4 h-4 mr-2" />
-            {isAdded ? "Added!" : "Add to Cart"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            {/* View Product Button - Compact and attractive */}
+            <Link href={`/products/${product.slug || product.id}`} className="mt-auto pt-2">
+              <Button
+                className="w-full bg-black text-white hover:bg-gradient-to-r hover:from-gray-900 hover:to-black uppercase tracking-widest text-xs py-4 rounded-full transition-all duration-300 hover:shadow-xl font-medium group/btn"
+                style={{fontFamily: 'var(--font-abhaya)', letterSpacing: '0.15em', fontWeight: 400}}
+              >
+                <span className="inline-flex items-center gap-2">
+                  View Product
+                  <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                </span>
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { getCached, setCached } from '@/lib/redis';
+import { products as staticProducts } from '@/lib/products-data';
 
 // Run on edge network for faster global response
 export const runtime = 'nodejs';
@@ -92,18 +93,78 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Supabase error:', error);
-      return NextResponse.json(
-        { products: [], total: 0, error: error.message },
-        { status: 500 }
-      );
+      console.log('📦 Falling back to static products data');
+      
+      // Fallback to static products
+      let fallbackProducts = staticProducts;
+      
+      // Apply same filters to static products
+      if (category && category !== 'all') {
+        fallbackProducts = fallbackProducts.filter(p => 
+          p.category.toLowerCase().includes(category.toLowerCase())
+        );
+      }
+      
+      if (search) {
+        fallbackProducts = fallbackProducts.filter(p =>
+          p.name.toLowerCase().includes(search.toLowerCase()) ||
+          p.color.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      
+      if (section) {
+        fallbackProducts = fallbackProducts.filter(p => 
+          p.sections?.includes(section)
+        );
+      }
+      
+      if (limit) {
+        fallbackProducts = fallbackProducts.slice(0, parseInt(limit));
+      }
+      
+      return NextResponse.json({
+        products: fallbackProducts,
+        total: fallbackProducts.length,
+        source: 'static-fallback',
+        message: 'Using static products data due to database connection issue'
+      });
     }
 
     if (!dbProducts || dbProducts.length === 0) {
+      console.log('📦 No products in database, using static data');
+      
+      // If database is empty, use static products
+      let fallbackProducts = staticProducts;
+      
+      // Apply filters
+      if (category && category !== 'all') {
+        fallbackProducts = fallbackProducts.filter(p => 
+          p.category.toLowerCase().includes(category.toLowerCase())
+        );
+      }
+      
+      if (search) {
+        fallbackProducts = fallbackProducts.filter(p =>
+          p.name.toLowerCase().includes(search.toLowerCase()) ||
+          p.color.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+      
+      if (section) {
+        fallbackProducts = fallbackProducts.filter(p => 
+          p.sections?.includes(section)
+        );
+      }
+      
+      if (limit) {
+        fallbackProducts = fallbackProducts.slice(0, parseInt(limit));
+      }
+      
       return NextResponse.json({
-        products: [],
-        total: 0,
-        source: 'database',
-        message: 'No products found in database'
+        products: fallbackProducts,
+        total: fallbackProducts.length,
+        source: 'static',
+        message: 'Using static products data'
       });
     }
 
@@ -210,14 +271,46 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Error fetching products:', error);
-    return NextResponse.json(
-      { 
-        products: [],
-        total: 0,
-        error: error.message,
-        status: 'error'
-      },
-      { status: 500 }
-    );
+    console.log('📦 Exception occurred, falling back to static products data');
+    
+    // Fallback to static products on any error
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const search = searchParams.get('search');
+    const limit = searchParams.get('limit');
+    const section = searchParams.get('section');
+    
+    let fallbackProducts = staticProducts;
+    
+    // Apply filters
+    if (category && category !== 'all') {
+      fallbackProducts = fallbackProducts.filter(p => 
+        p.category.toLowerCase().includes(category.toLowerCase())
+      );
+    }
+    
+    if (search) {
+      fallbackProducts = fallbackProducts.filter(p =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.color.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    
+    if (section) {
+      fallbackProducts = fallbackProducts.filter(p => 
+        p.sections?.includes(section)
+      );
+    }
+    
+    if (limit) {
+      fallbackProducts = fallbackProducts.slice(0, parseInt(limit));
+    }
+    
+    return NextResponse.json({
+      products: fallbackProducts,
+      total: fallbackProducts.length,
+      source: 'static-error-fallback',
+      message: 'Using static products data due to error'
+    });
   }
 }

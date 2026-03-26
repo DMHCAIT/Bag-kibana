@@ -196,10 +196,10 @@ export default function NewCollectionCarousel() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-4xl md:text-5xl tracking-[0.15em] mb-4 font-semibold" style={{fontFamily: 'var(--font-abhaya)'}}>
+          <h2 className="section-title mb-4">
             {sectionTitle}
           </h2>
-          <p className="text-sm md:text-base text-[#111111] tracking-wide" style={{fontFamily: 'var(--font-abhaya)'}}>
+          <p className="subtitle text-center">
             {sectionSubtitle}
           </p>
         </div>

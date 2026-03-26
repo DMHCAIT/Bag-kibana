@@ -17,14 +17,30 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
+        sans: ['var(--font-poppins)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        serif: ['var(--font-playfair)', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
+        display: ['var(--font-montserrat)', 'Georgia', 'serif'],
+        body: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
+        heading: ['var(--font-montserrat)', 'serif'],
         inter: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         playfair: ['var(--font-playfair)', 'serif'],
         outfit: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
         abhaya: ['var(--font-abhaya)', 'serif'],
         abril: ['var(--font-abril)', 'serif'],
-        sans: ['var(--font-abril)', 'system-ui', 'sans-serif'], // Default to Abril Display
-        serif: ['var(--font-abril)', 'serif'],
-        display: ['var(--font-abril)', 'serif'],
+        montserrat: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
+        poppins: ['var(--font-poppins)', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        'xs': ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.02em' }],
+        'sm': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.01em' }],
+        'base': ['1rem', { lineHeight: '1.5rem', letterSpacing: '0' }],
+        'lg': ['1.125rem', { lineHeight: '1.75rem', letterSpacing: '-0.01em' }],
+        'xl': ['1.25rem', { lineHeight: '1.75rem', letterSpacing: '-0.01em' }],
+        '2xl': ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.02em' }],
+        '3xl': ['1.875rem', { lineHeight: '2.25rem', letterSpacing: '-0.02em' }],
+        '4xl': ['2.25rem', { lineHeight: '2.5rem', letterSpacing: '-0.03em' }],
+        '5xl': ['3rem', { lineHeight: '1', letterSpacing: '-0.03em' }],
+        '6xl': ['3.75rem', { lineHeight: '1', letterSpacing: '-0.04em' }],
       },
       colors: {
         border: 'hsl(var(--border))',
@@ -92,10 +108,25 @@ const config: Config = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        'logo-float': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-5px)' },
+        },
+        'logo-pulse': {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.9', transform: 'scale(1.02)' },
+        },
+        'shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'logo-float': 'logo-float 3s ease-in-out infinite',
+        'logo-pulse': 'logo-pulse 4s ease-in-out infinite',
+        'shimmer': 'shimmer 3s linear infinite',
       },
       touchAction: {
         'manipulation': 'manipulation',

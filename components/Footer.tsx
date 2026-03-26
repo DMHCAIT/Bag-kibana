@@ -63,14 +63,14 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-black text-white py-16 md:py-20">
+    <footer className="bg-black text-white py-8 md:py-10">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Newsletter Section */}
-        <div className="text-center mb-16 pb-16 border-b border-gray-800">
-          <h3 className="font-serif text-2xl md:text-3xl tracking-[0.15em] mb-4">
+        <div className="text-center mb-10 pb-10 border-b border-gray-800">
+          <h3 className="font-serif text-xl md:text-2xl tracking-[0.15em] mb-4">
             {newsletterTitle}
           </h3>
-          <p className="text-sm md:text-base text-gray-400 mb-6 tracking-wide">
+          <p className="text-xs md:text-sm text-gray-400 mb-5 tracking-wide">
             {newsletterSubtitle}
           </p>
           <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto">
@@ -101,13 +101,13 @@ export default function Footer() {
         </div>
 
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Column 1 - Shop */}
           <div>
-            <h4 className="text-sm uppercase tracking-[0.2em] mb-6 font-medium">
+            <h4 className="text-sm uppercase tracking-[0.2em] mb-5 font-medium">
               Shop
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               <li>
                 <Link
                   href="/collections/handbags"
@@ -153,10 +153,10 @@ export default function Footer() {
 
           {/* Column 2 - About */}
           <div>
-            <h4 className="text-sm uppercase tracking-[0.2em] mb-6 font-medium">
+            <h4 className="text-sm uppercase tracking-[0.2em] mb-5 font-medium">
               About
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               <li>
                 <Link
                   href="/about"
@@ -186,10 +186,10 @@ export default function Footer() {
 
           {/* Column 3 - Support */}
           <div>
-            <h4 className="text-sm uppercase tracking-[0.2em] mb-6 font-medium">
+            <h4 className="text-sm uppercase tracking-[0.2em] mb-5 font-medium">
               Support
             </h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               <li>
                 <Link
                   href="/faq"
@@ -227,10 +227,10 @@ export default function Footer() {
 
           {/* Column 4 - Follow Us */}
           <div>
-            <h4 className="text-sm uppercase tracking-[0.2em] mb-6 font-medium">
+            <h4 className="text-sm uppercase tracking-[0.2em] mb-5 font-medium">
               Follow Us
             </h4>
-            <div className="flex gap-4 mb-6">
+            <div className="flex gap-4 mb-5">
               <a
                 href={facebookUrl}
                 target="_blank"
@@ -272,7 +272,7 @@ export default function Footer() {
         </div>
 
         {/* Features */}
-        <div className="grid grid-cols-3 gap-6 mb-16 pb-16 border-b border-gray-800">
+        <div className="grid grid-cols-3 gap-6 mb-10 pb-10 border-b border-gray-800">
           {features.map((feature, idx) => (
             <div key={idx} className="text-center">
               <p className="text-xs uppercase tracking-[0.15em] text-gray-400">
@@ -283,7 +283,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-500">
           <p>{copyrightText}</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-white transition-colors">

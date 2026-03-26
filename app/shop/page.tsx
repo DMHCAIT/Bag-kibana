@@ -5,128 +5,163 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ChevronDown, ShoppingCart, X, Filter } from "lucide-react";
+import { Star, ChevronDown, X, Filter } from "lucide-react";
 import { Product } from "@/lib/products-data";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useCart } from "@/contexts/CartContext";
 import { formatPrice } from "@/lib/utils";
 
-const makeSlug = (name: string, color: string) =>
-  `${name}-${color}`
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-
 function ProductCard({ product }: { product: Product }) {
-  const { addToCart } = useCart();
-  const [isAdded, setIsAdded] = useState(false);
-
-  const handleAddToCart = () => {
-    addToCart(product, 1);
-    setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
-  };
-
   return (
-    <div className="h-full">
-      <Card className="border-0 shadow-none group h-full flex flex-col">
-        <CardContent className="p-0 space-y-3 flex flex-col h-full">
+    <div className="group h-full">
+      <Card className="border-0 shadow-md hover:shadow-2xl group h-full flex flex-col transition-all duration-500 rounded-xl overflow-hidden bg-white transform hover:-translate-y-2">
+        <CardContent className="p-0 flex flex-col h-full">
           {/* Product Image */}
-          <Link href={`/products/${product.slug || product.id}`}>
-            <div className="relative w-full aspect-[3/4] bg-[#F5F4F0] rounded-sm overflow-hidden cursor-pointer">
+          <Link href={`/products/${product.slug || product.id}`} className="relative">
+            <div className="relative w-full aspect-square bg-gradient-to-br from-gray-50 via-white to-gray-100 overflow-hidden cursor-pointer">
               <Image
                 src={product.images[0]}
                 alt={`${product.name} - ${product.color}`}
                 fill
-                className="object-contain p-3 transition-opacity duration-300 group-hover:opacity-80"
+                className="object-cover p-4 transition-all duration-700 group-hover:scale-110"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
+              {/* Premium gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              
+              {/* Eye-catching badges */}
+              {product.sections?.includes('bestsellers') && (
+                <div className="absolute top-3 right-3 bg-gray-900 text-white px-3 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider shadow-lg">
+                  Best Seller
+                </div>
+              )}
+              {product.sections?.includes('new-arrivals') && (
+                <div className="absolute top-3 right-3 bg-gray-200 text-gray-900 px-3 py-1.5 rounded-full text-xs font-medium uppercase tracking-wider shadow-lg">
+                  New
+                </div>
+              )}
+
+              {/* Quick View overlay - appears on hover */}
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span className="text-white text-sm font-medium uppercase tracking-widest">
+                  Quick View →
+                </span>
+              </div>
             </div>
           </Link>
 
-          {/* Product Info */}
-          <div className="space-y-2 flex-1 flex flex-col">
-            <Link href={`/products/${product.slug || product.id}`}>
-              <h3 className="text-sm font-medium tracking-wide hover:opacity-60 transition-opacity line-clamp-2">
-                {product.name}
-              </h3>
-            </Link>
+          {/* Product Info - Compact */}
+          <div className="space-y-2 flex-1 flex flex-col p-4 bg-white">
+            {/* Product Name and Rating */}
+            <div className="flex items-start justify-between gap-2">
+              <Link href={`/products/${product.slug || product.id}`} className="flex-1 space-y-1">
+                <h3 className="text-sm font-normal tracking-wider hover:text-gray-700 transition-colors line-clamp-2 uppercase leading-snug">
+                  {product.name}
+                </h3>
+                <p className="text-xs text-gray-500 font-light">
+                  {product.color}
+                </p>
+              </Link>
 
-            {/* Rating */}
-            <div className="flex items-center gap-2">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, idx) => (
-                  <Star
-                    key={idx}
-                    className={`w-3 h-3 ${
-                      idx < Math.floor(product.rating)
-                        ? "fill-black stroke-black"
-                        : "fill-none stroke-gray-300"
-                    }`}
-                  />
-                ))}
+              {/* Rating with stars - right side */}
+              <div className="flex flex-col items-end gap-1 shrink-0">
+                <div className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, idx) => (
+                    <Star
+                      key={idx}
+                      className={`w-3 h-3 ${
+                        idx < Math.floor(product.rating)
+                          ? "fill-black stroke-black"
+                          : "fill-none stroke-gray-300"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs text-gray-600 font-medium">
+                  {product.rating} ({product.reviews})
+                </span>
               </div>
-              <span className="text-xs text-gray-500">({product.reviews})</span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-black">{formatPrice(product.price)}</p>
+            {/* Price - More prominent */}
+            <div className="flex items-center justify-between pt-1">
+              <p className="text-2xl font-medium text-black">
+                {formatPrice(product.price)}
+              </p>
             </div>
 
-            {/* Color Swatches */}
-            {product.colors && product.colors.length > 0 && (
-              <div className="flex gap-1.5 items-center">
-                {product.colors.map((colorOption) => {
-                  const colorVariantId = makeSlug(product.name, colorOption.name);
+            {/* Color Swatches - Compact */}
+            {product.colors && product.colors.length > 1 && (
+              <div className="flex gap-1.5 items-center pt-1">
+                {product.colors.slice(0, 4).map((colorOption, idx) => {
+                  const colorSlug = colorOption.name.toLowerCase().replace(/\s+/g, '-');
+                  const productNameSlug = product.name.toLowerCase().replace(/\s+/g, '-');
+                  const colorVariantId = `${productNameSlug}-${colorSlug}`;
                   const isCurrentColor = product.color.toLowerCase() === colorOption.name.toLowerCase();
                   
                   return (
                     <Link
-                      key={colorOption.name}
+                      key={idx}
                       href={`/products/${colorVariantId}`}
-                      className={`relative rounded-full overflow-hidden ${
-                        isCurrentColor ? 'ring-2 ring-black' : 'ring-1 ring-gray-300'
-                      }`}
-                      style={{
-                        width: '24px',
-                        height: '24px',
-                        minWidth: '24px',
-                        minHeight: '24px',
-                      }}
-                      aria-label={`View ${colorOption.name} variant`}
+                      className="group/color relative"
                       title={colorOption.name}
                     >
                       {colorOption.image ? (
-                        <Image
-                          src={colorOption.image}
-                          alt={colorOption.name}
-                          fill
-                          className="object-cover"
-                          sizes="24px"
-                        />
+                        <div
+                          className={`relative rounded-full overflow-hidden transition-all duration-300 hover:scale-110 ${
+                            isCurrentColor
+                              ? 'ring-2 ring-black ring-offset-1 scale-110'
+                              : 'ring-1 ring-gray-200 hover:ring-2 hover:ring-black'
+                          }`}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                          }}
+                        >
+                          <Image
+                            src={colorOption.image}
+                            alt={colorOption.name}
+                            fill
+                            className="object-cover"
+                            sizes="18px"
+                          />
+                        </div>
                       ) : (
                         <div
-                          className="w-full h-full"
-                          style={{ backgroundColor: colorOption.value.replace(/\.jpg$/i, '') }}
+                          style={{ 
+                            backgroundColor: colorOption.value,
+                            width: '18px',
+                            height: '18px',
+                          }}
+                          className={`rounded-full ${
+                            isCurrentColor
+                              ? 'ring-2 ring-black ring-offset-1 scale-110'
+                              : 'ring-1 ring-gray-200 hover:ring-2 hover:ring-black'
+                          } transition-all duration-300 hover:scale-110`}
                         />
                       )}
                     </Link>
                   );
                 })}
+                {product.colors.length > 4 && (
+                  <span className="text-xs text-gray-400 ml-1">
+                    +{product.colors.length - 4}
+                  </span>
+                )}
               </div>
             )}
 
-            {/* Add to Cart */}
-            <Button
-              variant="outline"
-              onClick={handleAddToCart}
-              className="w-full uppercase tracking-wider text-xs py-4 hover:bg-black hover:text-white transition-all duration-300 mt-auto"
-            >
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              {isAdded ? "Added!" : "Add to Cart"}
-            </Button>
+            {/* View Product Button - Compact and attractive */}
+            <Link href={`/products/${product.slug || product.id}`} className="mt-auto pt-2">
+              <Button
+                className="w-full bg-black text-white hover:bg-gradient-to-r hover:from-gray-900 hover:to-black uppercase tracking-widest text-xs py-4 rounded-full transition-all duration-300 hover:shadow-xl font-medium group/btn"
+              >
+                <span className="inline-flex items-center gap-2">
+                  View Product
+                  <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                </span>
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
@@ -154,31 +189,35 @@ function FilterDropdown({
     <div className="relative">
       <button 
         onClick={onToggle}
-        className={`flex items-center gap-2 px-4 py-2 border rounded-sm text-sm transition-colors ${
-          value !== 'all' ? 'border-black bg-black text-white' : 'border-gray-300 hover:border-black'
+        className={`flex items-center gap-2 px-5 py-2.5 border-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+          value !== 'all' 
+            ? 'border-black bg-black text-white shadow-md hover:shadow-lg' 
+            : 'border-gray-200 bg-white hover:border-black hover:shadow-md'
         }`}
       >
         {label}
-        {value !== 'all' && <span className="ml-1">•</span>}
-        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        {value !== 'all' && <span className="w-1.5 h-1.5 rounded-full bg-white"></span>}
+        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
       
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 min-w-[180px]">
-          {options.map((option) => (
-            <button
-              key={option.value}
-              onClick={() => {
-                onChange(option.value);
-                onToggle();
-              }}
-              className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition-colors ${
-                value === option.value ? 'bg-gray-100 font-medium' : ''
-              }`}
-            >
-              {option.label}
-            </button>
-          ))}
+        <div className="absolute top-full left-0 mt-2 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 min-w-[200px] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="py-2">
+            {options.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => {
+                  onChange(option.value);
+                  onToggle();
+                }}
+                className={`w-full text-left px-5 py-3 text-sm font-medium hover:bg-gray-50 transition-colors ${
+                  value === option.value ? 'bg-gray-100 text-black' : 'text-gray-700'
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -368,52 +407,54 @@ export default function ShopPage() {
         </div>
       ) : (
       <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
-        {/* Category Links */}
-        <div className="flex justify-center gap-6 mb-12">
+        {/* Category Links - Premium Design */}
+        <div className="flex justify-center gap-8 md:gap-12 mb-16">
           <Link href="/women">
-            <button className="flex flex-col items-center gap-2 group">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
+            <div className="flex flex-col items-center gap-3 group cursor-pointer">
+              <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:scale-110 ring-2 ring-gray-200 group-hover:ring-black">
                 <Image
                   src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Aurelia%20Fan%20Small/Aurelia%20Fan%20Small%20-%20Vine/04-02-2026-product%20shoot0337.jpg"
                   alt="Women's Collection"
                   fill
-                  className="object-cover"
-                  sizes="64px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="96px"
                 />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
               </div>
-              <span className="text-xs font-medium">Shop Women</span>
-            </button>
+              <span className="text-sm font-medium uppercase tracking-wider group-hover:text-black transition-colors">Shop Women</span>
+            </div>
           </Link>
           <Link href="/men">
-            <button className="flex flex-col items-center gap-2 group">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden group-hover:scale-105 transition-transform relative">
+            <div className="flex flex-col items-center gap-3 group cursor-pointer">
+              <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 transform group-hover:scale-110 ring-2 ring-gray-200 group-hover:ring-black">
                 <Image
                   src="https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Laptop%20Bag/Laptop%20Bag%20-%20Brown/04-02-2026-product%20shoot0308.jpg"
                   alt="Men's Collection"
                   fill
-                  className="object-cover"
-                  sizes="64px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="96px"
                 />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
               </div>
-              <span className="text-xs font-medium">Shop Men</span>
-            </button>
+              <span className="text-sm font-medium uppercase tracking-wider group-hover:text-black transition-colors">Shop Men</span>
+            </div>
           </Link>
         </div>
 
         {/* Mobile Filter Button */}
-        <div className="md:hidden mb-4">
+        <div className="md:hidden mb-6">
           <Button 
             variant="outline" 
-            className="w-full"
+            className="w-full py-6 text-sm font-medium uppercase tracking-wider hover:bg-black hover:text-white transition-all duration-300 rounded-lg"
             onClick={() => setShowMobileFilters(!showMobileFilters)}
           >
             <Filter className="w-4 h-4 mr-2" />
-            Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+            Filters {activeFiltersCount > 0 && <span className="ml-2 bg-black text-white px-2 py-0.5 rounded-full text-xs">{activeFiltersCount}</span>}
           </Button>
         </div>
 
-        {/* Filters and Sort Bar */}
-        <div className={`${showMobileFilters ? 'block' : 'hidden'} md:flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 pb-6 border-b border-gray-200`}>
+        {/* Filters and Sort Bar - Modern Design */}
+        <div className={`${showMobileFilters ? 'block' : 'hidden'} md:flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 pb-10 border-b-2 border-gray-100`}>
           <div className="flex flex-wrap gap-3" onClick={(e) => e.stopPropagation()}>
             {/* Category Filter */}
             <FilterDropdown
@@ -449,7 +490,7 @@ export default function ShopPage() {
             {activeFiltersCount > 0 && (
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 px-4 py-2 text-sm text-gray-600 hover:text-black transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300 font-medium"
               >
                 <X className="w-4 h-4" />
                 Clear all
@@ -457,12 +498,12 @@ export default function ShopPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-4 md:mt-0">
-            <span className="text-sm text-gray-600">Sort by:</span>
+          <div className="flex items-center gap-3 mt-4 md:mt-0 w-full md:w-auto">
+            <span className="text-sm text-gray-600 font-medium">Sort by:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-sm text-sm hover:border-black transition-colors outline-none cursor-pointer"
+              className="flex-1 md:flex-initial px-4 py-2.5 border-2 border-gray-200 rounded-lg text-sm hover:border-black transition-all duration-300 outline-none cursor-pointer bg-white font-medium"
             >
               <option value="featured">Featured</option>
               <option value="price-low">Price: Low to High</option>
@@ -470,34 +511,35 @@ export default function ShopPage() {
               <option value="newest">Newest</option>
               <option value="rating">Best Rating</option>
             </select>
-            <span className="text-sm text-gray-600 ml-2">{filteredProducts.length} products</span>
+            <span className="text-sm font-semibold text-gray-900 ml-2 bg-gray-100 px-3 py-1.5 rounded-full">{filteredProducts.length} products</span>
           </div>
         </div>
 
         {/* Active Filters Display */}
         {activeFiltersCount > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-8">
+            <span className="text-xs uppercase tracking-wider text-gray-500 font-medium py-2">Active Filters:</span>
             {selectedCategory !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-black text-white rounded-full text-sm font-medium">
                 {selectedCategory}
-                <button onClick={() => setSelectedCategory('all')} className="hover:text-red-500">
-                  <X className="w-3 h-3" />
+                <button onClick={() => setSelectedCategory('all')} className="hover:text-red-300 transition-colors">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </span>
             )}
             {priceRange !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-black text-white rounded-full text-sm font-medium">
                 {priceOptions.find(o => o.value === priceRange)?.label}
-                <button onClick={() => setPriceRange('all')} className="hover:text-red-500">
-                  <X className="w-3 h-3" />
+                <button onClick={() => setPriceRange('all')} className="hover:text-red-300 transition-colors">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </span>
             )}
             {selectedColor !== 'all' && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+              <span className="inline-flex items-center gap-2 px-4 py-1.5 bg-black text-white rounded-full text-sm font-medium">
                 {selectedColor}
-                <button onClick={() => setSelectedColor('all')} className="hover:text-red-500">
-                  <X className="w-3 h-3" />
+                <button onClick={() => setSelectedColor('all')} className="hover:text-red-300 transition-colors">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </span>
             )}

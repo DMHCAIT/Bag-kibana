@@ -148,6 +148,12 @@
   
   body {
     background-color: hsl(var(--background));
+    font-family: var(--font-outfit), system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     color: hsl(var(--foreground));
     font-family: var(--font-abhaya);
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -338,4 +344,127 @@ button:not(.no-sparkle):hover::after,
 a.hover\:opacity-60:not(.no-sparkle):hover::after {
   opacity: 1;
   animation: sparkle 1s ease-out infinite;
+}
+
+/* Modern Bold Typography - PPT Design Style */
+@layer components {
+  /* Bold Headings */
+  .heading-bold {
+    font-family: var(--font-montserrat), sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #000;
+  }
+
+  .heading-xl {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+  }
+
+  .heading-lg {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .heading-md {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  /* Body Text */
+  .text-body {
+    font-family: var(--font-poppins), sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+  }
+
+  .text-body-bold {
+    font-family: var(--font-poppins), sans-serif;
+    font-weight: 600;
+  }
+
+  /* Button Text */
+  .btn-text {
+    font-family: var(--font-montserrat), sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Subtitle text */
+  .subtitle {
+    font-family: var(--font-abhaya), serif;
+    font-size: 1.125rem;
+    font-weight: 400;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #666;
+  }
+
+  /* Section Titles */
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: #333;
+}
+  /* Card labels */
+  .card-label {
+    font-family: var(--font-poppins), Montserrat;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Price text */
+  .price-text {
+    font-family: var(--font-montserrat), sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #000;
+  }
+}
+
+/* Base Typography Overrides */
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-montserrat), sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    line-height: 1.1;
+  }
+
+  h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    line-height: 1.3;
+  }
+
+  p, li, a {
+    font-family: var(--font-poppins), sans-serif;
+  }
+
+  button {
+    font-family: var(--font-montserrat), sans-serif;
+    font-weight: 700;
+  }
 }

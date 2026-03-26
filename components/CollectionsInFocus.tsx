@@ -9,24 +9,24 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 const DEFAULT_COLLECTIONS = [
   {
     id: 1,
-    title: "SHOULDER",
+    title: "TOTE",
     subtitle: "Elegant & Spacious",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia Bag/Cordia Bag - Purple/02-04-2026--paulina06371.jpg",
-    href: "/shop?category=tote",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia%20Bag/Cordia%20Bag%20-%20Purple/02-04-2026--paulina06371.jpg",
+    href: "/collections/tote",
   },
   {
     id: 2,
     title: "CLUTCH",
     subtitle: "Compact & Chic",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/lekha wallet ( clutch) /LEKHA WALLET - Mocha Tan/09-10-2025--livia00932-Photoroom.png",
-    href: "/shop?category=clutch",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/lekha%20wallet%20(%20clutch)%20/LEKHA%20WALLET%20-%20Mocha%20Tan/09-10-2025--livia00932-Photoroom.png",
+    href: "/collections/clutch",
   },
   {
     id: 3,
     title: "SLING",
-    subtitle: "Stylish & Versatile",
-    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Halo Mini/Halo Mini - Green/02-04-2026--paulina05791.jpg",
-    href: "/shop?category=sling",
+    subtitle: "Light & Versatile",
+    image: "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Halo%20Mini/Halo%20Mini%20-%20Green/02-04-2026--paulina05791.jpg",
+    href: "/collections/sling",
   },
 ];
 
@@ -113,10 +113,10 @@ export default function CollectionsInFocus() {
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-4xl md:text-5xl tracking-[0.15em] mb-4" style={{fontFamily: 'var(--font-abhaya)'}}>
+          <h2 className="section-title mb-4">
             {sectionTitle}
           </h2>
-          <p className="text-sm md:text-base text-[#111111] tracking-wide" style={{fontFamily: 'var(--font-abhaya)'}}>
+          <p className="subtitle text-center">
             {sectionSubtitle}
           </p>
         </div>

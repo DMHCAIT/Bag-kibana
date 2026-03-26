@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, Inter, Outfit, Abhaya_Libre, Abril_Fatface } from "next/font/google";
+import { Playfair_Display, Inter, Outfit, Abhaya_Libre, Abril_Fatface, Montserrat, Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/contexts/CartContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { WishlistProvider } from "@/contexts/WishlistContext";
 import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import CartDrawerWrapper from "@/components/CartDrawerWrapper";
@@ -53,6 +54,24 @@ const abrilDisplay = Abril_Fatface({
   preload: true,
   adjustFontFallback: true,
   weight: '400',
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+  weight: ['400', '500', '600', '700', '800', '900'],
+});
+
+const poppins = Poppins({
+  variable: "--font-poppins",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+  weight: ['400', '500', '600', '700', '800', '900'],
 });
 
 export const viewport: Viewport = {
@@ -220,8 +239,8 @@ export default function RootLayout({
         <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       </head>
       <body
-        className={`${playfair.variable} ${inter.variable} ${outfit.variable} ${abhayaLibre.variable} ${abrilDisplay.variable} antialiased`}
-        style={{ fontFamily: 'var(--font-abril)' }}
+        className={`${playfair.variable} ${inter.variable} ${outfit.variable} ${abhayaLibre.variable} ${abrilDisplay.variable} ${montserrat.variable} ${poppins.variable} antialiased`}
+        style={{ fontFamily: 'var(--font-poppins)' }}
       >
         {/* Google Tag Manager (noscript) */}
         <noscript>
@@ -236,13 +255,15 @@ export default function RootLayout({
         <ErrorBoundary>
           <Providers>
             <AuthProvider>
-              <CartProvider>
-                <CartReminderProvider />
-                <PerformanceMonitor />
-                {children}
-                <CartDrawerWrapper />
-                <WhatsAppWidget />
-              </CartProvider>
+              <WishlistProvider>
+                <CartProvider>
+                  <CartReminderProvider />
+                  <PerformanceMonitor />
+                  {children}
+                  <CartDrawerWrapper />
+                  <WhatsAppWidget />
+                </CartProvider>
+              </WishlistProvider>
             </AuthProvider>
           </Providers>
         </ErrorBoundary>

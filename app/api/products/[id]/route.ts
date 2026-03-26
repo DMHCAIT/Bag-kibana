@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { products as staticProducts } from '@/lib/products-data';
 
 // Helper function to format database product for frontend
 function formatDbProduct(dbProduct: any) {
@@ -61,13 +62,58 @@ export async function GET(
 
     if (error) {
       console.error('Supabase error:', error);
+      console.log('📦 Falling back to static products data');
+      
+      // Find product in static data by id or slug
+      const staticProduct = staticProducts.find(p => 
+        p.id === id || p.slug === id || p.id.toString() === id
+      );
+      
+      if (staticProduct) {
+        return NextResponse.json(
+          {
+            product: staticProduct,
+            source: 'static-fallback',
+            status: 'success'
+          },
+          {
+            headers: {
+              'Cache-Control': 'no-store, no-cache, must-revalidate',
+            },
+          }
+        );
+      }
+      
+      // If not found in static data either, return 404
       return NextResponse.json(
-        { error: 'Database error', details: error.message },
-        { status: 500 }
+        { error: 'Product not found', id },
+        { status: 404 }
       );
     }
 
     if (!products || products.length === 0) {
+      console.log('📦 Database returned no results, checking static products data');
+      
+      // Find product in static data by id or slug
+      const staticProduct = staticProducts.find(p => 
+        p.id === id || p.slug === id || p.id.toString() === id
+      );
+      
+      if (staticProduct) {
+        return NextResponse.json(
+          {
+            product: staticProduct,
+            source: 'static-fallback',
+            status: 'success'
+          },
+          {
+            headers: {
+              'Cache-Control': 'no-store, no-cache, must-revalidate',
+            },
+          }
+        );
+      }
+      
       return NextResponse.json(
         { error: 'Product not found', id },
         { status: 404 }
@@ -161,6 +207,33 @@ export async function GET(
     );
   } catch (error: any) {
     console.error('Error fetching product:', error);
+    console.log('📦 Exception occurred, falling back to static products data');
+    
+    // Extract id from params safely
+    const params_awaited = await params;
+    const id = params_awaited.id;
+    
+    // Find product in static data by id or slug
+    const staticProduct = staticProducts.find(p => 
+      p.id === id || p.slug === id || p.id.toString() === id
+    );
+    
+    if (staticProduct) {
+      return NextResponse.json(
+        {
+          product: staticProduct,
+          source: 'static-fallback',
+          status: 'success'
+        },
+        {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate',
+          },
+        }
+      );
+    }
+    
+    // If not found in static data either, return error
     return NextResponse.json(
       { error: error.message || 'Internal server error' },
       { status: 500 }
