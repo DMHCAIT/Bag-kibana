@@ -7,7 +7,7 @@ const PRODUCT_NAME = "Cordia Bag ";
 const LEFT_COLOR = "Light Purple";
 const RIGHT_COLOR = "Lime Yellow";
 const LEFT_IMAGE =
-  "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia%20Bag/Cordia%20Bag%20-%20Purple/04-02-2026-product%20shoot0167.jpg";
+  "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia%20Bag/Cordia%20Bag%20-%20Purple/04-02-2026-product%20shoot0164.jpg";
 const RIGHT_IMAGE =
   "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia%20Bag/Cordia%20Bag%20-%20Yellow/04-02-2026-product%20shoot0152.jpg";
 const LEFT_HREF = "/products/vistara-tote-mint-green";
