@@ -3,13 +3,13 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 
-const PRODUCT_NAME = "VISTARA TOTE";
-const LEFT_COLOR = "Mint Green";
-const RIGHT_COLOR = "Mocha";
+const PRODUCT_NAME = "Cordia Bag ";
+const LEFT_COLOR = "Light Purple";
+const RIGHT_COLOR = "Black";
 const LEFT_IMAGE =
-  "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mint%20Green/09-10-2025-product%20shoot00135.jpg";
+  "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia%20Bag/Cordia%20Bag%20-%20Purple/04-02-2026-product%20shoot0167.jpg";
 const RIGHT_IMAGE =
-  "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/VISTARA%20TOTE%20(%20png%20)/VISTARA%20TOTE%20-%20Mocha%20Tan/01.png";
+  "https://hrahjiccbwvhtocabxja.supabase.co/storage/v1/object/public/product-images/Cordia%20Bag/Cordia%20Bag%20-%20Black/04-02-2026-product%20shoot0139.jpg";
 const LEFT_HREF = "/products/vistara-tote-mint-green";
 const RIGHT_HREF = "/products/vistara-tote-mocha-tan";
 
